@@ -2,27 +2,37 @@ package com.shimady.contest.compiler;
 
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
+import com.shimady.contest.compiler.model.dto.SolutionResponse;
 import com.shimady.contest.compiler.repository.TaskRepository;
+import com.shimady.contest.compiler.service.SolutionService;
 import com.shimady.contest.compiler.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
 public class TestController {
     private final SubmissionService submissionService;
+    private final TaskRepository taskRepository;
+    private final SolutionService solutionService;
 
     @PostMapping("/submit")
     public void run(@RequestBody CodeSubmission submission) {
         submissionService.submitSolution(submission);
     }
 
-    private final TaskRepository taskRepository;
     @GetMapping("/test")
     public void test() {
         Task task = new Task();
         taskRepository.save(task);
+    }
+
+    @GetMapping("/solutions")
+    public List<SolutionResponse> getSolutionsByTaskId(@RequestParam Long taskId) {
+        return solutionService.getSolutionsByTaskId(taskId);
     }
 }
 /*
