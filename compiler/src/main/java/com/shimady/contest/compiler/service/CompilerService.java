@@ -14,7 +14,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -56,15 +59,11 @@ public class CompilerService {
             Long testsPassed = 0L;
 
             for (String input : testCases.keySet()) {
-                Process runnerProcess = startProcess(executablePath);
+                Process runnerProcess = startRunnerProcess(executablePath);
                 Long localTestsPassed = testsPassed;
                 CompletableFuture<String> resultFuture = runnerProcess.onExit()
                         .completeOnTimeout(null, 10, TimeUnit.SECONDS)
-                        .handle((process, ex) -> {
-                            if (ex != null) {
-                                log.error("Error while running process: {}", ex.getMessage());
-                                return null;
-                            }
+                        .thenApply(process -> {
                             if (process == null) {
                                 log.info("Runner process timed out on test: {}", localTestsPassed + 1);
                                 solutionService.createSolution(code, Status.TIMED_OUT, localTestsPassed, task);
@@ -100,11 +99,11 @@ public class CompilerService {
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error while working with processes: {}", e.getMessage());
         } catch (IOException e) {
-            log.error("Error while working with files: {}", e);
+            log.error("Error while working with files: {}", e.getMessage());
         }
     }
 
-    private CompletableFuture<Process> compile(Path filePath, Path executablePath) throws IOException {
+    private static CompletableFuture<Process> compile(Path filePath, Path executablePath) throws IOException {
         log.info("Compiling code from file: {}", filePath);
         return new ProcessBuilder("g++", filePath.toString(), "-o", executablePath.toString())
                 .redirectErrorStream(true)
@@ -112,7 +111,7 @@ public class CompilerService {
                 .onExit();
     }
 
-    private static Process startProcess(Path executablePath) throws IOException {
+    private static Process startRunnerProcess(Path executablePath) throws IOException {
         log.info("Starting process: {}", executablePath);
         return new ProcessBuilder(executablePath.toString())
                 .redirectErrorStream(true)
