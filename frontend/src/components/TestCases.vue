@@ -1,0 +1,60 @@
+<template>
+  <div class="test-cases">
+    <h2>Test Cases</h2>
+    <ul>
+      <li v-for="(testCase, index) in testCases" :key="index">
+        <strong>Test {{ index + 1 }}:</strong>
+        <pre>{{ testCase.input }}</pre>
+        <p><strong>Expected Output:</strong> {{ testCase.expectedOutput }}</p>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "TestCases",
+  data() {
+    return {
+      testCases: [
+        {
+          input: "5\n1 2 3 4 5\n",  // Пример входных данных
+          expectedOutput: "15",    // Ожидаемый результат
+        },
+        {
+          input: "3\n2 2 2\n",
+          expectedOutput: "6",
+        },
+      ],
+    };
+  },
+};
+</script>
+
+<style scoped>
+.test-cases {
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.test-cases h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.test-cases pre {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+}
+
+.test-cases p {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
+}
+</style>
