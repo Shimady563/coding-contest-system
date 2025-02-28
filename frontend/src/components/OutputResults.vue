@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { onMounted } from "vue";
+
 export default {
   name: "OutputResults",
   data() {
@@ -47,6 +49,9 @@ export default {
       }
     },
   },
+  onMounted() {
+    this.fetchResults();
+  }
 };
 </script>
 

@@ -42,6 +42,7 @@ export default {
              "Content-Type": "application/json",
            },
            body: JSON.stringify({ code }),
+           mode: "cors"
          });
 
          if (!response.ok) {
@@ -50,7 +51,6 @@ export default {
 
          console.log("Code submitted successfully");
 
-         // Загружаем решения после успешной отправки
          this.$refs.outputResults.fetchResults();
        } catch (error) {
          console.error("Error submitting code:", error);
