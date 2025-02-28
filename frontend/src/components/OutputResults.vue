@@ -1,12 +1,23 @@
 <template>
   <div class="output-results">
     <h2>Output Results</h2>
-    <div v-if="results">
-      <pre>{{ results }}</pre>
-    </div>
-    <div v-else>
-      <p>No results yet. Please run the code!</p>
-    </div>
+    <table v-if="results.length">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Tests Passed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="result in results" :key="result.id">
+          <td>{{ result.id }}</td>
+          <td>{{ result.status }}</td>
+          <td>{{ result.testsPassed }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p v-else>No results yet. Please send the code!</p>
   </div>
 </template>
 
@@ -15,12 +26,25 @@ export default {
   name: "OutputResults",
   data() {
     return {
-      results: "",  // Результаты выполнения программы
+      results: [],
     };
   },
   methods: {
-    setResults(output) {
-      this.results = output;
+    async fetchResults() {
+      console.log("Fetching results...");
+
+      try {
+        const response = await fetch("/test/solutions?taskId=1");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch results");
+        }
+
+        this.results = await response.json();
+        console.log("Results received:", this.results);
+      } catch (error) {
+        console.error("Error fetching results:", error);
+      }
     },
   },
 };
@@ -33,21 +57,40 @@ export default {
   border-radius: 5px;
 }
 
-.output-results h2 {
+h2 {
   margin-bottom: 10px;
   font-size: 20px;
 }
 
-.output-results pre {
-  background-color: #333;
-  color: #fff;
-  padding: 10px;
-  border-radius: 5px;
-  white-space: pre-wrap;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
 }
 
-.output-results p {
-  font-size: 16px;
-  color: #333;
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #333;
+  color: white;
+}
+
+.accepted {
+  color: green;
+  font-weight: bold;
+}
+
+.failed {
+  color: red;
+  font-weight: bold;
+}
+
+.pending {
+  color: orange;
+  font-weight: bold;
 }
 </style>

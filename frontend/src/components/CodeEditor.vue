@@ -6,9 +6,9 @@
 
 <script>
 import CodeMirror from "codemirror";
-import "codemirror/mode/clike/clike.js";  // C++ mode
-import "codemirror/lib/codemirror.css";  // Default styles
-import "codemirror/theme/dracula.css";  // Theme
+import "codemirror/mode/clike/clike.js";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/dracula.css";
 
 export default {
   name: "CodeEditor",
@@ -21,10 +21,8 @@ export default {
       indentWithTabs: true,
     });
 
-    // Убедитесь, что редактор проинициализирован
     console.log("CodeMirror initialized:", this.editor);
 
-    // Set initial content
     this.editor.setValue(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);
   },
 };

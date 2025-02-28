@@ -2,19 +2,19 @@
   <div>
     <TaskDescription />
     <TestCases />
-    <button @click="runCode">
-      Run <span style="font-size: 18px;">&#9654;</span>
-    </button>
     <CodeEditor ref="codeEditor" />
+     <button @click="sendCode">
+        Send
+     </button>
     <OutputResults ref="outputResults" />
   </div>
 </template>
 
 <script>
-import TaskDescription from './components/TaskDescription.vue';
-import TestCases from './components/TestCases.vue';
-import CodeEditor from './components/CodeEditor.vue';
-import OutputResults from './components/OutputResults.vue';
+import TaskDescription from "./components/TaskDescription.vue";
+import TestCases from "./components/TestCases.vue";
+import CodeEditor from "./components/CodeEditor.vue";
+import OutputResults from "./components/OutputResults.vue";
 
 export default {
   components: {
@@ -23,25 +23,44 @@ export default {
     CodeEditor,
     OutputResults,
   },
- methods: {
-   runCode() {
-     const codeEditor = this.$refs.codeEditor;
+  methods: {
+     async sendCode() {
+       const codeEditor = this.$refs.codeEditor;
 
-     // Проверка, инициализирован ли редактор
-     if (codeEditor && codeEditor.editor) {
+       if (!codeEditor || !codeEditor.editor) {
+         console.error("Code editor is not initialized!");
+         return;
+       }
+
        const code = codeEditor.editor.getValue();
-       console.log("Running code:", code);
+       console.log("Sending code:", code);
 
-       // Симуляция вывода
-       const simulatedOutput = "Hello, World!";  // Здесь можно вставить реальный вывод
-       this.$refs.outputResults.setResults(simulatedOutput);
-     } else {
-       console.error("Code editor is not initialized!");
-     }
+       try {
+         const response = await fetch("/test/submit", {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+           },
+           body: JSON.stringify({ code }),
+         });
+
+         if (!response.ok) {
+           throw new Error("Failed to submit code");
+         }
+
+         console.log("Code submitted successfully");
+
+         // Загружаем решения после успешной отправки
+         this.$refs.outputResults.fetchResults();
+       } catch (error) {
+         console.error("Error submitting code:", error);
+       }
+     },
    },
- },
-};
+ };
 </script>
+
+
 
 <style scoped>
 button {
