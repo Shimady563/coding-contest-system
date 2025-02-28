@@ -21,13 +21,12 @@ public class TestController {
 
     @PostMapping("/submit")
     public void run(@RequestBody CodeSubmission submission) {
+        if (submission.getTaskId() == null) {
+            Task task = new Task();
+            taskRepository.save(task);
+            submission.setTaskId(task.getId());
+        }
         submissionService.submitSolution(submission);
-    }
-
-    @GetMapping("/test")
-    public void test() {
-        Task task = new Task();
-        taskRepository.save(task);
     }
 
     @GetMapping("/solutions")

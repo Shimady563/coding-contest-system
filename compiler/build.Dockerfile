@@ -9,15 +9,15 @@ ARG JAR_FILE=/builder/build/libs/*.jar
 COPY --from=builder ${JAR_FILE} application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
-FROM bellsoft/liberica-runtime-container:jre-21-cds-slim-glibc
+FROM bellsoft/liberica-runtime-container:jre-21-cds-glibc AS runtime
 WORKDIR /application
 ARG UID=10001
+RUN apk add --no-cache g++
 RUN adduser \
     --disabled-password \
     --gecos "" \
-    --home "/nonexistent" \
+    --home "/compiler" \
     --shell "/sbin/nologin" \
-    --no-create-home \
     --uid "${UID}" \
     appuser
 USER appuser

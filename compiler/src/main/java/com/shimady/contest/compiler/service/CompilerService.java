@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class CompilerService {
     private final SolutionService solutionService;
-    private static final String DIR_PATH = "/home/shimady/cpp";
+    private static final String DIR_PATH = System.getProperty("user.home") + "/cpp";
     // test cases for testing purposes
     private final static Map<String, String> testCases = Map.of(
             "1 2", "3",
@@ -97,9 +97,9 @@ public class CompilerService {
 
             solutionService.createSolution(code, Status.ACCEPTED, testsPassed, task);
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Error while working with processes: {}", e.getMessage());
+            log.error("Error while working with processes: {}", e.getMessage(), e);
         } catch (IOException e) {
-            log.error("Error while working with files: {}", e.getMessage());
+            log.error("Error while working with files: {}", e.toString());
         }
     }
 
