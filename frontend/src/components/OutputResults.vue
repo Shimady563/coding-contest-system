@@ -34,7 +34,7 @@ export default {
       console.log("Fetching results...");
 
       try {
-        const response = await fetch("/test/solutions?taskId=1");
+        const response = await fetch("http://localhost:8080/test/solutions?taskId=1");
 
         if (!response.ok) {
           throw new Error("Failed to fetch results");

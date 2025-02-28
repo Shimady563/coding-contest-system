@@ -36,7 +36,7 @@ export default {
        console.log("Sending code:", code);
 
        try {
-         const response = await fetch("/test/submit", {
+         const response = await fetch("http://localhost:8080/test/submit", {
            method: "POST",
            headers: {
              "Content-Type": "application/json",
