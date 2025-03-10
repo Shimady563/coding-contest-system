@@ -19,6 +19,7 @@ public class Solution {
     private String code;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(name = "tests_passed")
