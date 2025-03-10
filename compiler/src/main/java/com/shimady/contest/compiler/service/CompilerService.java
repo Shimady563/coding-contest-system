@@ -91,6 +91,7 @@ public class CompilerService {
 
                 if (!result.strip().equals(testCases.get(input))) {
                     solutionService.createSolution(code, Status.WRONG_ANSWER, testsPassed, task);
+                    return;
                 }
                 testsPassed++;
             }
