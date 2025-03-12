@@ -2,6 +2,7 @@ package com.shimady.contest.compiler.service;
 
 import com.shimady.contest.compiler.model.Status;
 import com.shimady.contest.compiler.model.Task;
+import com.shimady.contest.compiler.model.TestCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -23,14 +24,10 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class CompilerService {
-    private final SolutionService solutionService;
     private static final String DIR_PATH = System.getProperty("user.home") + "/cpp";
-    // test cases for testing purposes
-    private final static Map<String, String> testCases = Map.of(
-            "1 2", "3",
-            "5 6", "11",
-            "156 123", "279"
-    );
+
+    private final SolutionService solutionService;
+    private final TestCaseService testCaseService;
 
     public void compileAndRun(String code, Task task) {
         log.info("Compiling and running code for task with id: {}", task.getId());
@@ -56,9 +53,10 @@ public class CompilerService {
             });
             compileResult.get();
 
+            List<TestCase> testCases = testCaseService.getAllTestCasesByTask(task);
             Long testsPassed = 0L;
 
-            for (String input : testCases.keySet()) {
+            for (TestCase testCase : testCases) {
                 Process runnerProcess = startRunnerProcess(executablePath);
                 Long localTestsPassed = testsPassed;
                 CompletableFuture<String> resultFuture = runnerProcess.onExit()
@@ -82,14 +80,14 @@ public class CompilerService {
                             }
                         });
 
-                writeInput(runnerProcess, input);
+                writeInput(runnerProcess, testCase.getInput());
                 String result = resultFuture.get();
 
                 if (result == null) {
                     return;
                 }
 
-                if (!result.strip().equals(testCases.get(input))) {
+                if (!result.strip().equals(testCase.getExpectedResult())) {
                     solutionService.createSolution(code, Status.WRONG_ANSWER, testsPassed, task);
                     return;
                 }

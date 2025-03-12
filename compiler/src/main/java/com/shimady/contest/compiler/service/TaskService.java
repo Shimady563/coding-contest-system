@@ -6,6 +6,7 @@ import com.shimady.contest.compiler.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -13,7 +14,8 @@ import org.springframework.stereotype.Service;
 public class TaskService {
     private final TaskRepository taskRepository;
 
-    protected Task getTaskById(Long id) {
+    @Transactional(readOnly = true)
+    public Task getTaskById(Long id) {
         log.info("Getting task by id: {}", id);
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
