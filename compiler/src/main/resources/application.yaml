@@ -12,6 +12,21 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  kafka:
+    consumer:
+      group-id: compiler
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping:
+kafka:
+  topic:
+    1: solutionTopic
 logging:
   level:
     root: info
