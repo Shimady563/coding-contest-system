@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="2025-03-15-create-table-group-contest.xml" author="Shimady">
+
+        <createTable tableName="group_contest">
+            <column name="group_id" type="bigint">
+                <constraints foreignKeyName="group_contest_student_group_fkey"
+                             references="student_group(id)"
+                             nullable="false"/>
+            </column>
+            <column name="contest_id" type="bigint">
+                <constraints foreignKeyName="group_contest_contest_fkey"
+                             references="contest(id)"
+                             nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2025-03-15-add-group-contest-primary-key" author="Shimady">
+        <addPrimaryKey tableName="group_contest"
+                       columnNames="group_id,contest_id"/>
+    </changeSet>
+
+</databaseChangeLog>
