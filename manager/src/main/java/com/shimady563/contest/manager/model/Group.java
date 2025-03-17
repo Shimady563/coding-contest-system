@@ -32,7 +32,7 @@ public class Group {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "groups")
     private List<Contest> contests = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = CascadeType.REMOVE)
     private Set<User> users = new HashSet<>();
 
     public void addUser(User user) {
