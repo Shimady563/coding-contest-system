@@ -79,7 +79,7 @@ public class UserService implements UserDetailsService {
         }
 
         log.info(logMessage.toString());
-        return userRepository.findFetchGroupAll(specification, pageRequest)
+        return userRepository.findAllFetchGroup(specification, pageRequest)
                 .map(u -> mapper.map(u, UserResponse.class));
     }
 
