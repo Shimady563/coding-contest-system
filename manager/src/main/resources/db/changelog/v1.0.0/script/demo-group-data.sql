@@ -1,6 +1,7 @@
-INSERT INTO student_group (id, name)
-VALUES (nextval('student_group_id_seq'), '35/1'),
-       (nextval('student_group_id_seq'), '35/2'),
-       (nextval('student_group_id_seq'), '34');
+INSERT INTO student_group (name) VALUES
+    ('15/1'),
+    ('15/2'),
+    ('14/1'),
+    ('14/2');
 
 
