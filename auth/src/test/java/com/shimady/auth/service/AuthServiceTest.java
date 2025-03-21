@@ -40,7 +40,6 @@ class AuthServiceTest {
         user.setId(1L);
         user.setEmail("test@example.com");
         user.setPassword("password");
-        user.setRole(Role.ROLE_USER);
 
         given(userService.getUserByEmail(anyString())).willReturn(user);
         willReturn(user.getEmail()).given(authService).getUserEmail();
@@ -62,7 +61,6 @@ class AuthServiceTest {
         var user = new User();
         user.setEmail(request.getEmail());
         user.setPassword("encodedPassword");
-        user.setRole(Role.ROLE_USER);
 
         given(passwordEncoder.encode(request.getPassword())).willReturn("encodedPassword");
         given(jwtService.generateTokens(any(User.class))).willReturn(new JwtResponse("token", "refreshToken"));
@@ -84,7 +82,6 @@ class AuthServiceTest {
         user.setId(1L);
         user.setEmail(request.getEmail());
         user.setPassword("encodedPassword");
-        user.setRole(Role.ROLE_USER);
 
         given(userService.getUserByEmail(request.getEmail())).willReturn(user);
         given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
@@ -105,7 +102,6 @@ class AuthServiceTest {
         var user = new User();
         user.setId(1L);
         user.setPassword("encodedPassword");
-        user.setRole(Role.ROLE_USER);
 
         given(userService.getUserByEmail(request.getEmail())).willReturn(user);
         given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(false);

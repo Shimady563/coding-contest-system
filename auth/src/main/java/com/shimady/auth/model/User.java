@@ -26,15 +26,15 @@ public class User implements UserDetails {
     )
     private Long id;
 
-    @Column(name = "password", nullable = false)
-    private String password;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Column(name = "role", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private Role role;
+    private Role role = Role.ROLE_STUDENT;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

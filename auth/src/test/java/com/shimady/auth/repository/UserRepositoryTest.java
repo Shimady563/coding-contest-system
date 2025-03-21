@@ -39,7 +39,6 @@ public class UserRepositoryTest {
     @BeforeEach
     public void setUp() {
         user.setEmail("email");
-        user.setRole(Role.ROLE_USER);
         user.setPassword("pass");
 
         entityManager.persist(user);
@@ -50,7 +49,6 @@ public class UserRepositoryTest {
     public void testSave() {
         var newUser = new User();
         newUser.setEmail("newEmail");
-        newUser.setRole(Role.ROLE_USER);
         newUser.setPassword("newPass");
 
         userRepository.save(newUser);
