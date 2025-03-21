@@ -12,26 +12,29 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "project_user")
+@Table(name = "contest_user")
 public class User implements UserDetails {
     @Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_id_seq"
+    )
     @SequenceGenerator(
-            name = "project_user_id_seq",
-            sequenceName = "project_user_id_seq",
+            name = "user_id_seq",
+            sequenceName = "user_id_seq",
             allocationSize = 1
     )
-    @GeneratedValue(generator = "project_user_id_seq")
     private Long id;
 
-    @Column(name = "email", unique = true)
-    private String email;
-
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role")
-    @Enumerated(EnumType.STRING)
-    private Role role = Role.ROLE_USER;
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "role", nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
