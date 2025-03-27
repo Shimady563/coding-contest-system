@@ -7,8 +7,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateRequest {
     @NotEmpty(message = "first name cannot be blank")
@@ -22,7 +24,7 @@ public class UserUpdateRequest {
     private String lastName;
 
     @Email(regexp = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
-          message = "wrong format of email")
+            message = "wrong format of email")
     private String email;
 
     @Password(message = "password should be at least 8 characters long " +

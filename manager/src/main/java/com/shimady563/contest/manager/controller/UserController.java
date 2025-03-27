@@ -29,7 +29,7 @@ public class UserController {
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email,
-            @RequestParam(defaultValue = "ROLE_USER") Role role,
+            @RequestParam(defaultValue = "ROLE_STUDENT") Role role,
             @RequestParam(required = false) String groupName,
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "10") Integer pageSize
