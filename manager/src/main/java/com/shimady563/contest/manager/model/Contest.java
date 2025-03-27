@@ -37,13 +37,9 @@ public class Contest {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "group_contest",
-            joinColumns = @JoinColumn(name = "contest_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> groups = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -51,14 +47,6 @@ public class Contest {
             cascade = CascadeType.REMOVE
     )
     private Set<ContestVersion> contestVersions = new HashSet<>();
-
-    public void addGroup(Group group) {
-        groups.add(group);
-    }
-
-    public void removeGroup(Group group) {
-        groups.remove(group);
-    }
 
     public void addContestVersion(ContestVersion contestVersion) {
         contestVersions.add(contestVersion);

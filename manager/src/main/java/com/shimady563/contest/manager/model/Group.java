@@ -29,7 +29,7 @@ public class Group {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "groups")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
     private List<Contest> contests = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = CascadeType.REMOVE)

@@ -10,7 +10,6 @@
     <include file="2025-03-15-create-table-group.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-contest.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-user.xml" relativeToChangelogFile="true"/>
-    <include file="2025-03-15-create-table-group-contest.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-contest-version.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-user-contest-version.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-task.xml" relativeToChangelogFile="true"/>
@@ -20,7 +19,6 @@
     <include file="2025-03-15-populate-table-group.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-contest.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-user.xml" relativeToChangelogFile="true"/>
-    <include file="2025-03-15-populate-table-group-contest.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-contest-version.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-user-contest-version.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-task.xml" relativeToChangelogFile="true"/>
