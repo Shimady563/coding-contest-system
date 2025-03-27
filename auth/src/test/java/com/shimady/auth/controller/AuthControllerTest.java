@@ -2,10 +2,7 @@ package com.shimady.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.TestSecurityConfig;
-import com.shimady.auth.model.dto.JwtRequest;
-import com.shimady.auth.model.dto.JwtResponse;
-import com.shimady.auth.model.dto.RefreshJwtRequest;
-import com.shimady.auth.model.dto.UserResponse;
+import com.shimady.auth.model.dto.*;
 import com.shimady.auth.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +36,7 @@ class AuthControllerTest {
     @Test
     @WithMockUser(roles = {"TEACHER", "STUDENT"})
     void shouldGetCurrentUser() throws Exception {
-        var userResponse = new UserResponse(1L, "test@example.com", "ROLE_USER");
+        var userResponse = new UserResponse(1L, "Jhon", "Doe", "test@example.com", "ROLE_USER");
 
         given(authService.getCurrentUser()).willReturn(userResponse);
 
@@ -58,12 +55,15 @@ class AuthControllerTest {
     @Test
     @WithAnonymousUser
     void shouldSignUpUser() throws Exception {
-        var request = new JwtRequest();
+        var request = new SignUpJwtRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
         request.setPassword("Strongpassword123@");
         request.setEmail("test@example.com");
+        request.setGroupId(1L);
         var response = new JwtResponse("token", "refreshToken");
 
-        given(authService.signUp(any(JwtRequest.class))).willReturn(response);
+        given(authService.signUp(any(SignUpJwtRequest.class))).willReturn(response);
 
         mockMvc.perform(post("/signup")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,12 +76,12 @@ class AuthControllerTest {
     @Test
     @WithAnonymousUser
     void shouldSignInUser() throws Exception {
-        var request = new JwtRequest();
+        var request = new SignInJwtRequest();
         request.setPassword("Strongpassword123@");
         request.setEmail("test@example.com");
         var response = new JwtResponse("token", "refreshToken");
 
-        given(authService.authenticate(any(JwtRequest.class))).willReturn(response);
+        given(authService.authenticate(any(SignInJwtRequest.class))).willReturn(response);
 
         mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)

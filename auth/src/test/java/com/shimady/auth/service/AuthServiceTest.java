@@ -1,9 +1,11 @@
 package com.shimady.auth.service;
 
+import com.shimady.auth.model.Group;
 import com.shimady.auth.model.User;
-import com.shimady.auth.model.dto.JwtRequest;
 import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.RefreshJwtRequest;
+import com.shimady.auth.model.dto.SignInJwtRequest;
+import com.shimady.auth.model.dto.SignUpJwtRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,9 @@ class AuthServiceTest {
     private UserService userService;
 
     @Mock
+    private GroupService groupService;
+
+    @Mock
     private JwtService jwtService;
 
     @Mock
@@ -37,8 +42,13 @@ class AuthServiceTest {
     void shouldGetCurrentUser() {
         var user = new User();
         user.setId(1L);
+        user.setFirstName("John");
+        user.setLastName("Doe");
         user.setEmail("test@example.com");
         user.setPassword("password");
+        var group = new Group();
+        group.setName("Test Group");
+        user.setGroup(group);
 
         given(userService.getUserByEmail(anyString())).willReturn(user);
         willReturn(user.getEmail()).given(authService).getUserEmail();
@@ -47,34 +57,40 @@ class AuthServiceTest {
 
         assertNotNull(response);
         assertEquals(user.getId(), response.getId());
+        assertEquals(user.getFirstName(), response.getFirstName());
+        assertEquals(user.getLastName(), response.getLastName());
         assertEquals(user.getEmail(), response.getEmail());
-        assertEquals(user.getRole().getValue(), response.getRole());
+        assertEquals(user.getGroup().getName(), response.getGroupName());
         then(userService).should().getUserByEmail(user.getEmail());
     }
 
     @Test
     void shouldSignUpUser() {
-        var request = new JwtRequest();
+        var request = new SignUpJwtRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
         request.setEmail("test@example.com");
         request.setPassword("password");
-        var user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword("encodedPassword");
+        request.setGroupId(1L);
+        var group = new Group();
+        group.setName("Test Group");
 
         given(passwordEncoder.encode(request.getPassword())).willReturn("encodedPassword");
         given(jwtService.generateTokens(any(User.class))).willReturn(new JwtResponse("token", "refreshToken"));
+        given(groupService.getGroupById(request.getGroupId())).willReturn(group);
 
         var response = authService.signUp(request);
 
         assertNotNull(response);
         assertEquals("token", response.getAccessToken());
         assertEquals("refreshToken", response.getRefreshToken());
+        then(groupService).should().getGroupById(request.getGroupId());
         then(userService).should().saveUser(any(User.class));
     }
 
     @Test
     void shouldAuthenticateUser() {
-        var request = new JwtRequest();
+        var request = new SignInJwtRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
         var user = new User();
@@ -95,7 +111,7 @@ class AuthServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserPasswordIsInvalid() {
-        var request = new JwtRequest();
+        var request = new SignInJwtRequest();
         request.setEmail("test@example.com");
         request.setPassword("wrongPassword");
         var user = new User();

@@ -1,6 +1,6 @@
 package com.shimady.auth.repository;
 
-import com.shimady.auth.model.User;
+import com.shimady.auth.model.Group;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +13,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class UserRepositoryTest {
+public class GroupRepositoryTest {
     @Container
     @ServiceConnection
     private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
@@ -31,41 +29,24 @@ public class UserRepositoryTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private GroupRepository groupRepository;
 
-    private final User user = new User();
+    private final Group group = new Group();
 
     @BeforeEach
-    public void setUp() {
-        user.setFirstName("first");
-        user.setLastName("last");
-        user.setEmail("email");
-        user.setPassword("pass");
+    void setUp() {
+        group.setName("Test Group");
 
-        entityManager.persist(user);
+        entityManager.persist(group);
         entityManager.flush();
     }
 
     @Test
-    public void testSave() {
-        var newUser = new User();
-        newUser.setEmail("newEmail");
-        newUser.setPassword("newPass");
+    void testFindById() {
+        var foundGroup = groupRepository.findById(group.getId());
 
-        userRepository.save(newUser);
-
-        var foundUser = Optional.ofNullable((entityManager.find(User.class, newUser.getId())));
-
-        assertTrue(foundUser.isPresent());
-        assertEquals(newUser.getEmail(), foundUser.get().getEmail());
-        assertEquals(newUser.getPassword(), foundUser.get().getPassword());
-    }
-
-    @Test
-    public void testFindByEmail() {
-        var foundUser = userRepository.findByEmail(user.getEmail());
-
-        assertTrue(foundUser.isPresent());
-        assertEquals(user.getEmail(), foundUser.get().getEmail());
+        assertTrue(foundGroup.isPresent());
+        assertEquals(group.getId(), foundGroup.get().getId());
+        assertEquals(group.getName(), foundGroup.get().getName());
     }
 }

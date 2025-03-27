@@ -2,12 +2,22 @@ package com.shimady.auth.model.dto;
 
 import com.shimady.auth.validation.Password;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class JwtRequest {
+@AllArgsConstructor
+public class SignUpJwtRequest {
+    @NotEmpty(message = "first name cannot be blank")
+    private String firstName;
+
+    @NotEmpty(message = "last name cannot be blank")
+    private String lastName;
+
     @Email(regexp = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$",
             message = "wrong format of email")
     private String email;
@@ -18,4 +28,7 @@ public class JwtRequest {
             "digit, " +
             "symbol from @#$%^&+=")
     private String password;
+
+    @NotNull(message = "group id cannot be null")
+    private Long groupId;
 }
