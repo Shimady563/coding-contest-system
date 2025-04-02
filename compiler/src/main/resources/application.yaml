@@ -23,7 +23,7 @@ spring:
             trusted:
               packages: "*"
             type:
-              mapping:
+              mapping: com.shimady.contest.compiler.model.dto.CodeSubmission:com.shimady563.contest.manager.model.dto.CodeSubmission
 kafka:
   topic:
     1: solutionTopic
