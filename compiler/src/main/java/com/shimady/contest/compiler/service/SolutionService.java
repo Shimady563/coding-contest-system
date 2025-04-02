@@ -22,7 +22,7 @@ public class SolutionService {
     private final ModelMapper mapper;
 
     @Transactional
-    public void createSolution(String code, Status status, Long testsPassed, Task task) {
+    public void createSolution(String code, Status status, Short testsPassed, Task task) {
         log.info("Creating solution for task: {}, with status: {}", task.getId(), status);
         Solution solution = new Solution();
         solution.setCode(code);

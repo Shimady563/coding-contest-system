@@ -13,16 +13,24 @@ import lombok.Setter;
 @Table(name = "test_case")
 public class TestCase {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "test_case_id_seq"
+    )
+    @SequenceGenerator(
+            name = "test_case_id_seq",
+            sequenceName = "test_case_id_seq",
+            allocationSize = 1
+    )
     private Long id;
 
-    @Column(name = "input")
+    @Column(name = "input", nullable = false)
     private String input;
 
-    @Column(name = "expected_result")
-    private String expectedResult;
+    @Column(name = "output", nullable = false)
+    private String output;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id")
+    @JoinColumn(name = "task_id", nullable = false)
     private Task task;
 }

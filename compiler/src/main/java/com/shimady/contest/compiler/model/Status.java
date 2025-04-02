@@ -5,5 +5,6 @@ public enum Status {
     COMPILE_ERROR,
     RUNTIME_ERROR,
     WRONG_ANSWER,
-    ACCEPTED
+    ACCEPTED,
+    INTERNAL_ERROR
 }

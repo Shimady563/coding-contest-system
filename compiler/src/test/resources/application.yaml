@@ -13,6 +13,9 @@ spring:
       hibernate:
         format_sql: true
   kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       group-id: compiler
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
