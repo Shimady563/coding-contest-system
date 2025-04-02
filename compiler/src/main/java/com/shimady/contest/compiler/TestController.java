@@ -1,9 +1,7 @@
 package com.shimady.contest.compiler;
 
-import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.model.dto.SolutionResponse;
-import com.shimady.contest.compiler.repository.TaskRepository;
 import com.shimady.contest.compiler.service.SolutionService;
 import com.shimady.contest.compiler.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TestController {
     private final SubmissionService submissionService;
-    private final TaskRepository taskRepository;
     private final SolutionService solutionService;
 
     @PostMapping("/submit")
     public void run(@RequestBody CodeSubmission submission) {
-        if (!taskRepository.existsById(1L)) {
-            Task task = new Task();
-            taskRepository.save(task);
-        }
-        submission.setTaskId(1L);
         submissionService.submitSolution(submission);
     }
 
