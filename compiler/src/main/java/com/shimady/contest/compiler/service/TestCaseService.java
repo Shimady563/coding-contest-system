@@ -18,6 +18,7 @@ public class TestCaseService {
 
     @Transactional(readOnly = true)
     public List<TestCase> getAllTestCasesByTask(Task task) {
+        log.info("Getting all test cases for task with id: {}", task.getId());
         return testCaseRepository.findAllByTask(task);
     }
 }
