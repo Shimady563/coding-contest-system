@@ -45,7 +45,7 @@ public class CompilerService {
                     if (process.exitValue() != 0) {
                         String result = new String(process.getInputStream().readAllBytes());
                         log.info("Compilation failed: {}", result);
-                        solutionService.createSolution(code, Status.COMPILE_ERROR, 0L, task);
+                        solutionService.createSolution(code, Status.COMPILE_ERROR, (short) 0, task);
                     }
                 } catch (IOException e) {
                     throw new CompletionException(e);
@@ -54,11 +54,11 @@ public class CompilerService {
             compileResult.get();
 
             List<TestCase> testCases = testCaseService.getAllTestCasesByTask(task);
-            Long testsPassed = 0L;
+            Short testsPassed = 0;
 
             for (TestCase testCase : testCases) {
                 Process runnerProcess = startRunnerProcess(executablePath);
-                Long localTestsPassed = testsPassed;
+                Short localTestsPassed = testsPassed;
                 CompletableFuture<String> resultFuture = runnerProcess.onExit()
                         .completeOnTimeout(null, 10, TimeUnit.SECONDS)
                         .thenApply(process -> {
@@ -84,10 +84,11 @@ public class CompilerService {
                 String result = resultFuture.get();
 
                 if (result == null) {
+                    solutionService.createSolution(code, Status.INTERNAL_ERROR, (short) 0, task);
                     return;
                 }
 
-                if (!result.strip().equals(testCase.getExpectedResult())) {
+                if (!result.strip().equals(testCase.getOutput())) {
                     solutionService.createSolution(code, Status.WRONG_ANSWER, testsPassed, task);
                     return;
                 }
@@ -96,9 +97,11 @@ public class CompilerService {
 
             solutionService.createSolution(code, Status.ACCEPTED, testsPassed, task);
         } catch (InterruptedException | ExecutionException e) {
-            log.error("Error while working with processes: {}", e.getMessage(), e);
+            log.error("Error while working with processes: {}", e.getMessage());
+            solutionService.createSolution(code, Status.INTERNAL_ERROR, (short) 0, task);
         } catch (IOException e) {
             log.error("Error while working with files: {}", e.toString());
+            solutionService.createSolution(code, Status.INTERNAL_ERROR, (short) 0, task);
         }
     }
 
