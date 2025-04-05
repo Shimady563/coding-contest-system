@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="2025-03-15-add-tag-v1.0.0" author="Shimady">
+        <tagDatabase tag="v1.0.0"/>
+    </changeSet>
+
+    <include file="2025-03-15-create-table-group.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-contest.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-user.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-group-contest.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-contest-version.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-user-contest-version.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-task.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-test-case.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-create-table-solution.xml" relativeToChangelogFile="true"/>
+
+    <include file="2025-03-15-populate-table-group.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-contest.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-user.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-group-contest.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-contest-version.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-user-contest-version.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-task.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-test-case.xml" relativeToChangelogFile="true"/>
+    <include file="2025-03-15-populate-table-solution.xml" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>

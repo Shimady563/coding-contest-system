@@ -9,12 +9,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TestCaseService {
     private final TestCaseRepository testCaseRepository;
     private final TaskService taskService;
+
+    @Transactional(readOnly = true)
+    public List<TestCase> getAllTestCasesByTask(Task task) {
+        return testCaseRepository.findAllByTask(task);
+    }
 
     @Transactional(readOnly = true)
     public TestCase getTestCaseByTaskId(Long id) {
