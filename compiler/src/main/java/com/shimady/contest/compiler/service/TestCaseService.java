@@ -1,6 +1,5 @@
 package com.shimady.contest.compiler.service;
 
-import com.shimady.contest.compiler.exception.ResourceNotFoundException;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import com.shimady.contest.compiler.repository.TestCaseRepository;
@@ -16,18 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TestCaseService {
     private final TestCaseRepository testCaseRepository;
-    private final TaskService taskService;
 
     @Transactional(readOnly = true)
     public List<TestCase> getAllTestCasesByTask(Task task) {
+        log.info("Getting all test cases for task with id: {}", task.getId());
         return testCaseRepository.findAllByTask(task);
-    }
-
-    @Transactional(readOnly = true)
-    public TestCase getTestCaseByTaskId(Long id) {
-        log.info("Getting test case by task id: {}", id);
-        Task task = taskService.getTaskById(id);
-        return testCaseRepository.findByTask(task)
-                .orElseThrow(() -> new ResourceNotFoundException("Test case with id: " + id + " not found"));
     }
 }

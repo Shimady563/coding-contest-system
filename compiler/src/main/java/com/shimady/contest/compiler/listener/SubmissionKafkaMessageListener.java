@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaMessageListener {
+public class SubmissionKafkaMessageListener {
     private final SubmissionService submissionService;
 
     @KafkaListener(topics = "${kafka.topic.1}", groupId = "${spring.kafka.consumer.group-id}")

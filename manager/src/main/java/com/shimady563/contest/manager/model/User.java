@@ -42,9 +42,9 @@ public class User implements UserDetails {
 
     @Column(name = "role", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    private Role role;
+    private Role role = Role.ROLE_STUDENT;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
 

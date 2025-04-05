@@ -37,6 +37,8 @@ public class UserRepositoryTest {
 
     @BeforeEach
     public void setUp() {
+        user.setFirstName("first");
+        user.setLastName("last");
         user.setEmail("email");
         user.setPassword("pass");
 
