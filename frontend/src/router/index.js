@@ -3,9 +3,9 @@ import HomeView from '../views/HomeView.vue';
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Profile from "../views/Profile.vue";
-import Tests from "../views/StudentTests.vue"; 
+import Tests from "../views/StudentTests.vue";
 import TeacherManage from '../views/TeacherManage.vue';
-import TeacherCreateTest from '../views/TeacherCreateTest.vue';
+import CreateTest from '../views/CreateTest.vue';
 
 const routes = [
   { path: "/", component: HomeView },
@@ -14,7 +14,7 @@ const routes = [
   { path: "/profile", component: Profile },
   { path: "/tests", component: Tests },
   { path: '/manage-tests', component: TeacherManage },
-  { path: '/create-test', component: TeacherCreateTest }
+  { path: '/create-test', component: CreateTest }
 ];
 
 const router = createRouter({
