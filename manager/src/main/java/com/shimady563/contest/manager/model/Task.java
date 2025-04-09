@@ -36,13 +36,13 @@ public class Task {
     private Short testCasesCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contest_version_id", nullable = false)
+    @JoinColumn(name = "contest_version_id")
     private ContestVersion contestVersion;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
     private List<Solution> solutions = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "task")
     private Set<TestCase> testCases = new HashSet<>();
 
     public void addSolution(Solution solution) {
@@ -51,8 +51,9 @@ public class Task {
     }
 
     public void addTestCase(TestCase testCase) {
-        testCases.add(testCase);
-        testCase.setTask(this);
+        if (testCases.add(testCase)) {
+            testCase.setTask(this);
+        }
     }
 
     public void removeTestCase(TestCase testCase) {

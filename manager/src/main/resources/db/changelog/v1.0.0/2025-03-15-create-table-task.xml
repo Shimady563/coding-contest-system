@@ -21,8 +21,7 @@
             </column>
             <column name="contest_version_id" type="bigint">
                 <constraints foreignKeyName="task_contest_version_fkey"
-                             references="contest_version(id)"
-                             nullable="false"/>
+                             references="contest_version(id)"/>
             </column>
         </createTable>
     </changeSet>
