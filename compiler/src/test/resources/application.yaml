@@ -29,7 +29,7 @@ spring:
               mapping: CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
 kafka:
   topic:
-    1: solutionTopic
+    1: submissionTopic
 logging:
   level:
     root: info
