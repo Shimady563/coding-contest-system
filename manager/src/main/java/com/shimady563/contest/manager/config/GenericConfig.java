@@ -14,6 +14,7 @@ public class GenericConfig {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setSkipNullEnabled(true);
         mapper.addMappings(new UserResponseMap());
+        mapper.addMappings(new SolutionResponseDtoMap());
         return new ModelMapper();
     }
 }
