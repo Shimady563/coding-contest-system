@@ -28,7 +28,7 @@ public class SolutionService {
         solution.setCode(code);
         solution.setStatus(status);
         solution.setTestsPassed(testsPassed);
-        solution.setTask(task);
+        task.addSolution(solution);
         solutionRepository.save(solution);
     }
 
