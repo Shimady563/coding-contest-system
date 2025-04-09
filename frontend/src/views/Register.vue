@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
-    <h2>Регистрация</h2>
     <form @submit.prevent="register" class="auth-form">
+      <h2>Регистрация</h2>
       <div>
         <label>Имя:</label>
         <input type="text" v-model="firstName" required />
@@ -19,13 +19,22 @@
         <input type="password" v-model="password" required />
       </div>
       <div>
+        <label>Повторите пароль:</label>
+        <input type="password" v-model="confirmPassword" required />
+      </div>
+      <div v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
+        Пароли не совпадают
+      </div>
+      <div>
         <label>ID группы:</label>
         <input type="text" v-model="groupId" required />
       </div>
-      <button type="submit" class="btn primary">Зарегистрироваться</button>
+      <button type="submit" class="btn primary" :disabled="isSubmitDisabled">Зарегистрироваться</button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p class="footer-link">
+        Уже есть аккаунт? <router-link to="/login">Войти</router-link>
+      </p>
     </form>
-    <p class="footer-link">Уже есть аккаунт? <router-link to="/login">Войти</router-link></p>
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -37,12 +46,25 @@ export default {
       lastName: "",
       email: "",
       password: "",
+      confirmPassword: "",
       groupId: "",
       errorMessage: ""
     };
   },
+  computed: {
+    // Флаг, который отключает кнопку отправки, если пароли не совпадают
+    isSubmitDisabled() {
+      return this.password !== this.confirmPassword;
+    }
+  },
   methods: {
     async register() {
+      // Проверка паролей перед отправкой формы
+      if (this.password !== this.confirmPassword) {
+        this.errorMessage = "Пароли не совпадают";
+        return;
+      }
+
       try {
         const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
           method: "POST",
@@ -71,13 +93,27 @@ export default {
 
 <style scoped>
 .auth-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 2rem;
-  text-align: left;
+  display: flex;
+  justify-content: center; /* Центрируем по горизонтали */
+  align-items: center; /* Центрируем по вертикали */
+  height: 100vh; /* Занимаем всю высоту экрана */
+  background-color: #f4f4f4; /* Цвет фона для контраста */
+}
+
+.auth-form {
   background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Добавлен эффект тени */
+  width: 100%;
+  max-width: 400px; /* Ограничиваем ширину */
+}
+
+h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 form > div {
@@ -114,18 +150,15 @@ button:hover {
   background-color: #1366d6;
 }
 
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 p {
   margin-top: 1rem;
   text-align: center;
 }
-
-
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
 
 .footer-link {
   margin-top: 20px;
@@ -144,5 +177,6 @@ h2 {
   color: red;
   font-size: 14px;
   margin-top: 10px;
+  text-align: center;
 }
 </style>

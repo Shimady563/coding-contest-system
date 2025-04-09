@@ -6,6 +6,7 @@ import Profile from "../views/Profile.vue";
 import Tests from "../views/StudentTests.vue";
 import TeacherManage from '../views/TeacherManage.vue';
 import CreateTest from '../views/CreateTest.vue';
+import CreateTask from '@/views/CreateTask.vue';
 
 const routes = [
   { path: "/", component: HomeView },
@@ -14,7 +15,8 @@ const routes = [
   { path: "/profile", component: Profile },
   { path: "/tests", component: Tests },
   { path: '/manage-tests', component: TeacherManage },
-  { path: '/create-test', component: CreateTest }
+  { path: '/create-test', component: CreateTest },
+  { path: '/create-task', component: CreateTask}
 ];
 
 const router = createRouter({

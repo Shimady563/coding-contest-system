@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
-    <h2>Вход в систему</h2>
     <form @submit.prevent="login" class="auth-form">
+      <h2>Вход в систему</h2>
       <div>
         <label>Email:</label>
         <input type="email" v-model="email" required />
@@ -11,9 +11,11 @@
         <input type="password" v-model="password" required />
       </div>
       <button type="submit" class="btn primary">Войти</button>
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p class="footer-link">
+        Нет аккаунта? <router-link to="/register">Зарегистрироваться</router-link>
+      </p>
     </form>
-    <p class="footer-link">Нет аккаунта? <router-link to="/register">Зарегистрироваться</router-link></p>
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -56,13 +58,27 @@ export default {
 
 <style scoped>
 .auth-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 2rem;
-  text-align: left;
+  display: flex;
+  justify-content: center; 
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.auth-form {
   background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 form > div {
@@ -104,13 +120,6 @@ p {
   text-align: center;
 }
 
-
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
 .footer-link {
   margin-top: 20px;
 }
@@ -128,5 +137,6 @@ h2 {
   color: red;
   font-size: 14px;
   margin-top: 10px;
+  text-align: center;
 }
 </style>
