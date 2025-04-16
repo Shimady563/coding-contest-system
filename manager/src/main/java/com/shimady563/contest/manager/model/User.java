@@ -1,6 +1,5 @@
 package com.shimady563.contest.manager.model;
 
-import com.shimady.contest.compiler.model.Solution;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
