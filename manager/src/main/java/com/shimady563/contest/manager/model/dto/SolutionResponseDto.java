@@ -15,7 +15,6 @@ public class SolutionResponseDto {
     private LocalDateTime submittedAt;
     // below are for specific request
     private String taskName;
-    private String contestVersionName;
-    private String contestName;
+    private String username;
     private String code;
 }

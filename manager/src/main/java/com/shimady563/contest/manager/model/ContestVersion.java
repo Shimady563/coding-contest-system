@@ -34,16 +34,16 @@ public class ContestVersion {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "contestVersions")
     private Set<User> users = new HashSet<>();
 
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            mappedBy = "contestVersion",
-            cascade = CascadeType.ALL
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "contest_version_task",
+            joinColumns = @JoinColumn(name = "contest_version_id"),
+            inverseJoinColumns = @JoinColumn(name = "task_id")
     )
     private Set<Task> tasks = new HashSet<>();
 
     public void addTask(Task task) {
         tasks.add(task);
-        task.setContestVersion(this);
     }
 
     public void removeTask(Task task) {

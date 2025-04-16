@@ -24,10 +24,7 @@ public class SolutionSpecification {
 
     public static Specification<Solution> hasUserId(Long userId) {
         return ((root, query, builder) ->
-                builder.equal(root.join("task")
-                                .join("contestVersion")
-                                .join("users")
-                                .get("id"),
+                builder.equal(root.join("user").get("id"),
                         userId));
     }
 

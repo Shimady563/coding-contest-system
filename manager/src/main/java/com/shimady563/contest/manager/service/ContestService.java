@@ -1,11 +1,10 @@
 package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
-import com.shimady563.contest.manager.model.*;
+import com.shimady563.contest.manager.model.Contest;
+import com.shimady563.contest.manager.model.Group;
 import com.shimady563.contest.manager.model.dto.ContestRequestDto;
 import com.shimady563.contest.manager.model.dto.ContestResponseDto;
-import com.shimady563.contest.manager.model.dto.ContestVersionRequestDto;
-import com.shimady563.contest.manager.model.dto.TaskRequestDto;
 import com.shimady563.contest.manager.repository.ContestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,54 +48,24 @@ public class ContestService {
         contest.setDescription(request.getDescription());
         contest.setStartTime(request.getStartTime());
         contest.setEndTime(request.getEndTime());
-
-        for (ContestVersionRequestDto contestVersionDto : request.getContestVersions()) {
-            ContestVersion contestVersion = new ContestVersion();
-            contestVersion.setName(contestVersionDto.getName());
-
-            for (TaskRequestDto taskDto : contestVersionDto.getTasks()) {
-                Task task = new Task();
-                task.setName(request.getName());
-                task.setDescription(request.getDescription());
-                task.setContestVersion(contestVersion);
-                taskDto.getTestCases()
-                        .stream()
-                        .map(dto -> mapper.map(dto, TestCase.class))
-                        .forEach(task::addTestCase);
-                task.setTestCasesCount((short) task.getTestCases().size());
-                contestVersion.addTask(task);
-            }
-
-            contest.addContestVersion(contestVersion);
-        }
-
         contestRepository.save(contest);
     }
 
     @Transactional
-    public void updateContest(Long id, ContestRequestDto request) {
+    public void updateContestById(Long id, ContestRequestDto request) {
         log.info("Updating contest with id: {}, request: {}", id, request);
-//        Contest oldContest = getContestById(id);
-//
-//        if (!request.getGroupId().equals(oldContest.getGroup().getId())) {
-//            Group group = groupService.getGroupById(request.getGroupId());
-//            oldContest.setGroup(group);
-//        }
-//
-//        oldContest.setName(request.getName());
-//        oldContest.setDescription(request.getDescription());
-//        oldContest.setStartTime(request.getStartTime());
-//        oldContest.setEndTime(request.getEndTime());
-//
-//        Set<ContestVersion> newContestVersions = new HashSet<>();
-//        for (String name : request.getContestVersionNames()) {
-//            ContestVersion contestVersion = new ContestVersion();
-//            contestVersion.setName(name);
-//            newContestVersions.add(contestVersion);
-//        }
-//
-//        oldContest.getContestVersions().retainAll(newContestVersions);
-//        contestRepository.save(oldContest);
+        Contest oldContest = getContestById(id);
+
+        if (!request.getGroupId().equals(oldContest.getGroup().getId())) {
+            Group group = groupService.getGroupById(request.getGroupId());
+            oldContest.setGroup(group);
+        }
+
+        oldContest.setName(request.getName());
+        oldContest.setDescription(request.getDescription());
+        oldContest.setStartTime(request.getStartTime());
+        oldContest.setEndTime(request.getEndTime());
+        contestRepository.save(oldContest);
     }
 
     @Transactional(readOnly = true)
@@ -107,5 +76,17 @@ public class ContestService {
                 .stream()
                 .map(cv -> mapper.map(cv, ContestResponseDto.class))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteContestById(Long id) {
+        log.info("Deleting contest with id: {}", id);
+        contestRepository.deleteById(id);
+    }
+
+    protected Contest getContestByIdWithContestVersions(Long id) {
+        log.info("Getting contest with contest versions by id: {}", id);
+        return contestRepository.findByIdWithContestVersions(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contest with id: " + id + " not found"));
     }
 }

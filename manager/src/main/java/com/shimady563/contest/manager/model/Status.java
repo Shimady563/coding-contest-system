@@ -10,7 +10,8 @@ public enum Status {
     COMPILE_ERROR("Compile Error"),
     RUNTIME_ERROR("Runtime Error"),
     WRONG_ANSWER("Wrong Answer"),
-    ACCEPTED("Accepted");
+    ACCEPTED("Accepted"),
+    INTERNAL_ERROR("Internal Error");
 
     private final String name;
 }

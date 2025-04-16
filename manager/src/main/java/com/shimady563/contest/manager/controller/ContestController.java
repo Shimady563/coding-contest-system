@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,20 +30,29 @@ public class ContestController {
     }
 
     @PostMapping("")
+    @ResponseStatus(HttpStatus.CREATED)
     @Secured({"ROLE_TEACHER"})
     public void createContest(@Valid @RequestBody ContestRequestDto request) {
         contestService.createContest(request);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Secured({"ROLE_TEACHER"})
     public void updateContest(@PathVariable Long id, @Valid @RequestBody ContestRequestDto request) {
-        contestService.updateContest(id, request);
+        contestService.updateContestById(id, request);
     }
 
     @GetMapping("/group")
     @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     public List<ContestResponseDto> getContestsByGroupId(@RequestParam Long groupId) {
         return contestService.getContestsByGroupId(groupId);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Secured({"ROLE_TEACHER"})
+    public void deleteContestById(@PathVariable Long id) {
+        contestService.deleteContestById(id);
     }
 }

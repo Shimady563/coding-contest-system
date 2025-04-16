@@ -1,15 +1,19 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
-import com.shimady563.contest.manager.model.ContestVersion;
+import com.shimady563.contest.manager.model.Role;
 import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.TestCase;
+import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.TaskRequestDto;
 import com.shimady563.contest.manager.model.dto.TaskResponseDto;
 import com.shimady563.contest.manager.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +26,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
-    private final ContestVersionService contestVersionService;
     private final ModelMapper mapper;
+    private final UserService userService;
 
     protected Task getTaskById(Long id) {
         log.info("Getting task by id: {}", id);
@@ -33,17 +37,11 @@ public class TaskService {
 
     @Transactional
     public void createTask(TaskRequestDto request) {
-        log.info("Creating task with name: {}, contest version id: {}",
-                request.getName(), request.getContestVersionId());
-        ContestVersion contestVersion = null;
-        if (request.getContestVersionId() != null) {
-            contestVersion = contestVersionService.getContestVersionById(request.getContestVersionId());
-        }
-
+        log.info("Creating task with name: {}, test cases: {}",
+                request.getName(), request.getTestCases());
         Task task = new Task();
         task.setName(request.getName());
         task.setDescription(request.getDescription());
-        task.setContestVersion(contestVersion);
         request.getTestCases()
                 .stream()
                 .map(dto -> mapper.map(dto, TestCase.class))
@@ -67,13 +65,28 @@ public class TaskService {
         taskRepository.save(task);
     }
 
+    protected List<Task> getTasksByIds(List<Long> ids) {
+        return taskRepository.findByIdIn(ids);
+    }
+
     @Transactional(readOnly = true)
-    public List<TaskResponseDto> getTasksByContestVersionId(Long contestVersionId) {
-        log.info("Getting tasks by contest version id: {}", contestVersionId);
-        ContestVersion contestVersion = contestVersionService.getContestVersionById(contestVersionId);
-        return taskRepository.findByContestVersion(contestVersion)
+    public Page<TaskResponseDto> searchForTasks(Long contestVersionId, PageRequest pageRequest) {
+        log.info("Searching for tasks with contest version id: {}", contestVersionId);
+        User currentUser = userService.getCurrentUser();
+        if (currentUser.getRole() == Role.ROLE_STUDENT
+                && currentUser.getContestVersions()
                 .stream()
-                .map(t -> mapper.map(t, TaskResponseDto.class))
-                .toList();
+                .filter(cv -> cv.getId().equals(contestVersionId))
+                .count() != 1) {
+            throw new AccessDeniedException("Access to tasks of contest version with id: " + contestVersionId + " denied for user with id: " + currentUser.getId());
+        }
+        return taskRepository.findAll(pageRequest)
+                .map(t -> mapper.map(t, TaskResponseDto.class));
+    }
+
+    @Transactional
+    public void deleteTaskById(Long id) {
+        log.info("Deleting task with id: {}", id);
+        taskRepository.deleteById(id);
     }
 }

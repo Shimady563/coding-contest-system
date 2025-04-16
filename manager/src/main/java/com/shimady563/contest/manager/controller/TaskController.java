@@ -5,11 +5,11 @@ import com.shimady563.contest.manager.model.dto.TaskResponseDto;
 import com.shimady563.contest.manager.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -33,7 +33,18 @@ public class TaskController {
 
     @GetMapping("")
     @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
-    public List<TaskResponseDto> getTasksByContestVersionId(@RequestParam Long contestVersionId) {
-        return taskService.getTasksByContestVersionId(contestVersionId);
+    public Page<TaskResponseDto> searchForTasks(
+            @RequestParam(required = false) Long contestVersionId,
+            @RequestParam(defaultValue = "0") Integer pageNumber,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        return taskService.searchForTasks(contestVersionId, PageRequest.of(pageNumber, pageSize));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Secured("ROLE_TEACHER")
+    public void deleteTask(@PathVariable Long id) {
+        taskService.deleteTaskById(id);
     }
 }

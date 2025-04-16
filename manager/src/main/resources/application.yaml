@@ -22,7 +22,7 @@ spring:
             trusted:
               packages: "*"
             type:
-              mapping: com.shimady563.contest.manager.model.dto.CodeSubmission:CodeSubmission
+              mapping: com.shimady563.contest.manager.model.dto.CodeSubmissionDto:CodeSubmission
 jwt:
   token:
     access:

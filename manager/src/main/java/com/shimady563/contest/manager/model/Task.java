@@ -35,9 +35,8 @@ public class Task {
     @Column(name = "test_cases_count", nullable = false)
     private Short testCasesCount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contest_version_id")
-    private ContestVersion contestVersion;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tasks")
+    private Set<ContestVersion> contestVersions = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
     private List<Solution> solutions = new ArrayList<>();
