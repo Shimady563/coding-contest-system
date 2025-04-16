@@ -27,6 +27,11 @@
                              references="task(id)"
                              nullable="false"/>
             </column>
+            <column name="user_id" type="bigint">
+                <constraints foreignKeyName="solution_user_fkey"
+                             references="contest_user(id)"
+                             nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -34,7 +39,8 @@
         <sql>
             alter table solution
             add constraint solution_status_check
-            check (status in ('TIMED_OUT', 'COMPILE_ERROR', 'RUNTIME_ERROR', 'WRONG_ANSWER', 'ACCEPTED'))
+            check (status in ('INTERNAL_ERROR', 'TIMED_OUT', 'COMPILE_ERROR', 'RUNTIME_ERROR', 'WRONG_ANSWER',
+            'ACCEPTED'))
         </sql>
     </changeSet>
 
