@@ -52,14 +52,12 @@ export default {
     };
   },
   computed: {
-    // Флаг, который отключает кнопку отправки, если пароли не совпадают
     isSubmitDisabled() {
       return this.password !== this.confirmPassword;
     }
   },
   methods: {
     async register() {
-      // Проверка паролей перед отправкой формы
       if (this.password !== this.confirmPassword) {
         this.errorMessage = "Пароли не совпадают";
         return;
@@ -70,7 +68,13 @@ export default {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ firstName: this.firstName, lastName: this.lastName, email: this.email, password: this.password, groupId: this.groupId })
+          body: JSON.stringify({
+            firstName: this.firstName,
+            lastName: this.lastName,
+            email: this.email,
+            password: this.password,
+            groupId: this.groupId
+          })
         });
 
         if (!response.ok) {
@@ -81,7 +85,17 @@ export default {
 
         const data = await response.json();
         console.log("Регистрация успешна:", data);
-        this.$router.push("/profile");
+
+        // Сохраняем токен
+        if (data.token) {
+          localStorage.setItem("tokenData", JSON.stringify(data));
+        }
+
+        // Переход на профиль и обновление navbar
+        this.$router.push("/profile").then(() => {
+          window.location.reload(); // обновляем navbar
+        });
+
       } catch (err) {
         console.error("Ошибка при регистрации", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
@@ -90,6 +104,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .auth-container {

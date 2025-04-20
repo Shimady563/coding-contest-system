@@ -14,9 +14,3 @@ export default {
   components: { Navbar },
 };
 </script>
-
-<style>
-.page-content {
-  padding-top: 60px; 
-}
-</style>

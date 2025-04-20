@@ -1,112 +1,137 @@
 <template>
   <nav class="navbar">
-    <div class="nav-content">
-      <router-link to="/" class="logo">coding-contest-system</router-link>
+    <div class="container">
+      <router-link to="/" class="logo">🧠 Coding Contest</router-link>
 
       <ul class="nav-links" v-if="user">
         <li v-if="user.role === 'student'">
-          <router-link to="/tests">Мои контрольные</router-link>
+          <router-link to="/tests">Контрольные</router-link>
         </li>
         <li v-if="user.role === 'teacher'">
-          <router-link to="/manage-tests">Управление контрольными</router-link>
+          <router-link to="/manage-tests">Управление</router-link>
         </li>
         <li>
-          <router-link to="/profile">Личный кабинет</router-link>
+          <router-link to="/profile">Профиль</router-link>
         </li>
         <li>
-          <button @click="logout" class="btn-logout">Выйти</button>
+          <button @click="logout" class="btn btn-logout">Выйти</button>
         </li>
       </ul>
 
       <ul class="nav-links" v-else>
         <li>
-          <router-link to="/login">Войти</router-link>
+          <router-link to="/login" class="btn btn-light">Войти</router-link>
+        </li>
+        <li>
+          <router-link to="/register" class="btn btn-dark">Регистрация</router-link>
         </li>
       </ul>
     </div>
   </nav>
 </template>
 
+<script>
+import { getUserInfo } from "../js/auth";
 
-  <script>
-  import { getUserInfo } from "../js/auth";
-
-  export default {
+export default {
   data() {
     return {
       user: null,
     };
   },
   async created() {
-    try {
-      const userInfo = await getUserInfo();
-      this.user = userInfo;
-    } catch (err) {
-      if (err.message === "UNAUTHORIZED") {
-        this.$router.push("/login");
-      } else {
-        console.error("Ошибка при загрузке навбара:", err);
-      }
-    }
+    const userInfo = await getUserInfo();
+    this.user = userInfo;
   },
   methods: {
     logout() {
+      localStorage.removeItem("tokenData");
+      this.user = null;
       this.$router.push("/login");
     },
   },
 };
-  </script>
+</script>
 
-  <style scoped>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+<style scoped>
+.navbar {
+  background: white;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
 
-  .navbar {
-    width: 100%;
-    background: #333;
-    color: white;
-    padding: 15px 20px;
-    position: fixed; /* Фиксируем наверху */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000; /* Поверх всего */
-  }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .nav-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #222;
+  text-decoration: none;
+}
 
-  .logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-  }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+}
 
-  .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-  }
+.nav-links a {
+  color: #333;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.2s;
+}
 
-  .nav-links a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
-  }
+.nav-links a:hover {
+  color: #2f80ed;
+}
 
-  .btn-logout {
-    background: red;
-    border: none;
-    color: white;
-    padding: 5px 10px;
-    cursor: pointer;
-  }
-  </style>
+.btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-light {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-light:hover {
+  background: #e0e0e0;
+}
+
+.btn-dark {
+  background: #2f80ed;
+  color: white;
+}
+
+.btn-dark:hover {
+  background: #1e63c5;
+}
+
+.btn-logout {
+  background: #ff4d4f;
+  color: white;
+}
+
+.btn-logout:hover {
+  background: #d9363e;
+}
+</style>

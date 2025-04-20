@@ -7,11 +7,6 @@
         <p><strong>Email:</strong> {{ user.email }}</p>
         <p><strong>Роль:</strong> {{ user.role }}</p>
 
-        <!-- Блоки в зависимости от роли -->
-        <StudentPanel v-if="user.role === 'student'" />
-        <TeacherPanel v-if="user.role === 'teacher'" />
-
-        <button @click="logout" class="btn btn-danger">Выйти</button>
       </div>
       <div v-else>
         <p>Загрузка профиля...</p>
@@ -20,12 +15,9 @@
   </template>
 
   <script>
-  import StudentPanel from "@/components/StudentPanel.vue";
-  import TeacherPanel from "@/components/TeacherPanel.vue";
   import { getUserInfo } from "../js/auth";
 
   export default {
-    components: { StudentPanel, TeacherPanel },
     data() {
       return {
         user: null, // Данные пользователя
@@ -42,12 +34,6 @@
         console.error("Ошибка загрузки профиля:", err);
       }
     }
-  },
-  methods: {
-    logout() {
-      // Очищаем accessToken (если бы не был httpOnly), но можно сделать запрос на logout
-      this.$router.push("/login");
-    },
   },
 };
   </script>

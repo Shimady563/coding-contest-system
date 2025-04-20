@@ -20,19 +20,20 @@ export default {
 
 <style scoped>
 .task-description {
-  background-color: #f4f4f4;
+  background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .task-description h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
+  font-size: 22px;
+  margin-bottom: 12px;
+  color: #333;
 }
 
 .task-description p {
   font-size: 16px;
-  color: #333;
+  color: #555;
 }
 </style>

@@ -25,17 +25,17 @@ export default {
     return {
       email: "",
       password: "",
-      errorMessage: ""
+      errorMessage: "",
     };
   },
   methods: {
     async login() {
       try {
+        // Запрос на вход
         const response = await fetch("http://localhost:8081/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email: this.email, password: this.password })
+          body: JSON.stringify({ email: this.email, password: this.password }),
         });
 
         if (!response.ok) {
@@ -45,21 +45,85 @@ export default {
         }
 
         const data = await response.json();
+        // Сохраняем токены в localStorage
+        localStorage.setItem("tokenData", JSON.stringify(data));
         console.log("Успешный вход", data);
+
+        // После this.$router.push("/profile");
+        this.$router.push("/profile").then(() => {
+          window.location.reload(); // перезагрузка страницы, чтобы Navbar подтянул user
+        });
+
+
+        // Формируем заголовок Authorization для дальнейших запросов
+        const authHeader = `${data.type} ${data.accessToken}`;
+        console.log("Authorization header:", authHeader);
+
+        // Проверка /auth/me с accessToken
+        const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
+          headers: {
+            "Authorization": authHeader, // добавляем заголовок с токеном
+          },
+        });
+
+        if (!meResponse.ok) {
+          const errText = await meResponse.text();
+          console.error("Ошибка /auth/me:", meResponse.status, errText);
+          if (meResponse.status === 401) {
+            this.errorMessage = "Токен истек или неверный. Пожалуйста, войдите снова.";
+          } else {
+            this.errorMessage = "Ошибка авторизации. Попробуйте ещё раз.";
+          }
+          return;
+        }
+
+        const userData = await meResponse.json();
+        console.log("Пользователь:", userData);
+
+        // Переход на страницу профиля
         this.$router.push("/profile");
+
       } catch (err) {
         console.error("Ошибка при входе", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
       }
-    }
-  }
+    },
+
+    // Функция для получения данных пользователя с использованием accessToken из localStorage
+    async getUserData() {
+      const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+      if (!tokenData || !tokenData.accessToken) {
+        this.errorMessage = "Пользователь не авторизован";
+        return;
+      }
+
+      console.log("Получаем данные пользователя с токеном:", tokenData.accessToken);
+
+      const authHeader = `Bearer ${tokenData.accessToken}`;
+      const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
+        headers: {
+          "Authorization": authHeader, // добавляем заголовок с токеном
+        },
+      });
+
+      if (!meResponse.ok) {
+        const errText = await meResponse.text();
+        console.error("Ошибка при получении данных пользователя", errText);
+        return;
+      }
+
+      const userData = await meResponse.json();
+      console.log("Данные пользователя:", userData);
+    },
+  },
 };
 </script>
+
 
 <style scoped>
 .auth-container {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
   height: 100vh;
   background-color: #f4f4f4;

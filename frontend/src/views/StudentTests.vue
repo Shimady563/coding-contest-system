@@ -1,76 +1,84 @@
 <template>
-    <div>
+  <div class="task-container">
     <TaskDescription />
     <TestCases />
     <CodeEditor ref="codeEditor" />
-     <button @click="sendCode">
-        Send
-     </button>
+    <button @click="sendCode">
+      Send
+    </button>
     <OutputResults ref="outputResults" />
   </div>
 </template>
-  
-  <script>
-  import TaskDescription from "../components/TaskDescription.vue";
-  import TestCases from "../components/TestCases.vue";
-  import CodeEditor from "../components/CodeEditor.vue";
-  import OutputResults from "../components/OutputResults.vue";
-  
-  export default {
-    components: {
-      TaskDescription,
-      TestCases,
-      CodeEditor,
-      OutputResults,
-    },
-    methods: {
-       async sendCode() {
-         const codeEditor = this.$refs.codeEditor;
-  
-         if (!codeEditor || !codeEditor.editor) {
-           console.error("Code editor is not initialized!");
-           return;
-         }
-  
-         const code = codeEditor.editor.getValue();
-         console.log("Sending code:", code);
-  
-         try {
-           const response = await fetch("http://localhost:8080/test/submit", {
-             method: "POST",
-             headers: {
-               "Content-Type": "application/json",
-             },
-             body: JSON.stringify({ code }),
-             mode: "cors"
-           });
-  
-           if (!response.ok) {
-             throw new Error("Failed to submit code");
-           }
-  
-           console.log("Code submitted successfully");
-  
-           this.$refs.outputResults.fetchResults();
-         } catch (error) {
-           console.error("Error submitting code:", error);
-         }
-       },
-     },
-   };
-  </script>
 
-  
+<script>
+import TaskDescription from "../components/TaskDescription.vue";
+import TestCases from "../components/TestCases.vue";
+import CodeEditor from "../components/CodeEditor.vue";
+import OutputResults from "../components/OutputResults.vue";
+
+export default {
+  components: {
+    TaskDescription,
+    TestCases,
+    CodeEditor,
+    OutputResults,
+  },
+  methods: {
+    async sendCode() {
+      const codeEditor = this.$refs.codeEditor;
+
+      if (!codeEditor || !codeEditor.editor) {
+        console.error("Code editor is not initialized!");
+        return;
+      }
+
+      const code = codeEditor.editor.getValue();
+      console.log("Sending code:", code);
+
+      try {
+        const response = await fetch("http://localhost:8080/test/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code }),
+          mode: "cors"
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to submit code");
+        }
+
+        console.log("Code submitted successfully");
+
+        this.$refs.outputResults.fetchResults();
+      } catch (error) {
+        console.error("Error submitting code:", error);
+      }
+    },
+  },
+};
+</script>
+
 <style scoped>
+.task-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
 button {
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 12px 25px;
+  font-size: 18px;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {

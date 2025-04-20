@@ -12,7 +12,7 @@
       <tbody>
         <tr v-for="result in results" :key="result.id">
           <td>{{ result.id }}</td>
-          <td>{{ result.status }}</td>
+          <td :class="result.status.toLowerCase()">{{ result.status }}</td>
           <td>{{ result.testsPassed }}</td>
         </tr>
       </tbody>
@@ -57,25 +57,26 @@ export default {
 
 <style scoped>
 .output-results {
-  background-color: #f4f4f4;
+  background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
+  font-size: 22px;
+  margin-bottom: 12px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: #fff;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
   text-align: left;
 }
 

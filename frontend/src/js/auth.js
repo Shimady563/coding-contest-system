@@ -1,18 +1,24 @@
 export async function getUserInfo() {
   try {
+    const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+    if (!tokenData || !tokenData.accessToken) {
+      return null; // просто возвращаем null, не кидаем исключение
+    }
+
+    const authHeader = `${tokenData.type} ${tokenData.accessToken}`;
     const res = await fetch("http://localhost:8081/api/v1/auth/me", {
       method: "GET",
-      credentials: "include", // используем куки
+      headers: {
+        "Authorization": authHeader,
+      },
     });
 
     if (!res.ok) {
-      if (res.status === 401) throw new Error("UNAUTHORIZED");
+      if (res.status === 401) return null; // также возвращаем null
       throw new Error("Failed to fetch user");
     }
 
     const data = await res.json();
-
-    // Определяем роль
     const role = data.groupName === "Teacher" ? "teacher" : "student";
 
     return {
@@ -23,6 +29,7 @@ export async function getUserInfo() {
       groupName: data.groupName,
     };
   } catch (err) {
-    throw err;
+    console.error("Error fetching user info:", err);
+    return null;
   }
 }
