@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,4 +35,15 @@ public class TestCase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof TestCase testCase)) return false;
+        return Objects.equals(input, testCase.input) && Objects.equals(output, testCase.output);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(input, output);
+    }
 }

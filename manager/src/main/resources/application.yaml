@@ -12,6 +12,17 @@ spring:
         format_sql: true
   liquibase:
     change-log: classpath:/db/changelog/db-changelog-master.xml
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: com.shimady563.contest.manager.model.dto.CodeSubmissionDto:CodeSubmission
 jwt:
   token:
     access:

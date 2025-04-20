@@ -44,7 +44,7 @@ public class Contest {
     @OneToMany(
             fetch = FetchType.LAZY,
             mappedBy = "contest",
-            cascade = CascadeType.REMOVE
+            cascade = CascadeType.ALL
     )
     private Set<ContestVersion> contestVersions = new HashSet<>();
 

@@ -19,11 +19,6 @@
             <column name="test_cases_count" type="smallint">
                 <constraints nullable="false"/>
             </column>
-            <column name="contest_version_id" type="bigint">
-                <constraints foreignKeyName="task_contest_version_fkey"
-                             references="contest_version(id)"
-                             nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
 

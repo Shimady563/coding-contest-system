@@ -6,10 +6,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -56,8 +53,15 @@ public class User implements UserDetails {
     )
     private Set<ContestVersion> contestVersions = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Solution> solutions = new ArrayList<>();
+
     public boolean containsContestVersion(ContestVersion contestVersion) {
         return contestVersions.contains(contestVersion);
+    }
+
+    public void addContestVersion(ContestVersion contestVersion) {
+        contestVersions.add(contestVersion);
     }
 
     @Override
