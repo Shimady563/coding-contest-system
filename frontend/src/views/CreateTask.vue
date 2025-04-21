@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import { getAccessToken, getRefreshToken } from '@/js/auth'
+
 export default {
   data() {
     return {
@@ -74,6 +76,8 @@ export default {
           return;
         }
       }
+      
+      console.log("tokenData из localStorage:", localStorage.getItem("tokenData"));
 
       const data = {
         name: this.taskName.trim(),
@@ -84,8 +88,11 @@ export default {
         })),
       };
 
-      let accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
+      let accessToken = getAccessToken();
+      const refreshToken = getRefreshToken();
+
+      console.log("AccessToken перед отправкой:", accessToken);
+      console.log("Тело запроса:", data);
 
       const makeRequest = async (token) => {
         return await fetch('http://localhost:8080/api/v1/tasks', {
@@ -115,7 +122,7 @@ export default {
 
           const tokens = await refreshResponse.json();
           accessToken = tokens.accessToken;
-          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('tokenData', JSON.stringify(tokens));
 
           // повторяем запрос с новым токеном
           response = await makeRequest(accessToken);

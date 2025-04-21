@@ -1,11 +1,24 @@
+// /src/js/auth.js
+
+export function getAccessToken() {
+  const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+  return tokenData?.accessToken || null;
+}
+
+export function getRefreshToken() {
+  const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+  return tokenData?.refreshToken || null;
+}
+
 export async function getUserInfo() {
   try {
-    const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-    if (!tokenData || !tokenData.accessToken) {
-      return null; // просто возвращаем null, не кидаем исключение
+    const accessToken = getAccessToken();
+    const tokenData = JSON.parse(localStorage.getItem("tokenData")); // нужно для типа (Bearer)
+    if (!accessToken || !tokenData?.type) {
+      return null;
     }
 
-    const authHeader = `${tokenData.type} ${tokenData.accessToken}`;
+    const authHeader = `${tokenData.type} ${accessToken}`;
     const res = await fetch("http://localhost:8081/api/v1/auth/me", {
       method: "GET",
       headers: {
@@ -14,7 +27,7 @@ export async function getUserInfo() {
     });
 
     if (!res.ok) {
-      if (res.status === 401) return null; // также возвращаем null
+      if (res.status === 401) return null;
       throw new Error("Failed to fetch user");
     }
 
