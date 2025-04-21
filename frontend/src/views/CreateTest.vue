@@ -52,6 +52,7 @@
 
 <script>
 import VariantForm from '../components/VariantForm.vue';
+import { fetchGroups } from '../js/auth.js'; // Импортируем функцию
 
 export default {
   components: { VariantForm },
@@ -70,28 +71,12 @@ export default {
     };
   },
   mounted() {
-    this.fetchGroups();
+    this.loadGroups();
     this.fetchTasks();
   },
   methods: {
-    getAuthHeader() {
-      const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-      if (!tokenData || !tokenData.accessToken) {
-        throw new Error("Пользователь не авторизован");
-      }
-      return `Bearer ${tokenData.accessToken}`;
-    },
-
-    async fetchGroups() {
-      try {
-        const response = await fetch('http://localhost:8080/api/v1/groups', {
-          headers: { Authorization: this.getAuthHeader() },
-        });
-        if (!response.ok) throw new Error('Ошибка при загрузке групп');
-        this.groups = await response.json();
-      } catch (err) {
-        console.error(err);
-      }
+    async loadGroups() {
+      this.groups = await fetchGroups(); // Используем импортированную функцию
     },
 
     async fetchTasks() {

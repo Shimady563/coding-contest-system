@@ -59,7 +59,7 @@ export default {
           throw new Error("Пользователь не авторизован");
         }
 
-        const response = await fetch('http://localhost:8080/api/v1/contests', {
+        const response = await fetch('http://localhost:8080/api/v1/contests?name=', {
           headers: {
             Authorization: `Bearer ${tokenData.accessToken}`,
           },

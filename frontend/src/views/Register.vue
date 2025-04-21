@@ -25,10 +25,16 @@
       <div v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
         Пароли не совпадают
       </div>
+      
+      <!-- Выпадающий список для групп -->
       <div>
-        <label>ID группы:</label>
-        <input type="text" v-model="groupId" required />
+        <label>Группа:</label>
+        <select v-model="groupId" required>
+          <option disabled value="">Выберите группу</option>
+          <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
+        </select>
       </div>
+      
       <button type="submit" class="btn primary" :disabled="isSubmitDisabled">Зарегистрироваться</button>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <p class="footer-link">
@@ -39,6 +45,8 @@
 </template>
 
 <script>
+import { fetchGroups } from "@/js/auth"; 
+
 export default {
   data() {
     return {
@@ -47,13 +55,14 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
-      groupId: "",
+      groupId: null,  
+      groups: [],  
       errorMessage: ""
     };
   },
   computed: {
     isSubmitDisabled() {
-      return this.password !== this.confirmPassword;
+     return this.password !== this.confirmPassword || !this.firstName || !this.lastName || !this.email || !this.groupId;
     }
   },
   methods: {
@@ -86,42 +95,46 @@ export default {
         const data = await response.json();
         console.log("Регистрация успешна:", data);
 
-        // Сохраняем токен
         if (data.token) {
           localStorage.setItem("tokenData", JSON.stringify(data));
         }
 
-        // Переход на профиль и обновление navbar
-        this.$router.push("/profile").then(() => {
-          window.location.reload(); // обновляем navbar
+        this.$router.push("/").then(() => {
+          window.location.reload();
         });
 
       } catch (err) {
         console.error("Ошибка при регистрации", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
       }
+    },
+
+    async fetchGroups() {
+      this.groups = await fetchGroups();
     }
+  },
+  mounted() {
+    this.fetchGroups();  
   }
 };
 </script>
 
-
 <style scoped>
 .auth-container {
   display: flex;
-  justify-content: center; /* Центрируем по горизонтали */
-  align-items: center; /* Центрируем по вертикали */
-  height: 100vh; /* Занимаем всю высоту экрана */
-  background-color: #f4f4f4; /* Цвет фона для контраста */
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh; 
+  background-color: #f4f4f4; 
 }
 
 .auth-form {
   background-color: #fff;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Добавлен эффект тени */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); 
   width: 100%;
-  max-width: 400px; /* Ограничиваем ширину */
+  max-width: 400px; 
 }
 
 h2 {
@@ -141,7 +154,7 @@ label {
   font-weight: 500;
 }
 
-input {
+input, select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ccc;

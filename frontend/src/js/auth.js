@@ -46,3 +46,18 @@ export async function getUserInfo() {
     return null;
   }
 }
+
+export async function fetchGroups() {
+  try {
+    const response = await fetch("http://localhost:8080/api/v1/groups");
+
+    if (!response.ok) {
+      throw new Error("Ошибка при загрузке групп");
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error("Ошибка при получении групп:", err);
+    return [];
+  }
+}

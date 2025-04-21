@@ -44,24 +44,19 @@ export default {
         }
 
         const data = await response.json();
-        // Сохраняем токены в localStorage
         localStorage.setItem("tokenData", JSON.stringify(data));
         console.log("Успешный вход", data);
 
-        // После this.$router.push("/profile");
         this.$router.push("/profile").then(() => {
-          window.location.reload(); // перезагрузка страницы, чтобы Navbar подтянул user
+          window.location.reload(); 
         });
 
-
-        // Формируем заголовок Authorization для дальнейших запросов
         const authHeader = `${data.type} ${data.accessToken}`;
         console.log("Authorization header:", authHeader);
 
-        // Проверка /auth/me с accessToken
         const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
           headers: {
-            "Authorization": authHeader, // добавляем заголовок с токеном
+            "Authorization": authHeader, 
           },
         });
 
@@ -79,8 +74,7 @@ export default {
         const userData = await meResponse.json();
         console.log("Пользователь:", userData);
 
-        // Переход на страницу профиля
-        this.$router.push("/profile");
+        this.$router.push("/");
 
       } catch (err) {
         console.error("Ошибка при входе", err);
@@ -88,7 +82,6 @@ export default {
       }
     },
 
-    // Функция для получения данных пользователя с использованием accessToken из localStorage
     async getUserData() {
       const tokenData = JSON.parse(localStorage.getItem("tokenData"));
       if (!tokenData || !tokenData.accessToken) {
@@ -101,7 +94,7 @@ export default {
       const authHeader = `Bearer ${tokenData.accessToken}`;
       const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
         headers: {
-          "Authorization": authHeader, // добавляем заголовок с токеном
+          "Authorization": authHeader, 
         },
       });
 
