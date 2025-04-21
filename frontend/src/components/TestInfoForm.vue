@@ -14,9 +14,7 @@
       <label>Группа:</label>
       <select v-model="form.group">
         <option disabled value="">Выберите группу</option>
-        <option>Группа 101</option>
-        <option>Группа 202</option>
-        <option>Группа 303</option>
+        <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
       </select>
     </div>
 
@@ -35,13 +33,39 @@
 <script>
 export default {
   props: ['modelValue'],
+  data() {
+    return {
+      groups: [],  // Список групп
+    };
+  },
   computed: {
     form: {
-      get() { return this.modelValue },
-      set(val) { this.$emit('update:modelValue', val) }
-    }
-  }
-}
+      get() {
+        return this.modelValue;
+      },
+      set(val) {
+        this.$emit('update:modelValue', val);
+      },
+    },
+  },
+  mounted() {
+    this.fetchGroups();
+  },
+  methods: {
+    async fetchGroups() {
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/groups');
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить список групп');
+        }
+        const data = await response.json();
+        this.groups = data;  // Сохраняем группы в состояние компонента
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>

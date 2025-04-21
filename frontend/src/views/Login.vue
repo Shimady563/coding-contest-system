@@ -31,7 +31,6 @@ export default {
   methods: {
     async login() {
       try {
-        // Запрос на вход
         const response = await fetch("http://localhost:8081/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

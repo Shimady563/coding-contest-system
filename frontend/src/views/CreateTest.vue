@@ -1,34 +1,34 @@
 <template>
   <div class="create-cr-container">
-    <h1 class="title">Создание контрольной</h1>
+    <h1 class="title">Создание контрольной работы</h1>
 
     <div class="form-group">
-      <label for="name">Название:</label>
-      <input id="name" v-model="controlWork.name" type="text" />
+      <label for="name">Название</label>
+      <input id="name" v-model="controlWork.name" type="text" placeholder="Введите название" />
     </div>
 
     <div class="form-group">
-      <label for="description">Описание:</label>
-      <textarea id="description" v-model="controlWork.description" rows="3" />
+      <label for="description">Описание</label>
+      <textarea id="description" v-model="controlWork.description" rows="3" placeholder="Краткое описание контрольной" />
     </div>
 
     <div class="form-group">
-      <label for="group">Группа:</label>
+      <label for="group">Группа</label>
       <select id="group" v-model="controlWork.group">
         <option disabled value="">-- Выберите группу --</option>
-        <option v-for="group in groups" :key="group" :value="group">
-          {{ group }}
+        <option v-for="group in groups" :key="group.id" :value="group.id">
+          {{ group.name }}
         </option>
       </select>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label for="start">Начало:</label>
+        <label for="start">Начало</label>
         <input id="start" type="datetime-local" v-model="controlWork.startTime" />
       </div>
       <div class="form-group">
-        <label for="end">Окончание:</label>
+        <label for="end">Окончание</label>
         <input id="end" type="datetime-local" v-model="controlWork.endTime" />
       </div>
     </div>
@@ -64,16 +64,62 @@ export default {
         startTime: '',
         endTime: '',
       },
-      groups: ['101', '102', '103'],
-      tasks: [
-        { id: '1', name: 'Сортировка', description: 'Реализуйте алгоритм сортировки пузырьком' },
-        { id: '2', name: 'Фибоначчи', description: 'Вычислите n-е число Фибоначчи' },
-        { id: '3', name: 'Поиск максимума', description: 'Найдите максимум в массиве' },
-      ],
+      groups: [],
+      tasks: [],
       variants: [],
     };
   },
+  mounted() {
+    this.fetchGroups();
+    this.fetchTasks();
+  },
   methods: {
+    getAuthHeader() {
+      const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+      if (!tokenData || !tokenData.accessToken) {
+        throw new Error("Пользователь не авторизован");
+      }
+      return `Bearer ${tokenData.accessToken}`;
+    },
+
+    async fetchGroups() {
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/groups', {
+          headers: { Authorization: this.getAuthHeader() },
+        });
+        if (!response.ok) throw new Error('Ошибка при загрузке групп');
+        this.groups = await response.json();
+      } catch (err) {
+        console.error(err);
+      }
+    },
+
+    async fetchTasks() {
+      try {
+        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+        if (!tokenData || !tokenData.accessToken) {
+          throw new Error("Пользователь не авторизован");
+        }
+
+        const response = await fetch('http://localhost:8080/api/v1/tasks', {
+          headers: {
+            Authorization: `Bearer ${tokenData.accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(`Не удалось загрузить задания: ${error.message}`);
+        }
+
+        const data = await response.json();
+        this.tasks = data.content || [];
+        console.log("Задания получены:", this.tasks);  // Добавлено логирование для отладки
+      } catch (error) {
+        console.error("Ошибка при получении заданий:", error.message);
+      }
+    },
+
     addVariant() {
       this.variants.push({
         name: `Вариант ${this.variants.length + 1}`,
@@ -102,22 +148,24 @@ export default {
 .create-cr-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 40px;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 }
 
 .title {
-  font-size: 28px;
-  margin-bottom: 24px;
-  font-weight: bold;
+  font-size: 30px;
+  margin-bottom: 28px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .subtitle {
   font-size: 22px;
-  margin: 32px 0 16px;
+  margin: 36px 0 20px;
   font-weight: 600;
+  color: #333;
 }
 
 .form-group {
@@ -129,15 +177,24 @@ export default {
 .form-group label {
   margin-bottom: 6px;
   font-weight: 500;
+  color: #444;
 }
 
 input,
 select,
 textarea {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: 1px solid #d1d5db;
   font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #2563eb;
+  outline: none;
 }
 
 .form-row {
@@ -147,34 +204,49 @@ textarea {
 }
 
 .variant-block {
-  padding: 20px;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  padding: 24px;
+  background: #f0f4f8;
+  border-radius: 16px;
+  border: 1px solid #dbeafe;
   margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.variant-block:hover {
+  background-color: #e7f0fb;
 }
 
 .btn-group {
   display: flex;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 30px;
+  justify-content: center;
 }
 
 .btn {
-  padding: 10px 18px;
+  padding: 12px 20px;
   font-size: 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .btn-primary {
-  background-color: #28a745;
+  background-color: #34d399;
   color: white;
 }
 
+.btn-primary:hover {
+  background-color: #10b981;
+}
+
 .btn-secondary {
-  background-color: #007bff;
+  background-color: #60a5fa;
   color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #3b82f6;
 }
 </style>

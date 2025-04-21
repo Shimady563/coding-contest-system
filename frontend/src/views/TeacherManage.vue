@@ -42,20 +42,64 @@
 export default {
   data() {
     return {
-      isTestsActive: true, // Флаг для переключения между вкладками
-      tests: [
-        { id: 1, name: "Контрольная по алгоритмам" },
-        { id: 2, name: "ООП в C++" },
-        { id: 3, name: "Базы данных — часть 1" }
-      ],
-      tasks: [
-        { id: 1, name: "Задание 1", description: "Описание задания 1" },
-        { id: 2, name: "Задание 2", description: "Описание задания 2" },
-        { id: 3, name: "Задание 3", description: "Описание задания 3" }
-      ]
+      isTestsActive: true,
+      tests: [],
+      tasks: [],
     };
   },
+  mounted() {
+    this.fetchContests();
+    this.fetchTasks();
+  },
   methods: {
+    async fetchContests() {
+      try {
+        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+        if (!tokenData || !tokenData.accessToken) {
+          throw new Error("Пользователь не авторизован");
+        }
+
+        const response = await fetch('http://localhost:8080/api/v1/contests', {
+          headers: {
+            Authorization: `Bearer ${tokenData.accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить контрольные работы');
+        }
+
+        const data = await response.json();
+        this.tests = data.content || [];
+      } catch (error) {
+        console.error("Ошибка при получении контрольных:", error.message);
+      }
+    },
+
+    async fetchTasks() {
+      try {
+        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+        if (!tokenData || !tokenData.accessToken) {
+          throw new Error("Пользователь не авторизован");
+        }
+
+        const response = await fetch('http://localhost:8080/api/v1/tasks', {
+          headers: {
+            Authorization: `Bearer ${tokenData.accessToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить задания');
+        }
+
+        const data = await response.json();
+        this.tasks = data.content || [];
+      } catch (error) {
+        console.error("Ошибка при получении заданий:", error.message);
+      }
+    },
+
     goToCreateTest() {
       this.$router.push("/create-test");
     },
@@ -64,8 +108,8 @@ export default {
     },
     goToEditTask(taskId) {
       this.$router.push(`/edit-task/${taskId}`);
-    }
-  }
+    },
+  },
 };
 </script>
 
