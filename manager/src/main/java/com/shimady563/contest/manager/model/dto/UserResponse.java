@@ -13,4 +13,5 @@ public class UserResponse {
     private String lastName;
     private String email;
     private String groupName;
+    private String groupId;
 }

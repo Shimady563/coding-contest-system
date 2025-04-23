@@ -28,7 +28,8 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getGroup() == null ? "Teacher" : user.getGroup().getName()
+                user.getGroup() == null ? "Teacher" : user.getGroup().getName(),
+                user.getGroup() == null ? -1L : user.getGroup().getId()
         );
     }
 

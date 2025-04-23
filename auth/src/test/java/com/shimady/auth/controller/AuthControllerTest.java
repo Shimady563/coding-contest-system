@@ -36,7 +36,7 @@ class AuthControllerTest {
     @Test
     @WithMockUser(roles = {"TEACHER", "STUDENT"})
     void shouldGetCurrentUser() throws Exception {
-        var userResponse = new UserResponse(1L, "Jhon", "Doe", "test@example.com", "ROLE_USER");
+        var userResponse = new UserResponse(1L, "John", "Doe", "test@example.com", "group", -1L);
 
         given(authService.getCurrentUser()).willReturn(userResponse);
 

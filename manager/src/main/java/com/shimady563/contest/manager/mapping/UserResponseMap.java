@@ -13,8 +13,10 @@ public class UserResponseMap extends PropertyMap<User, UserResponse> {
         map(source.getFirstName(), destination.getFirstName());
         map(source.getLastName(), destination.getLastName());
         map(source.getEmail(), destination.getEmail());
-        using(groupConverter).map(source.getGroup(), destination.getGroupName());
+        using(GROUP_STRING_CONVERTER).map(source.getGroup(), destination.getGroupName());
+        using(GROUP_LONG_CONVERTER).map(source.getGroup(), destination.getGroupId());
     }
 
-    private static final Converter<Group, String> groupConverter = context -> context.getSource().getName();
+    private static final Converter<Group, String> GROUP_STRING_CONVERTER = context -> context.getSource().getName();
+    private static final Converter<Group, Long> GROUP_LONG_CONVERTER = context -> context.getSource().getId();
 }
