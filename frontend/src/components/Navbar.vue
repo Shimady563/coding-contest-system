@@ -5,13 +5,13 @@
 
       <ul class="nav-links" v-if="user">
         <li v-if="user.role === 'student'">
-          <router-link to="/tests">Контрольные</router-link>
+          <router-link class="links" to="/solve-contest">Контрольные</router-link>
         </li>
         <li v-if="user.role === 'teacher'">
-          <router-link to="/manage-tests">Управление</router-link>
+          <router-link class="links" to="/manage-contests">Управление</router-link>
         </li>
         <li>
-          <router-link to="/profile">Профиль</router-link>
+          <router-link class="links" to="/profile">Профиль</router-link>
         </li>
         <li>
           <button @click="logout" class="btn btn-logout">Выйти</button>
@@ -80,6 +80,10 @@ export default {
   text-decoration: none;
 }
 
+.links {
+  color: #2f80ed;
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -88,7 +92,6 @@ export default {
 }
 
 .nav-links a {
-  color: #333;
   text-decoration: none;
   font-size: 15px;
   transition: color 0.2s;

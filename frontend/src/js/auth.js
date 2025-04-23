@@ -10,6 +10,27 @@ export function getRefreshToken() {
   return tokenData?.refreshToken || null;
 }
 
+export async function getGroupIdForCurrentUser() {
+  try {
+    const userInfo = await getUserInfo();
+    if (!userInfo || !userInfo.groupName) {
+      throw new Error("Не удалось получить информацию о пользователе или группе");
+    }
+
+    const groups = await fetchGroups();
+    const group = groups.find(g => g.name === userInfo.groupName);
+
+    if (!group) {
+      throw new Error(`Группа с именем ${userInfo.groupName} не найдена`);
+    }
+
+    return group.id;
+  } catch (err) {
+    console.error("Ошибка при получении ID группы пользователя:", err);
+    return null;
+  }
+}
+
 export async function getUserInfo() {
   try {
     const accessToken = getAccessToken();
@@ -36,10 +57,12 @@ export async function getUserInfo() {
 
     return {
       id: data.id,
-      name: `${data.firstName} ${data.lastName}`,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
-      role: role,
       groupName: data.groupName,
+      groupId: data.groupId,
+      role: role,
     };
   } catch (err) {
     console.error("Error fetching user info:", err);

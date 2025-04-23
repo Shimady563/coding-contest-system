@@ -18,8 +18,8 @@ export default {
     return {
       testCases: [
         {
-          input: "5\n1 2 3 4 5\n",  // Example input
-          expectedOutput: "15",    // Expected output
+          input: "5\n1 2 3 4 5\n", 
+          expectedOutput: "15",
         },
         {
           input: "3\n2 2 2\n",

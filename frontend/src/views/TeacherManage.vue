@@ -2,38 +2,38 @@
   <div class="manage-container">
     <h1>Управление контрольными и заданиями</h1>
 
-    <!-- Меню для переключения между контрольными и заданиями -->
+    <!-- Меню для переключения -->
     <div class="tabs">
-      <button
-        :class="{ active: isTestsActive }"
-        @click="isTestsActive = true"
-      >Контрольные</button>
-      <button
-        :class="{ active: !isTestsActive }"
-        @click="isTestsActive = false"
-      >Задания</button>
+      <button :class="{ active: isTestsActive }" @click="isTestsActive = true">Контрольные</button>
+      <button :class="{ active: !isTestsActive }" @click="isTestsActive = false">Задания</button>
     </div>
 
-    <!-- Управление контрольными -->
+    <!-- Контрольные -->
     <div v-if="isTestsActive" class="test-management">
       <button @click="goToCreateTest">Создать контрольную</button>
       <ul class="test-list">
         <li v-for="test in tests" :key="test.id" class="test-item">
-          <router-link :to="`/edit-test/${test.id}`" class="test-link">
-            {{ test.name }}
-          </router-link>
+          <div
+            class="test-link"
+          >
+          <div class="item-title">{{ test.name }}</div>
+          <div class="item-description">{{ test.description }}</div>
+        </div>
         </li>
       </ul>
     </div>
 
-    <!-- Управление заданиями -->
+    <!-- Задания -->
     <div v-else class="task-management">
       <button @click="goToCreateTask">Создать задание</button>
-      <div v-for="(task, index) in tasks" :key="task.id" class="task-item">
-        <h3>{{ task.name }}</h3>
-        <p>{{ task.description }}</p>
-        <button @click="goToEditTask(task.id)">Редактировать</button>
-      </div>
+      <ul class="test-list">
+        <li v-for="task in tasks" :key="task.id" class="test-item">
+          <router-link :to="`/edit-task/${task.id}`" class="test-link">
+            <div class="item-title">{{ task.name }}</div>
+            <div class="item-description">{{ task.description }}</div>
+          </router-link>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -70,6 +70,7 @@ export default {
         }
 
         const data = await response.json();
+        console.log("Контрольные пришли:", data);
         this.tests = data.content || [];
       } catch (error) {
         console.error("Ошибка при получении контрольных:", error.message);
@@ -99,9 +100,11 @@ export default {
         console.error("Ошибка при получении заданий:", error.message);
       }
     },
-
+    saveTestToStorage(test) {
+      localStorage.setItem('selectedTest', JSON.stringify(test));
+    },
     goToCreateTest() {
-      this.$router.push("/create-test");
+      this.$router.push("/create-contest");
     },
     goToCreateTask() {
       this.$router.push("/create-task");
@@ -199,10 +202,16 @@ button:hover {
   margin-top: 30px;
 }
 
-.task-item {
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.item-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d2d2d;
+  margin-bottom: 6px;
 }
+
+.item-description {
+  font-size: 14px;
+  color: #888;
+}
+
 </style>

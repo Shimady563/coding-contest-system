@@ -47,8 +47,8 @@ export default {
         localStorage.setItem("tokenData", JSON.stringify(data));
         console.log("Успешный вход", data);
 
-        this.$router.push("/profile").then(() => {
-          window.location.reload(); 
+        this.$router.push("/").then(() => {
+          window.location.reload();
         });
 
         const authHeader = `${data.type} ${data.accessToken}`;
@@ -56,7 +56,7 @@ export default {
 
         const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
           headers: {
-            "Authorization": authHeader, 
+            "Authorization": authHeader,
           },
         });
 
@@ -94,7 +94,7 @@ export default {
       const authHeader = `Bearer ${tokenData.accessToken}`;
       const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
         headers: {
-          "Authorization": authHeader, 
+          "Authorization": authHeader,
         },
       });
 
@@ -118,8 +118,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f4f4f4;
-}
+  }
 
 .auth-form {
   background-color: #fff;

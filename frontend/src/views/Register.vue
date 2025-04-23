@@ -2,41 +2,52 @@
   <div class="auth-container">
     <form @submit.prevent="register" class="auth-form">
       <h2>Регистрация</h2>
+
       <div>
         <label>Имя:</label>
         <input type="text" v-model="firstName" required />
       </div>
+
       <div>
         <label>Фамилия:</label>
         <input type="text" v-model="lastName" required />
       </div>
+
       <div>
         <label>Email:</label>
         <input type="email" v-model="email" required />
       </div>
+
       <div>
         <label>Пароль:</label>
         <input type="password" v-model="password" required />
+        <small v-if="password && !isPasswordValid" class="error-message">
+          Пароль должен содержать минимум 8 символов, одну заглавную, одну строчную букву, цифру и спецсимвол
+        </small>
       </div>
+
       <div>
         <label>Повторите пароль:</label>
         <input type="password" v-model="confirmPassword" required />
+        <small v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
+          Пароли не совпадают
+        </small>
       </div>
-      <div v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
-        Пароли не совпадают
-      </div>
-      
-      <!-- Выпадающий список для групп -->
+
       <div>
         <label>Группа:</label>
         <select v-model="groupId" required>
           <option disabled value="">Выберите группу</option>
-          <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
+          <option v-for="group in groups" :key="group.id" :value="group.id">
+            {{ group.name }}
+          </option>
         </select>
       </div>
-      
+
       <button type="submit" class="btn primary" :disabled="isSubmitDisabled">Зарегистрироваться</button>
+
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
       <p class="footer-link">
         Уже есть аккаунт? <router-link to="/login">Войти</router-link>
       </p>
@@ -45,7 +56,7 @@
 </template>
 
 <script>
-import { fetchGroups } from "@/js/auth"; 
+import { fetchGroups } from "@/js/auth";
 
 export default {
   data() {
@@ -55,22 +66,31 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
-      groupId: null,  
-      groups: [],  
-      errorMessage: ""
+      groupId: "",
+      groups: [],
+      errorMessage: "",
     };
   },
   computed: {
+    isPasswordValid() {
+      return this.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).{8,}$/);
+    },
     isSubmitDisabled() {
-     return this.password !== this.confirmPassword || !this.firstName || !this.lastName || !this.email || !this.groupId;
+      return (
+        !this.firstName ||
+        !this.lastName ||
+        !this.email ||
+        !this.password ||
+        !this.confirmPassword ||
+        !this.groupId ||
+        this.password !== this.confirmPassword ||
+        !this.isPasswordValid
+      );
     }
   },
   methods: {
     async register() {
-      if (this.password !== this.confirmPassword) {
-        this.errorMessage = "Пароли не совпадают";
-        return;
-      }
+      this.errorMessage = "";
 
       try {
         const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
@@ -82,8 +102,8 @@ export default {
             lastName: this.lastName,
             email: this.email,
             password: this.password,
-            groupId: this.groupId
-          })
+            groupId: this.groupId,
+          }),
         });
 
         if (!response.ok) {
@@ -93,53 +113,43 @@ export default {
         }
 
         const data = await response.json();
-        console.log("Регистрация успешна:", data);
-
-        if (data.token) {
-          localStorage.setItem("tokenData", JSON.stringify(data));
-        }
-
-        this.$router.push("/").then(() => {
-          window.location.reload();
-        });
-
+        localStorage.setItem("tokenData", JSON.stringify(data));
+        this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
-        console.error("Ошибка при регистрации", err);
+        console.error("Ошибка при регистрации:", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
       }
     },
 
-    async fetchGroups() {
+    async fetchGroupsList() {
       this.groups = await fetchGroups();
     }
   },
   mounted() {
-    this.fetchGroups();  
-  }
+    this.fetchGroupsList();
+  },
 };
 </script>
 
 <style scoped>
 .auth-container {
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  height: 100vh; 
-  background-color: #f4f4f4; 
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .auth-form {
   background-color: #fff;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); 
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px; 
+  max-width: 400px;
 }
 
 h2 {
   text-align: center;
-  font-size: 24px;
   margin-bottom: 20px;
   color: #333;
 }
@@ -154,12 +164,12 @@ label {
   font-weight: 500;
 }
 
-input, select {
+input,
+select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  box-sizing: border-box;
 }
 
 button {
@@ -204,7 +214,6 @@ p {
 .error-message {
   color: red;
   font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
+  margin-top: 8px;
 }
 </style>

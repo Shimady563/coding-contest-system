@@ -1,6 +1,8 @@
 <template>
-  <div class="create-cr-container">
-    <h1 class="title">Создание контрольной работы</h1>
+
+<h1 class="title">Создание контрольной работы</h1>
+
+<div class="create-cr-container">
 
     <div class="form-group">
       <label for="name">Название</label>
@@ -117,14 +119,41 @@ export default {
     removeVariant(index) {
       this.variants.splice(index, 1);
     },
-    saveControlWork() {
-      const payload = {
-        ...this.controlWork,
-        variants: this.variants,
-      };
-      console.log('Контрольная к отправке:', payload);
-      alert('Контрольная сохранена!');
-    },
+    async saveControlWork() {
+      try {
+        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
+        if (!tokenData || !tokenData.accessToken) {
+          throw new Error("Пользователь не авторизован");
+        }
+
+        const payload = {
+          ...this.controlWork,
+          variants: this.variants
+        };
+
+        const response = await fetch('http://localhost:8080/api/v1/contests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${tokenData.accessToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(`Ошибка при сохранении контрольной: ${error.message}`);
+        }
+
+        const result = await response.json();
+        console.log("Контрольная успешно сохранена:", result);
+        alert("Контрольная успешно создана!");
+        this.$router.push('/manage-contests'); // если есть роут на список КР
+      } catch (error) {
+        console.error("Ошибка при сохранении контрольной:", error.message);
+        alert(`Ошибка: ${error.message}`);
+      }
+    }
   },
 };
 </script>
@@ -189,10 +218,8 @@ textarea:focus {
 }
 
 .variant-block {
-  padding: 24px;
   background: #f0f4f8;
   border-radius: 16px;
-  border: 1px solid #dbeafe;
   margin-bottom: 20px;
   transition: all 0.3s ease;
 }

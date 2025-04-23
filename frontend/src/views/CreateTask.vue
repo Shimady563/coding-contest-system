@@ -16,32 +16,52 @@
       <div class="testcase-section">
         <h2>Тест-кейсы</h2>
 
-        <div
-          v-for="(testcase, index) in testCases"
-          :key="index"
-          class="testcase"
-        >
-          <div class="form-group">
-            <label>Ввод <span class="required">*</span></label>
-            <textarea
-              v-model="testcase.input"
-              placeholder="Ввод программы"
-            ></textarea>
+        <transition-group name="fade" tag="div">
+          <div
+            v-for="(testcase, index) in testCases"
+            :key="index"
+            class="testcase"
+          >
+            <div class="form-group">
+              <label>Ввод <span class="required">*</span></label>
+              <textarea
+                v-model="testcase.input"
+                placeholder="Ввод программы"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Ожидаемый вывод <span class="required">*</span></label>
+              <textarea
+                v-model="testcase.output"
+                placeholder="Ожидаемый результат"
+              ></textarea>
+            </div>
+            <button
+              class="btn-remove"
+              @click="removeTestCase(index)"
+              title="Удалить тест-кейс 🗑"
+            >
+              🗑 Удалить
+            </button>
           </div>
-          <div class="form-group">
-            <label>Ожидаемый вывод <span class="required">*</span></label>
-            <textarea
-              v-model="testcase.output"
-              placeholder="Ожидаемый результат"
-            ></textarea>
-          </div>
-          <button class="btn-remove" @click="removeTestCase(index)">Удалить</button>
-        </div>
+        </transition-group>
 
-        <button @click="addTestCase" class="btn-add">Добавить тест-кейс</button>
+        <button
+          @click="addTestCase"
+          class="btn-add"
+          title="Добавить тест-кейс ➕"
+        >
+          ➕ Добавить тест-кейс
+        </button>
       </div>
 
-      <button @click="saveTask" class="btn-save">Сохранить задание</button>
+      <button
+        @click="saveTask"
+        class="btn-save"
+        title="Сохранить задание 💾"
+      >
+        💾 Сохранить задание
+      </button>
     </div>
   </div>
 </template>
@@ -76,7 +96,7 @@ export default {
           return;
         }
       }
-      
+
       console.log("tokenData из localStorage:", localStorage.getItem("tokenData"));
 
       const data = {
@@ -108,7 +128,6 @@ export default {
       try {
         let response = await makeRequest(accessToken);
 
-        // если accessToken истёк, пробуем обновить
         if (response.status === 401 && refreshToken) {
           const refreshResponse = await fetch('http://localhost:8080/api/v1/auth/refresh', {
             method: 'POST',
@@ -124,7 +143,6 @@ export default {
           accessToken = tokens.accessToken;
           localStorage.setItem('tokenData', JSON.stringify(tokens));
 
-          // повторяем запрос с новым токеном
           response = await makeRequest(accessToken);
         }
 
@@ -147,8 +165,9 @@ export default {
 .page {
   max-width: 800px;
   margin: auto;
-  padding: 2rem;
   font-family: Arial, sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 h1 {
@@ -162,12 +181,16 @@ h1 {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .form-group {
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 label {
@@ -187,6 +210,8 @@ textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
   resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .testcase-section {
@@ -210,7 +235,8 @@ textarea {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-sizing: border-box;
 }
 
 .btn-add {
@@ -225,7 +251,7 @@ textarea {
 }
 
 .btn-save {
-  background-color: #28a745;
+  background-color: #2ecc71;
   color: white;
   margin-top: 2rem;
   width: 100%;
@@ -241,5 +267,21 @@ textarea {
 
 .btn-remove:hover {
   background-color: #c82333;
+}
+
+.btn-add:active,
+.btn-save:active,
+.btn-remove:active {
+  transform: scale(0.97);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.4s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

@@ -13,7 +13,7 @@
 
     <!-- Студент -->
     <header class="header" v-else-if="user.role === 'student'">
-      <h1>Привет, {{ user.name }} 🎓</h1>
+      <h1>Привет, {{ user.firstName }} {{user.lastName}} 🎓</h1>
       <p class="subtitle">Ты можешь:</p>
       <ul class="features">
         <li>📝 Решать контрольные работы и задания</li>
@@ -24,7 +24,7 @@
 
     <!-- Преподаватель -->
     <header class="header" v-else-if="user.role === 'teacher'">
-      <h1>Здравствуйте, {{ user.name }} 👨‍🏫</h1>
+      <h1>Здравствуйте, {{ user.firstName }} {{user.lastName}} 👨‍🏫</h1>
       <p class="subtitle">Вам доступны следующие функции:</p>
       <ul class="features">
         <li>➕ Создание контрольных работ и заданий</li>
@@ -60,6 +60,7 @@ export default {
   background: linear-gradient(to right, #f8f9fa, #e9ecef);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
+  background: linear-gradient(to right, #dfe9f3, #ffffff);
 }
 
 .header {

@@ -65,9 +65,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px;
-  background-color: #f9f9f9;
   border-radius: 8px;
+  background: linear-gradient(to right, #dfe9f3, #ffffff);
 }
 
 button {

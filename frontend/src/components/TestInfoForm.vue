@@ -35,7 +35,7 @@ export default {
   props: ['modelValue'],
   data() {
     return {
-      groups: [],  // Список групп
+      groups: [],
     };
   },
   computed: {
@@ -59,7 +59,7 @@ export default {
           throw new Error('Не удалось загрузить список групп');
         }
         const data = await response.json();
-        this.groups = data;  // Сохраняем группы в состояние компонента
+        this.groups = data;  
       } catch (error) {
         console.error(error);
       }

@@ -40,7 +40,6 @@ export default {
   },
   computed: {
     tasksArray() {
-      // На всякий случай, если вдруг придёт не массив
       return Array.isArray(this.allTasks) ? this.allTasks : [];
     },
     selectedTask() {
