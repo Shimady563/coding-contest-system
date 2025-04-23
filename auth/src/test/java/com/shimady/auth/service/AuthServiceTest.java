@@ -47,6 +47,7 @@ class AuthServiceTest {
         user.setEmail("test@example.com");
         user.setPassword("password");
         var group = new Group();
+        group.setId(1L);
         group.setName("Test Group");
         user.setGroup(group);
 
@@ -61,6 +62,7 @@ class AuthServiceTest {
         assertEquals(user.getLastName(), response.getLastName());
         assertEquals(user.getEmail(), response.getEmail());
         assertEquals(user.getGroup().getName(), response.getGroupName());
+        assertEquals(user.getGroup().getId(), response.getGroupId());
         then(userService).should().getUserByEmail(user.getEmail());
     }
 
@@ -73,6 +75,7 @@ class AuthServiceTest {
         request.setPassword("password");
         request.setGroupId(1L);
         var group = new Group();
+        group.setId(1L);
         group.setName("Test Group");
 
         given(passwordEncoder.encode(request.getPassword())).willReturn("encodedPassword");
