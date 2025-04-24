@@ -2,7 +2,7 @@ package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
-import com.shimady563.contest.manager.model.Role;
+import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.TestCase;
 import com.shimady563.contest.manager.model.User;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,16 +71,8 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskResponseDto> searchForTasks(Long contestVersionId, PageRequest pageRequest) {
-        log.info("Searching for tasks with contest version id: {}", contestVersionId);
-        User currentUser = userService.getCurrentUser();
-        if (currentUser.getRole() == Role.ROLE_STUDENT
-                && currentUser.getContestVersions()
-                .stream()
-                .filter(cv -> cv.getId().equals(contestVersionId))
-                .count() != 1) {
-            throw new AccessDeniedException("Access to tasks of contest version with id: " + contestVersionId + " denied for user with id: " + currentUser.getId());
-        }
+    public Page<TaskResponseDto> searchForTasks(PageRequest pageRequest) {
+        log.info("Searching for tasks");
         return taskRepository.findAll(pageRequest)
                 .map(t -> mapper.map(t, TaskResponseDto.class));
     }
@@ -88,5 +81,25 @@ public class TaskService {
     public void deleteTaskById(Long id) {
         log.info("Deleting task with id: {}", id);
         taskRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResponseDto> getTasksByContestVersionId(Long contestVersionId) {
+        log.info("Searching for tasks with contest version id: {}", contestVersionId);
+        User currentUser = userService.getCurrentUser();
+        Optional<ContestVersion> optContestVersion = currentUser.getContestVersions()
+                .stream()
+                .filter(cv -> cv.getId().equals(contestVersionId))
+                .findFirst();
+
+        if (optContestVersion.isEmpty()) {
+            throw new AccessDeniedException("Access to tasks of contest version with id: " + contestVersionId + " denied for user with id: " + currentUser.getId());
+        }
+
+        ContestVersion contestVersion = optContestVersion.get();
+
+        return taskRepository.findByContestVersion(contestVersion).stream()
+                .map(t -> mapper.map(t, TaskResponseDto.class))
+                .toList();
     }
 }
