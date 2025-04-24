@@ -1,12 +1,10 @@
 <template>
-  <div class="task-container">
-    <TaskDescription />
-    <TestCases />
+  <div class="task-container" v-if="taskData">
+    <TaskDescription :description="taskData.description" />
+    <TestCases :testCases="taskData.testCases" />
     <CodeEditor ref="codeEditor" />
-    <button @click="sendCode">
-      Send
-    </button>
-    <OutputResults ref="outputResults" />
+    <button @click="sendCode">Send</button>
+    <OutputResults ref="outputResults" :taskId="taskData.id" />
   </div>
 </template>
 
@@ -23,39 +21,40 @@ export default {
     CodeEditor,
     OutputResults,
   },
+  props: [],
+  data() {
+    return {
+      taskData: null,
+    };
+  },
   methods: {
     async sendCode() {
       const codeEditor = this.$refs.codeEditor;
-
-      if (!codeEditor || !codeEditor.editor) {
-        console.error("Code editor is not initialized!");
-        return;
-      }
+      if (!codeEditor || !codeEditor.editor) return;
 
       const code = codeEditor.editor.getValue();
-      console.log("Sending code:", code);
+      const response = await fetch("http://localhost:8080/test/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, taskId: this.taskData.id }),
+      });
 
-      try {
-        const response = await fetch("http://localhost:8080/test/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ code }),
-          mode: "cors"
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to submit code");
-        }
-
-        console.log("Code submitted successfully");
-
-        this.$refs.outputResults.fetchResults();
-      } catch (error) {
-        console.error("Error submitting code:", error);
-      }
+      if (response.ok) this.$refs.outputResults.fetchResults();
     },
+  },
+  created() {
+    const state = window.history.state;
+    if (state?.task) {
+      this.taskData = state.task;
+    } else {
+      // fallback — если обновили страницу, или перешли напрямую по URL
+      const taskId = this.$route.params.taskId;
+      fetch(`http://localhost:8080/api/tasks/${taskId}`)
+        .then(res => res.json())
+        .then(data => {
+          this.taskData = data;
+        });
+    }
   },
 };
 </script>

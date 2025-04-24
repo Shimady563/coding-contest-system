@@ -16,10 +16,6 @@
           <span>{{ user.email }}</span>
         </div>
         <div class="info-item">
-          <span>🆔 ID:</span>
-          <span>{{ user.id }}</span>
-        </div>
-        <div class="info-item">
           <span>👥 Группа:</span>
           <span>{{ user.groupName }}</span>
         </div>
