@@ -98,7 +98,7 @@ public class TaskService {
 
         ContestVersion contestVersion = optContestVersion.get();
 
-        return taskRepository.findByContestVersion(contestVersion).stream()
+        return taskRepository.findByContestVersions(contestVersion).stream()
                 .map(t -> mapper.map(t, TaskResponseDto.class))
                 .toList();
     }
