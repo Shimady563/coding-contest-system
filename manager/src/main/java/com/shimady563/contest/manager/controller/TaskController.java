@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
@@ -32,13 +34,18 @@ public class TaskController {
     }
 
     @GetMapping("")
-    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
+    @Secured({"ROLE_TEACHER"})
     public Page<TaskResponseDto> searchForTasks(
-            @RequestParam(required = false) Long contestVersionId,
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        return taskService.searchForTasks(contestVersionId, PageRequest.of(pageNumber, pageSize));
+        return taskService.searchForTasks(PageRequest.of(pageNumber, pageSize));
+    }
+
+    @GetMapping("/contest-version")
+    @Secured({"ROLE_STUDENT"})
+    public List<TaskResponseDto> getTasksByContestVersionId(@RequestParam Long contestVersionId) {
+        return taskService.getTasksByContestVersionId(contestVersionId);
     }
 
     @DeleteMapping("/{id}")
