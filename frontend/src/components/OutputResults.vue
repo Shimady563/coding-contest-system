@@ -32,19 +32,15 @@ export default {
   },
   methods: {
     async fetchResults() {
-      console.log("Fetching results...");
-
       try {
-        const response = await fetch("http://localhost:8080/test/solutions?taskId=1");
-
+        const response = await fetch(`http://localhost:8080/test/solutions?taskId=${this.taskData.id}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch results");
+          throw new Error('Ошибка загрузки данных');
         }
-
-        this.results = await response.json();
-        console.log("Results received:", this.results);
+        const data = await response.json();
+        this.taskData.testCases = data.testCases;
       } catch (error) {
-        console.error("Error fetching results:", error);
+        console.error('Error fetching results:', error);
       }
     },
   },

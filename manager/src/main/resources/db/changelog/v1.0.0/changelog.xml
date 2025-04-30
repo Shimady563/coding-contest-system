@@ -15,6 +15,8 @@
     <include file="2025-03-15-create-table-task.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-test-case.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-create-table-solution.xml" relativeToChangelogFile="true"/>
+    <include file="2025-04-10-create-table-contest-version-task.xml" relativeToChangelogFile="true"/>
+
 
     <include file="2025-03-15-populate-table-group.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-contest.xml" relativeToChangelogFile="true"/>
@@ -24,5 +26,6 @@
     <include file="2025-03-15-populate-table-task.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-test-case.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-solution.xml" relativeToChangelogFile="true"/>
+    <include file="2025-04-10-populate-table-contest-version-task.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

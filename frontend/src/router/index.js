@@ -26,12 +26,12 @@ const routes = [
   { path: '/edit-contest/:id', component: EditContest, props: true },
   { path: '/contest/:id', component: ContestVersionsPage},
   { path: '/contest-version/:id/tasks', component: TasksPage},
-  { path: '/task/:taskId', component: StudentContest }
+  { path: '/task/:taskId', component: StudentContest, name: 'StudentContest' }
 ];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-})
+});
 
 export default router;
