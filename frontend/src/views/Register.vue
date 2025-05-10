@@ -91,6 +91,7 @@ export default {
   methods: {
     async register() {
       this.errorMessage = "";
+      this.$root.notify('Начата регистрация...', 'info');
 
       try {
         const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
@@ -109,20 +110,27 @@ export default {
         if (!response.ok) {
           const err = await response.json();
           this.errorMessage = err.message || "Ошибка регистрации";
+          this.$root.notify(this.errorMessage, 'error');
           return;
         }
 
         const data = await response.json();
         localStorage.setItem("tokenData", JSON.stringify(data));
+        this.$root.notify('Регистрация прошла успешно!', 'success');
         this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
         console.error("Ошибка при регистрации:", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
+        this.$root.notify(this.errorMessage, 'error');
       }
     },
 
     async fetchGroupsList() {
-      this.groups = await fetchGroups();
+      try {
+        this.groups = await fetchGroups();
+      } catch (error) {
+        console.error("Ошибка загрузки групп:", error);
+      }
     }
   },
   mounted() {

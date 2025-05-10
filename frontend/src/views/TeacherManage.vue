@@ -9,26 +9,24 @@
     </div>
 
     <!-- Контрольные -->
-    <div v-if="isTestsActive" class="test-management">
-      <button @click="goToCreateTest">Создать контрольную</button>
-      <ul class="test-list">
-        <li v-for="test in tests" :key="test.id" class="test-item">
-          <div
-            class="test-link"
-          >
-          <div class="item-title">{{ test.name }}</div>
-          <div class="item-description">{{ test.description }}</div>
-        </div>
+    <div v-if="isTestsActive" class="management-section">
+      <button class="create-btn" @click="goToCreateTest">Создать контрольную</button>
+      <ul class="items-list">
+        <li v-for="test in tests" :key="test.id" class="item">
+          <div class="item-link">
+            <div class="item-title">{{ test.name }}</div>
+            <div class="item-description">{{ test.description }}</div>
+          </div>
         </li>
       </ul>
     </div>
 
     <!-- Задания -->
-    <div v-else class="task-management">
-      <button @click="goToCreateTask">Создать задание</button>
-      <ul class="test-list">
-        <li v-for="task in tasks" :key="task.id" class="test-item">
-          <router-link :to="`/edit-task/${task.id}`" class="test-link">
+    <div v-else class="management-section">
+      <button class="create-btn " @click="goToCreateTask">Создать задание</button>
+      <ul class="items-list">
+        <li v-for="task in tasks" :key="task.id" class="item">
+          <router-link :to="`/edit-task/${task.id}`" class="item-link">
             <div class="item-title">{{ task.name }}</div>
             <div class="item-description">{{ task.description }}</div>
           </router-link>
@@ -135,7 +133,10 @@ h1 {
 }
 
 .tabs {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .tabs button {
@@ -145,8 +146,8 @@ h1 {
   border: 1px solid #ddd;
   background-color: #f0f0f0;
   border-radius: 6px;
-  transition: background-color 0.3s;
-  margin: 0 10px;
+  transition: all 0.3s;
+  margin: 0;
 }
 
 .tabs button.active {
@@ -155,51 +156,60 @@ h1 {
   border-color: #2f80ed;
 }
 
-button {
-  background: #2f80ed;
-  color: #fff;
-  border: none;
+.management-section {
+  margin-top: 20px;
+}
+
+.create-btn {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 30px auto;
   padding: 12px 20px;
   font-size: 16px;
+  font-weight: 600;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-bottom: 30px;
+  color: white;
 }
 
-button:hover {
-  background-color: #1366d6;
+.create-btn {
+  background-color: #34d399; 
 }
 
-.test-list, .task-list {
+.create-btn:hover {
+  opacity: 0.9;
+  background-color: #10b981; 
+}
+
+.items-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.test-item, .task-item {
+.item {
   margin-bottom: 15px;
 }
 
-.test-link {
+.item-link {
   display: block;
-  padding: 12px 16px;
+  padding: 16px;
   background-color: #f5f7fa;
   color: #2d2d2d;
   text-decoration: none;
   font-weight: 500;
   border-radius: 8px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   text-align: left;
 }
 
-.test-link:hover {
+.item-link:hover {
   background-color: #e2e6ed;
-  color: #1a73e8;
-}
-
-.task-management {
-  margin-top: 30px;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .item-title {
@@ -213,5 +223,4 @@ button:hover {
   font-size: 14px;
   color: #888;
 }
-
 </style>

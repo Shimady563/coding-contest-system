@@ -10,7 +10,13 @@
         <label>Пароль:</label>
         <input type="password" v-model="password" required />
       </div>
-      <button type="submit" class="btn primary">Войти</button>
+      <button 
+        type="submit" 
+        class="btn primary" 
+        :disabled="isSubmitDisabled"
+      >
+        Войти
+      </button>
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       <p class="footer-link">
         Нет аккаунта? <router-link to="/register">Зарегистрироваться</router-link>
@@ -28,9 +34,16 @@ export default {
       errorMessage: "",
     };
   },
+  computed: {
+    isSubmitDisabled() {
+      return !this.email || !this.password;
+    }
+  },
   methods: {
     async login() {
       try {
+        this.$root.notify('Попытка входа...', 'info');
+        
         const response = await fetch("http://localhost:8081/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -40,12 +53,13 @@ export default {
         if (!response.ok) {
           const err = await response.json();
           this.errorMessage = err.message || "Ошибка входа";
+          this.$root.notify(this.errorMessage, 'error');
           return;
         }
 
         const data = await response.json();
         localStorage.setItem("tokenData", JSON.stringify(data));
-        console.log("Успешный вход", data);
+        this.$root.notify('Вход выполнен успешно!', 'success');
 
         this.$router.push("/").then(() => {
           window.location.reload();
@@ -68,6 +82,7 @@ export default {
           } else {
             this.errorMessage = "Ошибка авторизации. Попробуйте ещё раз.";
           }
+          this.$root.notify(this.errorMessage, 'error');
           return;
         }
 
@@ -79,38 +94,12 @@ export default {
       } catch (err) {
         console.error("Ошибка при входе", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";
+        this.$root.notify(this.errorMessage, 'error');
       }
-    },
-
-    async getUserData() {
-      const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-      if (!tokenData || !tokenData.accessToken) {
-        this.errorMessage = "Пользователь не авторизован";
-        return;
-      }
-
-      console.log("Получаем данные пользователя с токеном:", tokenData.accessToken);
-
-      const authHeader = `Bearer ${tokenData.accessToken}`;
-      const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
-        headers: {
-          "Authorization": authHeader,
-        },
-      });
-
-      if (!meResponse.ok) {
-        const errText = await meResponse.text();
-        console.error("Ошибка при получении данных пользователя", errText);
-        return;
-      }
-
-      const userData = await meResponse.json();
-      console.log("Данные пользователя:", userData);
     },
   },
 };
 </script>
-
 
 <style scoped>
 .auth-container {
@@ -166,8 +155,13 @@ button {
   transition: background-color 0.2s ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #1366d6;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 p {

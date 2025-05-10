@@ -9,10 +9,10 @@
         <div class="task-name">{{ task.name }}</div>
         <div class="task-desc">{{ task.description }}</div>
       </div>
-      <button class="btn-remove" @click="removeTask(i)">Удалить</button>
+      <button class="btn-remove" @click="removeTask(i)">🗑 Удалить задание</button>
     </div>
 
-    <button class="btn-remove-variant" @click="$emit('remove')">Удалить вариант</button>
+    <button class="btn-remove-variant" @click="$emit('remove')">🗑 Удалить вариант</button>
   </div>
 </template>
 
