@@ -5,36 +5,53 @@
     <div class="card">
       <div class="form-group">
         <label>Название задания <span class="required">*</span></label>
-        <input v-model="taskName" type="text" placeholder="Введите название" />
+        <input 
+          v-model="task.name" 
+          type="text" 
+          placeholder="Введите название"
+          :class="{ 'invalid': !task.name && submitted }"
+        />
+        <span v-if="!task.name && submitted" class="error-message">Это поле обязательно</span>
       </div>
 
       <div class="form-group">
         <label>Описание <span class="required">*</span></label>
-        <textarea v-model="taskDescription" placeholder="Введите описание"></textarea>
+        <textarea 
+          v-model="task.description" 
+          placeholder="Введите описание"
+          :class="{ 'invalid': !task.description && submitted }"
+        ></textarea>
+        <span v-if="!task.description && submitted" class="error-message">Это поле обязательно</span>
       </div>
 
       <div class="testcase-section">
-        <h2>Тест-кейсы</h2>
+        <h2>Тест-кейсы <span class="required">*</span></h2>
+        <span v-if="task.testCases.length === 0 && submitted" class="error-message">Добавьте хотя бы один тест-кейс</span>
 
         <transition-group name="fade" tag="div">
           <div
-            v-for="(testcase, index) in testCases"
+            v-for="(testCase, index) in task.testCases"
             :key="index"
             class="testcase"
+            :class="{ 'invalid': (!testCase.input || !testCase.output) && submitted }"
           >
             <div class="form-group">
               <label>Ввод <span class="required">*</span></label>
               <textarea
-                v-model="testcase.input"
+                v-model="testCase.input"
                 placeholder="Ввод программы"
+                :class="{ 'invalid': !testCase.input && submitted }"
               ></textarea>
+              <span v-if="!testCase.input && submitted" class="error-message">Заполните поле ввода</span>
             </div>
             <div class="form-group">
               <label>Ожидаемый вывод <span class="required">*</span></label>
               <textarea
-                v-model="testcase.output"
+                v-model="testCase.output"
                 placeholder="Ожидаемый результат"
+                :class="{ 'invalid': !testCase.output && submitted }"
               ></textarea>
+              <span v-if="!testCase.output && submitted" class="error-message">Заполните поле вывода</span>
             </div>
             <button
               class="btn-remove"
@@ -59,8 +76,10 @@
         @click="saveTask"
         class="btn-save"
         title="Сохранить задание 💾"
+        :disabled="loading"
       >
-        💾 Сохранить задание
+        <span v-if="loading">⏳ Сохранение...</span>
+        <span v-else>💾 Сохранить задание</span>
       </button>
     </div>
   </div>
@@ -72,60 +91,81 @@ import { getAccessToken, getRefreshToken } from '@/js/auth'
 export default {
   data() {
     return {
-      taskName: '',
-      taskDescription: '',
-      testCases: [{ input: '', output: '' }],
+      task: {
+        name: '',
+        description: '',
+        testCases: [{ input: '', output: '' }]
+      },
+      submitted: false,
+      loading: false
     };
   },
   methods: {
     addTestCase() {
-      this.testCases.push({ input: '', output: '' });
+      this.task.testCases.push({ input: '', output: '' });
     },
+    
     removeTestCase(index) {
-      this.testCases.splice(index, 1);
+      this.task.testCases.splice(index, 1);
     },
-    async saveTask() {
-      if (!this.taskName.trim() || !this.taskDescription.trim()) {
-        alert('Пожалуйста, заполните все обязательные поля.');
-        return;
+    
+    validateForm() {
+      this.submitted = true;
+      
+      if (!this.task.name.trim()) {
+        this.$root.notify('Введите название задания', 'error');
+        return false;
       }
-
-      for (const testCase of this.testCases) {
+      
+      if (!this.task.description.trim()) {
+        this.$root.notify('Введите описание задания', 'error');
+        return false;
+      }
+      
+      if (this.task.testCases.length === 0) {
+        this.$root.notify('Добавьте хотя бы один тест-кейс', 'error');
+        return false;
+      }
+      
+      for (const [index, testCase] of this.task.testCases.entries()) {
         if (!testCase.input.trim() || !testCase.output.trim()) {
-          alert('Все тест-кейсы должны быть заполнены.');
-          return;
+          this.$root.notify(`Заполните все поля тест-кейса #${index + 1}`, 'error');
+          return false;
         }
       }
-
-      console.log("tokenData из localStorage:", localStorage.getItem("tokenData"));
-
-      const data = {
-        name: this.taskName.trim(),
-        description: this.taskDescription.trim(),
-        testCases: this.testCases.map(tc => ({
-          input: tc.input.trim(),
-          output: tc.output.trim(),
-        })),
-      };
-
-      let accessToken = getAccessToken();
-      const refreshToken = getRefreshToken();
-
-      console.log("AccessToken перед отправкой:", accessToken);
-      console.log("Тело запроса:", data);
-
-      const makeRequest = async (token) => {
-        return await fetch('http://localhost:8080/api/v1/tasks', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        });
-      };
+      
+      return true;
+    },
+    
+    async saveTask() {
+      if (!this.validateForm()) return;
+      
+      this.loading = true;
 
       try {
+        const data = {
+          name: this.task.name.trim(),
+          description: this.task.description.trim(),
+          testCases: this.task.testCases.map(tc => ({
+            input: tc.input.trim(),
+            output: tc.output.trim(),
+          })),
+        };
+
+        let accessToken = getAccessToken();
+        const refreshToken = getRefreshToken();
+
+        const makeRequest = async (token) => {
+          return await fetch('http://localhost:8080/api/v1/tasks', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+          });
+        };
+
         let response = await makeRequest(accessToken);
 
         if (response.status === 401 && refreshToken) {
@@ -137,27 +177,38 @@ export default {
             body: JSON.stringify({ refreshToken }),
           });
 
-          if (!refreshResponse.ok) throw new Error('Не удалось обновить токен');
+          if (!refreshResponse.ok) {
+            throw new Error('Не удалось обновить токен');
+          }
 
           const tokens = await refreshResponse.json();
           accessToken = tokens.accessToken;
           localStorage.setItem('tokenData', JSON.stringify(tokens));
-
           response = await makeRequest(accessToken);
         }
 
-        if (!response.ok) throw new Error('Ошибка при создании задания');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Ошибка при создании задания');
+        }
 
-        alert('Задание успешно создано!');
-        this.taskName = '';
-        this.taskDescription = '';
-        this.testCases = [{ input: '', output: '' }];
+        this.$root.notify('Задание успешно создано!', 'success');
+        
+        this.task = {
+          name: '',
+          description: '',
+          testCases: [{ input: '', output: '' }]
+        };
+        this.submitted = false;
+        
       } catch (error) {
-        console.error(error);
-        alert('Произошла ошибка при отправке задания.');
+        console.error('Ошибка сохранения:', error);
+        this.$root.notify(error.message || 'Произошла ошибка при сохранении задания', 'error');
+      } finally {
+        this.loading = false;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -214,6 +265,16 @@ textarea {
   box-sizing: border-box;
 }
 
+.invalid {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
 .testcase-section {
   margin-top: 2rem;
 }
@@ -222,8 +283,12 @@ textarea {
   background: #f5faff;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #60a5fa;
   border-radius: 8px;
+}
+
+.testcase.invalid {
+  border-left-color: #dc3545;
 }
 
 .btn-add,
@@ -240,7 +305,7 @@ textarea {
 }
 
 .btn-add {
-  background-color: #007bff;
+  background-color: #60a5fa;
   color: white;
 }
 
@@ -251,18 +316,23 @@ textarea {
 }
 
 .btn-save {
-  background-color: #2ecc71;
+  background-color: #34d399;
   color: white;
   margin-top: 2rem;
   width: 100%;
 }
 
-.btn-add:hover {
-  background-color: #0056b3;
+.btn-save:disabled {
+  background-color: #a7f3d0;
+  cursor: not-allowed;
 }
 
-.btn-save:hover {
-  background-color: #218838;
+.btn-add:hover {
+  background-color: #3b82f6;
+}
+
+.btn-save:hover:not(:disabled) {
+  background-color: #10b981;
 }
 
 .btn-remove:hover {

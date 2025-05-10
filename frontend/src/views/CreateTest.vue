@@ -1,60 +1,94 @@
 <template>
+  <div class="page">
+    <h1 class="title">Создание контрольной работы</h1>
 
-<h1 class="title">Создание контрольной работы</h1>
-
-<div class="create-cr-container">
-
-    <div class="form-group">
-      <label for="name">Название</label>
-      <input id="name" v-model="controlWork.name" type="text" placeholder="Введите название" />
-    </div>
-
-    <div class="form-group">
-      <label for="description">Описание</label>
-      <textarea id="description" v-model="controlWork.description" rows="3" placeholder="Краткое описание контрольной" />
-    </div>
-
-    <div class="form-group">
-      <label for="group">Группа</label>
-      <select id="group" v-model="controlWork.group">
-        <option disabled value="">-- Выберите группу --</option>
-        <option v-for="group in groups" :key="group.id" :value="group.id">
-          {{ group.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="form-row">
+    <div class="create-cr-container">
       <div class="form-group">
-        <label for="start">Начало</label>
-        <input id="start" type="datetime-local" v-model="controlWork.startTime" />
+        <label for="name">Название <span class="required">*</span></label>
+        <input 
+          id="name" 
+          v-model="controlWork.name" 
+          type="text" 
+          placeholder="Введите название" 
+          :class="{ 'invalid': !controlWork.name && submitted }"
+        />
+        <span v-if="!controlWork.name && submitted" class="error-message">Это поле обязательно</span>
       </div>
+
       <div class="form-group">
-        <label for="end">Окончание</label>
-        <input id="end" type="datetime-local" v-model="controlWork.endTime" />
+        <label for="description">Описание <span class="required">*</span></label>
+        <textarea 
+          id="description" 
+          v-model="controlWork.description" 
+          rows="3" 
+          placeholder="Краткое описание контрольной"
+          :class="{ 'invalid': !controlWork.description && submitted }"
+        />
+        <span v-if="!controlWork.description && submitted" class="error-message">Это поле обязательно</span>
       </div>
-    </div>
 
-    <h2 class="subtitle">Варианты</h2>
-    <div v-for="(variant, index) in variants" :key="index" class="variant-block">
-      <VariantForm
-        :variant="variant"
-        :allTasks="tasks"
-        @remove="removeVariant(index)"
-        @update="(updated) => updateVariant(index, updated)"
-      />
-    </div>
+      <div class="form-group">
+        <label for="group">Группа <span class="required">*</span></label>
+        <select 
+          id="group" 
+          v-model="controlWork.group"
+          :class="{ 'invalid': !controlWork.group && submitted }"
+        >
+          <option disabled value="">-- Выберите группу --</option>
+          <option v-for="group in groups" :key="group.id" :value="group.id">
+            {{ group.name }}
+          </option>
+        </select>
+        <span v-if="!controlWork.group && submitted" class="error-message">Выберите группу</span>
+      </div>
 
-    <div class="btn-group">
-      <button class="btn btn-secondary" @click="addVariant">+ Добавить вариант</button>
-      <button class="btn btn-primary" @click="saveControlWork">💾 Сохранить контрольную</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="start">Начало <span class="required">*</span></label>
+          <input 
+            id="start" 
+            type="datetime-local" 
+            v-model="controlWork.startTime"
+            :class="{ 'invalid': !controlWork.startTime && submitted }"
+          />
+          <span v-if="!controlWork.startTime && submitted" class="error-message">Укажите дату начала</span>
+        </div>
+        <div class="form-group">
+          <label for="end">Окончание <span class="required">*</span></label>
+          <input 
+            id="end" 
+            type="datetime-local" 
+            v-model="controlWork.endTime"
+            :class="{ 'invalid': !controlWork.endTime && submitted }"
+          />
+          <span v-if="!controlWork.endTime && submitted" class="error-message">Укажите дату окончания</span>
+        </div>
+      </div>
+
+      <h2 class="subtitle">Варианты <span class="required">*</span></h2>
+      <span v-if="variants.length === 0 && submitted" class="error-message">Добавьте хотя бы один вариант</span>
+      
+      <div v-for="(variant, index) in variants" :key="index" class="variant-block">
+        <VariantForm
+          :variant="variant"
+          :allTasks="tasks"
+          @remove="removeVariant(index)"
+          @update="(updated) => updateVariant(index, updated)"
+          :submitted="submitted"
+        />
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-secondary" @click="addVariant">+ Добавить вариант</button>
+        <button class="btn btn-primary" @click="saveControlWork">💾 Сохранить контрольную</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import VariantForm from '../components/VariantForm.vue';
-import { fetchGroups } from '../js/auth.js'; // Импортируем функцию
+import { fetchGroups } from '../js/auth.js';
 
 export default {
   components: { VariantForm },
@@ -70,6 +104,8 @@ export default {
       groups: [],
       tasks: [],
       variants: [],
+      submitted: false,
+      loading: false
     };
   },
   mounted() {
@@ -78,7 +114,11 @@ export default {
   },
   methods: {
     async loadGroups() {
-      this.groups = await fetchGroups(); // Используем импортированную функцию
+      try {
+        this.groups = await fetchGroups();
+      } catch (error) {
+        console.error("Ошибка при загрузке групп:", error);
+         }
     },
 
     async fetchTasks() {
@@ -101,10 +141,51 @@ export default {
 
         const data = await response.json();
         this.tasks = data.content || [];
-        console.log("Задания получены:", this.tasks);  // Добавлено логирование для отладки
-      } catch (error) {
+        } catch (error) {
         console.error("Ошибка при получении заданий:", error.message);
       }
+    },
+
+    validateForm() {
+      this.submitted = true;
+      
+      const requiredFields = [
+        { value: this.controlWork.name, message: 'Введите название контрольной работы' },
+        { value: this.controlWork.description, message: 'Введите описание контрольной работы' },
+        { value: this.controlWork.group, message: 'Выберите группу' },
+        { value: this.controlWork.startTime, message: 'Укажите дату начала' },
+        { value: this.controlWork.endTime, message: 'Укажите дату окончания' },
+      ];
+
+      for (const field of requiredFields) {
+        if (!field.value) {
+          this.$root.notify(field.message, 'error');
+          return false;
+        }
+      }
+
+      if (this.variants.length === 0) {
+        this.$root.notify('Добавьте хотя бы один вариант', 'error');
+        return false;
+      }
+
+      if (new Date(this.controlWork.startTime) >= new Date(this.controlWork.endTime)) {
+        this.$root.notify('Дата окончания должна быть позже даты начала', 'error');
+        return false;
+      }
+
+      for (const [index, variant] of this.variants.entries()) {
+        if (!variant.name) {
+          this.$root.notify(`Укажите название для варианта ${index + 1}`, 'error');
+          return false;
+        }
+        if (variant.tasks.length === 0) {
+          this.$root.notify(`Добавьте задания для варианта ${index + 1}`, 'error');
+          return false;
+        }
+      }
+
+      return true;
     },
 
     addVariant() {
@@ -113,13 +194,21 @@ export default {
         tasks: [],
       });
     },
+
     updateVariant(index, updatedVariant) {
       this.variants.splice(index, 1, updatedVariant);
     },
+
     removeVariant(index) {
       this.variants.splice(index, 1);
     },
+
     async saveControlWork() {
+      if (!this.validateForm()) return;
+      
+      if (this.loading) return;
+      this.loading = true;
+
       try {
         const tokenData = JSON.parse(localStorage.getItem("tokenData"));
         if (!tokenData || !tokenData.accessToken) {
@@ -127,8 +216,15 @@ export default {
         }
 
         const payload = {
-          ...this.controlWork,
-          variants: this.variants
+          name: this.controlWork.name,
+          description: this.controlWork.description,
+          groupId: Number(this.controlWork.group), 
+          startTime: new Date(this.controlWork.startTime).toISOString(),
+          endTime: new Date(this.controlWork.endTime).toISOString(),
+          variants: this.variants.map(variant => ({
+            name: variant.name,
+            taskIds: variant.tasks.map(task => Number(task.id)) 
+          }))
         };
 
         const response = await fetch('http://localhost:8080/api/v1/contests', {
@@ -141,17 +237,20 @@ export default {
         });
 
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(`Ошибка при сохранении контрольной: ${error.message}`);
+          const errorResponse = await response.json().catch(() => ({}));
+          console.error("Полный ответ сервера:", errorResponse);
+          throw new Error(errorResponse.message || 
+                        errorResponse.error || 
+                        `HTTP error ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log("Контрольная успешно сохранена:", result);
-        alert("Контрольная успешно создана!");
-        this.$router.push('/manage-contests'); // если есть роут на список КР
+        this.$root.notify('Контрольная работа успешно создана!', 'success');
+        this.$router.push('/manage-contests');
       } catch (error) {
         console.error("Ошибка при сохранении контрольной:", error.message);
-        alert(`Ошибка: ${error.message}`);
+        this.$root.notify(`Ошибка: ${error.message}`, 'error');
+      } finally {
+        this.loading = false;
       }
     }
   },
@@ -159,6 +258,10 @@ export default {
 </script>
 
 <style scoped>
+.page {
+  padding: 20px;
+}
+
 .create-cr-container {
   max-width: 900px;
   margin: 0 auto;
@@ -194,6 +297,10 @@ export default {
   color: #444;
 }
 
+.required {
+  color: #dc3545;
+}
+
 input,
 select,
 textarea {
@@ -209,6 +316,16 @@ select:focus,
 textarea:focus {
   border-color: #2563eb;
   outline: none;
+}
+
+.invalid {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
 }
 
 .form-row {
@@ -251,6 +368,11 @@ textarea:focus {
 
 .btn-primary:hover {
   background-color: #10b981;
+}
+
+.btn-primary:disabled {
+  background-color: #a7f3d0;
+  cursor: not-allowed;
 }
 
 .btn-secondary {

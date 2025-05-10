@@ -64,7 +64,7 @@ export default {
 .task-card {
   background: #fff;
   border: 1px solid #dcdcdc;
-  border-left: 5px solid #007bff;
+  border-left: 5px solid #60a5fa;
   padding: 12px 16px;
   margin-bottom: 12px;
   display: flex;

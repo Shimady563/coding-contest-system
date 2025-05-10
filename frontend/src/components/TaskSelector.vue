@@ -72,7 +72,7 @@ select {
 }
 
 .btn-add {
-  background-color: #007bff;
+  background-color: #60a5fa;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -89,7 +89,7 @@ select {
 .task-preview {
   padding: 12px;
   background: #e7f3ff;
-  border-left: 4px solid #007bff;
+  border-left: 4px solid #60a5fa;
   border-radius: 8px;
 }
 </style>
