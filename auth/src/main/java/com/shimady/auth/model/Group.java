@@ -13,15 +13,7 @@ import java.util.Set;
 @Table(name = "student_group")
 public class Group {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "student_group_id_seq"
-    )
-    @SequenceGenerator(
-            name = "student_group_id_seq",
-            sequenceName = "student_group_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

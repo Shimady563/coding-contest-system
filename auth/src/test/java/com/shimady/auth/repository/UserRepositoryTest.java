@@ -49,6 +49,8 @@ public class UserRepositoryTest {
     @Test
     public void testSave() {
         var newUser = new User();
+        newUser.setFirstName("newFirst");
+        newUser.setLastName("newLast");
         newUser.setEmail("newEmail");
         newUser.setPassword("newPass");
 
