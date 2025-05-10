@@ -27,6 +27,6 @@ jobs:
         uses: docker/build-push-action@v6.7.0
         with:
           context: ./frontend
-          file: ./frontend/frontend/Dockerfile
+          file: ./frontend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/coding-contest-frontend:latest
