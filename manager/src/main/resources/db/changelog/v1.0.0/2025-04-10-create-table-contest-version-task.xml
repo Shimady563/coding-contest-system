@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="2025-04-10-create-table-contest-version-task.xml" author="Shimady">
+
+        <createTable tableName="contest_version_task">
+            <column name="contest_version_id" type="bigint">
+                <constraints foreignKeyName="contest_version_task_contest_version_fkey"
+                             references="contest_version(id)"
+                             nullable="false"/>
+            </column>
+            <column name="task_id" type="bigint">
+                <constraints foreignKeyName="contest_version_task_task_fkey"
+                             references="task(id)"
+                             nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2025-03-15-add-contest-version-task-primary-key" author="Shimady">
+        <addPrimaryKey tableName="contest_version_task"
+                       columnNames="contest_version_id,task_id"/>
+    </changeSet>
+
+</databaseChangeLog>

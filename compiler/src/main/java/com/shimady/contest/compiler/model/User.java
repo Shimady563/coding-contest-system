@@ -4,18 +4,37 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
 @Table(name = "contest_user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "user_id_seq"
+    )
+    @SequenceGenerator(
+            name = "user_id_seq",
+            sequenceName = "user_id_seq",
+            allocationSize = 1
+    )
     private Long id;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<Solution> solutions = new ArrayList<>();
+
+    public void addSolution(Solution solution) {
+        solutions.add(solution);
+        solution.setUser(this);
+    }
 }

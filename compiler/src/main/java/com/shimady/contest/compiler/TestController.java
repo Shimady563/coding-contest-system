@@ -16,16 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TestController {
     private final SubmissionService submissionService;
-    private final TaskRepository taskRepository;
     private final SolutionService solutionService;
+    private final TaskRepository taskRepository;
 
     @PostMapping("/submit")
     public void run(@RequestBody CodeSubmission submission) {
         if (!taskRepository.existsById(1L)) {
             Task task = new Task();
+            task.setName("");
+            task.setDescription("");
+            task.setTestCasesCount((short) 0);
             taskRepository.save(task);
         }
-        submission.setTaskId(1L);
         submissionService.submitSolution(submission);
     }
 

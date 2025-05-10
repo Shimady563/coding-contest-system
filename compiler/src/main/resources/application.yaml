@@ -12,6 +12,21 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  kafka:
+    consumer:
+      group-id: compiler
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
+kafka:
+  topic:
+    1: submissionTopic
 logging:
   level:
     root: info

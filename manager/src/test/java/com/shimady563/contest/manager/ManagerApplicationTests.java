@@ -1,4 +1,4 @@
-package com.shimady.contest.compiler;
+package com.shimady563.contest.manager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
-class CompilerApplicationTests {
+class ManagerApplicationTests {
 
 	@Test
 	void contextLoads() {
