@@ -1,4 +1,4 @@
-INSERT INTO contest_version_task (contest_version_id, task_id) VALUES
+INSERT INTO contest_version_task (task_id, contest_version_id) VALUES
     (2, 1), (2, 3),
     (3, 1), (3, 4),
     (4, 2), (4, 5),
