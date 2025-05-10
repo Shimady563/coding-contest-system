@@ -15,15 +15,7 @@ import java.util.Objects;
 @Table(name = "test_case")
 public class TestCase {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "test_case_id_seq"
-    )
-    @SequenceGenerator(
-            name = "test_case_id_seq",
-            sequenceName = "test_case_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "input", nullable = false)

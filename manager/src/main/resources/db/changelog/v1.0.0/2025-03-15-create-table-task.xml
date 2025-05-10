@@ -4,7 +4,6 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
     <changeSet id="2025-03-15-create-table-task.xml" author="Shimady">
-        <createSequence sequenceName="task_id_seq"/>
 
         <createTable tableName="task">
             <column name="id" type="bigserial" autoIncrement="true">

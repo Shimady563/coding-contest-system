@@ -13,15 +13,7 @@ import java.util.Set;
 @Table(name = "contest_version")
 public class ContestVersion {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "contest_version_id_seq"
-    )
-    @SequenceGenerator(
-            name = "contest_version_id_seq",
-            sequenceName = "contest_version_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

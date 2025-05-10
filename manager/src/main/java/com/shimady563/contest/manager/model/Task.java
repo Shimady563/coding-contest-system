@@ -15,15 +15,7 @@ import java.util.Set;
 @Table(name = "task")
 public class Task {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "task_id_seq"
-    )
-    @SequenceGenerator(
-            name = "task_id_seq",
-            sequenceName = "task_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false)

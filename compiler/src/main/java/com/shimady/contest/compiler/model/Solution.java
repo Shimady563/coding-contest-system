@@ -12,15 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "solution")
 public class Solution {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "solution_id_seq"
-    )
-    @SequenceGenerator(
-            name = "solution_id_seq",
-            sequenceName = "solution_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "code", nullable = false)
