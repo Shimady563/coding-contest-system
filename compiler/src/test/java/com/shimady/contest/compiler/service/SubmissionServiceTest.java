@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -32,6 +34,7 @@ public class SubmissionServiceTest {
         submission.setCode("Code");
         submission.setTaskId(1L);
         submission.setUserId(1L);
+        submission.setSubmittedAt(LocalDateTime.now());
         var task = new Task();
         task.setId(submission.getTaskId());
         task.setName("Task");
@@ -45,6 +48,6 @@ public class SubmissionServiceTest {
 
         submissionService.submitSolution(submission);
 
-        then(compilerService).should().compileAndRun(submission.getCode(), task, user);
+        then(compilerService).should().compileAndRun(submission.getCode(), submission.getSubmittedAt(), task, user);
     }
 }

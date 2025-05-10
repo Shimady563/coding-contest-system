@@ -17,7 +17,6 @@
     <include file="2025-03-15-create-table-solution.xml" relativeToChangelogFile="true"/>
     <include file="2025-04-10-create-table-contest-version-task.xml" relativeToChangelogFile="true"/>
 
-
     <include file="2025-03-15-populate-table-group.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-contest.xml" relativeToChangelogFile="true"/>
     <include file="2025-03-15-populate-table-user.xml" relativeToChangelogFile="true"/>

@@ -25,6 +25,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.mockito.BDDMockito.then;
@@ -93,6 +94,7 @@ public class SubmissionKafkaMessageListenerIntegrationTest {
         message.setCode("code");
         message.setTaskId(1L);
         message.setUserId(1L);
+        message.setSubmittedAt(LocalDateTime.now());
 
         kafkaTemplate.send(topic, partition, "", message);
 
