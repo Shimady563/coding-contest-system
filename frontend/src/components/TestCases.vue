@@ -18,8 +18,8 @@ export default {
     return {
       testCases: [
         {
-          input: "5\n1 2 3 4 5\n",  // Пример входных данных
-          expectedOutput: "15",    // Ожидаемый результат
+          input: "5\n1 2 3 4 5\n", 
+          expectedOutput: "15",
         },
         {
           input: "3\n2 2 2\n",
@@ -33,27 +33,28 @@ export default {
 
 <style scoped>
 .test-cases {
-  background-color: #f4f4f4;
+  background-color: #fff;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
 
 .test-cases h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
+  font-size: 22px;
+  margin-bottom: 12px;
 }
 
 .test-cases pre {
   background-color: #333;
   color: #fff;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 12px;
+  border-radius: 8px;
   white-space: pre-wrap;
 }
 
 .test-cases p {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 16px;
   color: #333;
 }

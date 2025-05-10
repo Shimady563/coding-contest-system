@@ -9,13 +9,14 @@ import CodeMirror from "codemirror";
 import "codemirror/mode/clike/clike.js";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/dracula.css";
+import "codemirror/theme/monokai.css";
 
 export default {
   name: "CodeEditor",
   mounted() {
     this.editor = CodeMirror.fromTextArea(this.$refs.codeEditor, {
       mode: "text/x-c++src",
-      theme: "dracula",
+      theme: "monokai",
       lineNumbers: true,
       tabSize: 4,
       indentWithTabs: true,
@@ -44,6 +45,7 @@ export default {
   border: 1px solid #ccc;
   border-radius: 5px;
   font-family: 'Courier New', Courier, monospace;
+  background-color: #2d2d2d;
 }
 
 @media (max-width: 768px) {
