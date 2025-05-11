@@ -105,7 +105,8 @@ export default {
       tasks: [],
       variants: [],
       submitted: false,
-      loading: false
+      loading: false,
+      nextVariantNumber: 1
     };
   },
   mounted() {
@@ -118,7 +119,7 @@ export default {
         this.groups = await fetchGroups();
       } catch (error) {
         console.error("Ошибка при загрузке групп:", error);
-         }
+      }
     },
 
     async fetchTasks() {
@@ -141,7 +142,7 @@ export default {
 
         const data = await response.json();
         this.tasks = data.content || [];
-        } catch (error) {
+      } catch (error) {
         console.error("Ошибка при получении заданий:", error.message);
       }
     },
@@ -190,9 +191,10 @@ export default {
 
     addVariant() {
       this.variants.push({
-        name: `Вариант ${this.variants.length + 1}`,
+        name: `Вариант ${this.nextVariantNumber}`,
         tasks: [],
       });
+      this.nextVariantNumber++;
     },
 
     updateVariant(index, updatedVariant) {
@@ -215,33 +217,55 @@ export default {
           throw new Error("Пользователь не авторизован");
         }
 
-        const payload = {
+        const contestPayload = {
           name: this.controlWork.name,
           description: this.controlWork.description,
           groupId: Number(this.controlWork.group), 
           startTime: new Date(this.controlWork.startTime).toISOString(),
           endTime: new Date(this.controlWork.endTime).toISOString(),
-          variants: this.variants.map(variant => ({
-            name: variant.name,
-            taskIds: variant.tasks.map(task => Number(task.id)) 
-          }))
         };
 
-        const response = await fetch('http://localhost:8080/api/v1/contests', {
+        const contestResponse = await fetch('http://localhost:8080/api/v1/contests', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${tokenData.accessToken}`
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(contestPayload)
         });
 
-        if (!response.ok) {
-          const errorResponse = await response.json().catch(() => ({}));
-          console.error("Полный ответ сервера:", errorResponse);
+        if (!contestResponse.ok) {
+          const errorResponse = await contestResponse.json().catch(() => ({}));
           throw new Error(errorResponse.message || 
                         errorResponse.error || 
-                        `HTTP error ${response.status}`);
+                        `HTTP error ${contestResponse.status}`);
+        }
+
+        const contestData = await contestResponse.json();
+        const contestId = contestData.id;
+
+        for (const variant of this.variants) {
+          const variantPayload = {
+            name: variant.name,
+            contestId: contestId,
+            taskIds: variant.tasks.map(task => Number(task.id))
+          };
+
+          const variantResponse = await fetch('http://localhost:8080/api/v1/contest-versions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${tokenData.accessToken}`
+            },
+            body: JSON.stringify(variantPayload)
+          });
+
+          if (!variantResponse.ok) {
+            const errorResponse = await variantResponse.json().catch(() => ({}));
+            throw new Error(errorResponse.message || 
+                          errorResponse.error || 
+                          `HTTP error ${variantResponse.status}`);
+          }
         }
 
         this.$root.notify('Контрольная работа успешно создана!', 'success');
