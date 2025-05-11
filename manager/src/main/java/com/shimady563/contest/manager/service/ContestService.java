@@ -38,7 +38,7 @@ public class ContestService {
     }
 
     @Transactional
-    public void createContest(ContestRequestDto request) {
+    public ContestResponseDto createContest(ContestRequestDto request) {
         log.info("Creating contest from request: {}", request);
         Group group = groupService.getGroupById(request.getGroupId());
 
@@ -48,7 +48,7 @@ public class ContestService {
         contest.setDescription(request.getDescription());
         contest.setStartTime(request.getStartTime());
         contest.setEndTime(request.getEndTime());
-        contestRepository.save(contest);
+        return mapper.map(contestRepository.save(contest), ContestResponseDto.class);
     }
 
     @Transactional

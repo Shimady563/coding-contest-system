@@ -32,8 +32,8 @@ public class ContestController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     @Secured({"ROLE_TEACHER"})
-    public void createContest(@Valid @RequestBody ContestRequestDto request) {
-        contestService.createContest(request);
+    public ContestResponseDto createContest(@Valid @RequestBody ContestRequestDto request) {
+        return contestService.createContest(request);
     }
 
     @PutMapping("/{id}")
