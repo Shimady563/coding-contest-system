@@ -58,6 +58,9 @@ export default {
   async created() {
     try {
       this.user = await getUserInfo();
+      if (this.user) {
+        this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
+      }
     } catch (err) {
       this.error = err.message;
       console.error("Ошибка загрузки данных пользователя:", err);

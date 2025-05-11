@@ -79,7 +79,7 @@
       </div>
 
       <div class="btn-group">
-        <button class="btn btn-secondary" @click="addVariant">+ Добавить вариант</button>
+        <button class="btn btn-secondary" @click="addVariant">➕ Добавить вариант</button>
         <button class="btn btn-primary" @click="saveControlWork">💾 Сохранить контрольную</button>
       </div>
     </div>
