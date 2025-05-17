@@ -1,6 +1,6 @@
 <template>
   <div class="task-description">
-    <h2>Task Description</h2>
+    <h2>Описание задания</h2>
     <p>{{ description }}</p>
   </div>
 </template>

@@ -1,12 +1,12 @@
 <template>
   <div class="output-results">
-    <h2>Output Results</h2>
+    <h2>Результаты</h2>
     <table v-if="results.length">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Status</th>
-          <th>Tests Passed</th>
+          <th>Статус</th>
+          <th>Тестов пройдено</th>
         </tr>
       </thead>
       <tbody>
@@ -17,7 +17,7 @@
         </tr>
       </tbody>
     </table>
-    <p v-else>No results yet. Please send the code!</p>
+    <p v-else>Пока нет результатов. Пожалуйста, отправьте свой код!</p>
   </div>
 </template>
 

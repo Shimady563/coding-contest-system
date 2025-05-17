@@ -1,61 +1,107 @@
 <template>
-  <div class="test-cases">
-    <h2>Test Cases</h2>
-    <ul>
-      <li v-for="(testCase, index) in testCases" :key="index">
-        <strong>Test {{ index + 1 }}:</strong>
-        <pre>{{ testCase.input }}</pre>
-        <p><strong>Expected Output:</strong> {{ testCase.expectedOutput }}</p>
-      </li>
-    </ul>
+  <div class="test-cases-card">
+    <h2 class="test-cases-title">Пример тест-кейса</h2>
+    <div class="test-case-example">
+      <div class="io-section">
+        <div class="input-section">
+          <h3 class="io-title">Входные данные</h3>
+          <pre class="io-content">{{ firstTestCase.input }}</pre>
+        </div>
+        <div class="output-section">
+          <h3 class="io-title">Выходные данные</h3>
+          <pre class="io-content">{{ firstTestCase.output }}</pre>
+        </div>
+      </div>
+      <p class="test-cases-hint">*Ваше решение будет проверено на нескольких тест-кейсах</p>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: "TestCases",
-  data() {
-    return {
-      testCases: [
-        {
-          input: "5\n1 2 3 4 5\n", 
-          expectedOutput: "15",
-        },
-        {
-          input: "3\n2 2 2\n",
-          expectedOutput: "6",
-        },
-      ],
-    };
+  props: {
+    testCases: {
+      type: Array,
+      default: () => [],
+      validator: value => value.length > 0  // Гарантируем, что массив не пустой
+    }
   },
+  computed: {
+    firstTestCase() {
+      return this.testCases[0] || { input: '', output: '' };
+    }
+  }
 };
 </script>
 
 <style scoped>
-.test-cases {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+.test-cases-card {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+  border: 1px solid #eaeaea;
 }
 
-.test-cases h2 {
-  font-size: 22px;
+.test-cases-title {
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.test-case-example {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.io-section {
+  display: flex;
+  gap: 20px;
   margin-bottom: 12px;
 }
 
-.test-cases pre {
-  background-color: #333;
-  color: #fff;
-  padding: 12px;
-  border-radius: 8px;
-  white-space: pre-wrap;
+.input-section, .output-section {
+  flex: 1;
+  min-width: 0;
 }
 
-.test-cases p {
-  margin-top: 12px;
-  font-size: 16px;
-  color: #333;
+.io-title {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.io-content {
+  background-color: #2d2d2d;
+  color: #f8f8f2;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  overflow-x: auto;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.test-cases-hint {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+  margin-top: 16px;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .io-section {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
 </style>
