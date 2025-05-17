@@ -8,7 +8,10 @@
           <router-link class="links" to="/solve-contest">Контрольные</router-link>
         </li>
         <li v-if="user.role === 'teacher'">
-          <router-link class="links" to="/manage-contests">Управление</router-link>
+          <router-link class="links" to="/manage-contests">Управление заданиями</router-link>
+        </li>
+        <li v-if="user.role === 'teacher'">
+          <router-link class="links" to="/manage-students">Управление студентами</router-link>
         </li>
         <li>
           <router-link class="links" to="/profile">Профиль</router-link>
