@@ -117,9 +117,9 @@ public class UserService implements UserDetailsService {
             throw new AccessDeniedException("User with id: " + id + " doesn't have the access to this contest version");
         }
 
-        Contest contest = contestService.getContestByIdWithContestVersions(request.getContestVersionId());
+        Contest contest = contestService.getContestByIdWithContestVersions(request.getContestId());
         for (ContestVersion other : contest.getContestVersions()) {
-            if (other.getId().equals(request.getContestVersionId())
+            if (!other.getId().equals(request.getContestVersionId())
                     || user.containsContestVersion(other)) {
                 throw new AccessDeniedException("User with id: " + id + " already started other contest version");
             }
