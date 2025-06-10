@@ -6,8 +6,6 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -23,10 +21,10 @@ spring:
             trusted:
               packages: "*"
             type:
-              mapping:
+              mapping: CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
 kafka:
   topic:
-    1: solutionTopic
+    1: submissionTopic
 logging:
   level:
     root: info

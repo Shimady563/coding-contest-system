@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,15 +15,7 @@ import lombok.Setter;
 @Table(name = "test_case")
 public class TestCase {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "test_case_id_seq"
-    )
-    @SequenceGenerator(
-            name = "test_case_id_seq",
-            sequenceName = "test_case_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "input", nullable = false)
@@ -33,4 +27,15 @@ public class TestCase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof TestCase testCase)) return false;
+        return Objects.equals(input, testCase.input) && Objects.equals(output, testCase.output);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(input, output);
+    }
 }

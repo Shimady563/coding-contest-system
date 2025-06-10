@@ -1,8 +1,8 @@
 services:
-  compiler:
-    container_name: compiler
+  manager:
+    container_name: manager
     build:
-      context: ./compiler
+      context: ./manager
       dockerfile: build.Dockerfile
     ports:
       - '8080:8080'
@@ -10,11 +10,63 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/contest
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    healthcheck:
+      test: [ 'CMD', 'wget', '--spider', '-q', 'http://localhost:8080/api/v1/actuator/health' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
 
-  fronted:
+  compiler:
+    container_name: compiler
+    build:
+      context: ./compiler
+      dockerfile: build.Dockerfile
+    ports:
+      - '8082:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/contest
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      manager:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+  auth:
+    container_name: auth
+    build:
+      context: ./auth
+      dockerfile: build.Dockerfile
+    ports:
+      - '8081:8080'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/contest
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=redis
+    depends_on:
+      manager:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
     container_name: frontend
     build:
       context: ./frontend
@@ -22,6 +74,10 @@ services:
     ports:
       - '5173:5173'
     depends_on:
+      manager:
+        condition: service_healthy
+      auth:
+        condition: service_started
       compiler:
         condition: service_started
 
@@ -43,5 +99,60 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    container_name: redis
+    image: redis:alpine
+    command:
+      [
+        'redis-server',
+        '--save',
+        '',
+        '--appendonly',
+        'no',
+        '--requirepass',
+        'redis',
+      ]
+    restart: always
+    volumes:
+      - redis-data:/data
+    expose:
+      - 6379
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    container_name: zookeeper
+    image: confluentinc/cp-zookeeper:latest
+    restart: always
+    expose:
+      - 22181
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=22181
+
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    expose:
+      - 9092
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:22181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - zookeeper
+
 volumes:
   postgres-data:
+  redis-data:

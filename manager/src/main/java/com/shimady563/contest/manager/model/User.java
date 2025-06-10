@@ -6,10 +6,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -17,15 +14,7 @@ import java.util.Set;
 @Table(name = "contest_user")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_id_seq"
-    )
-    @SequenceGenerator(
-            name = "user_id_seq",
-            sequenceName = "user_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "first_name", nullable = false)
@@ -44,7 +33,7 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role = Role.ROLE_STUDENT;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
 
@@ -56,8 +45,15 @@ public class User implements UserDetails {
     )
     private Set<ContestVersion> contestVersions = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Solution> solutions = new ArrayList<>();
+
     public boolean containsContestVersion(ContestVersion contestVersion) {
         return contestVersions.contains(contestVersion);
+    }
+
+    public void addContestVersion(ContestVersion contestVersion) {
+        contestVersions.add(contestVersion);
     }
 
     @Override

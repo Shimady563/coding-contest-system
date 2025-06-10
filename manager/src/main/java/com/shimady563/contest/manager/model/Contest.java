@@ -14,15 +14,7 @@ import java.util.Set;
 @Table(name = "contest")
 public class Contest {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "contest_id_seq"
-    )
-    @SequenceGenerator(
-            name = "contest_id_seq",
-            sequenceName = "contest_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -37,28 +29,16 @@ public class Contest {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "group_contest",
-            joinColumns = @JoinColumn(name = "contest_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> groups = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
 
     @OneToMany(
             fetch = FetchType.LAZY,
             mappedBy = "contest",
-            cascade = CascadeType.REMOVE
+            cascade = CascadeType.ALL
     )
     private Set<ContestVersion> contestVersions = new HashSet<>();
-
-    public void addGroup(Group group) {
-        groups.add(group);
-    }
-
-    public void removeGroup(Group group) {
-        groups.remove(group);
-    }
 
     public void addContestVersion(ContestVersion contestVersion) {
         contestVersions.add(contestVersion);

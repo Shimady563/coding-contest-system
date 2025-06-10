@@ -1,9 +1,9 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
-import com.shimady563.contest.manager.model.Group;
-import com.shimady563.contest.manager.model.Role;
-import com.shimady563.contest.manager.model.User;
+import com.shimady563.contest.manager.model.*;
+import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
 import com.shimady563.contest.manager.model.dto.UserResponse;
 import com.shimady563.contest.manager.model.dto.UserUpdateRequest;
 import com.shimady563.contest.manager.repository.UserRepository;
@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
     private final GroupService groupService;
+    private final ContestService contestService;
 
     protected User getUserByEmail(String email) {
         log.info("Getting user by email: {}", email);
@@ -101,6 +103,44 @@ public class UserService implements UserDetailsService {
     public void deleteUserById(Long id) {
         log.info("Deleting user with id: {}", id);
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void registerUserForContestVersion(Long id, UserRegistrationRequestDto request) {
+        log.info("Registering user with id: {}, for contest version with id: {}, contest id: {}",
+                id,
+                request.getContestVersionId(),
+                request.getContestId());
+        User user = getUserById(id);
+        User currentUser = getCurrentUser();
+        if (!user.getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("User with id: " + id + " doesn't have the access to this contest version");
+        }
+
+        Contest contest = contestService.getContestByIdWithContestVersions(request.getContestId());
+        for (ContestVersion other : contest.getContestVersions()) {
+            if (!other.getId().equals(request.getContestVersionId())
+                    || user.containsContestVersion(other)) {
+                throw new AccessDeniedException("User with id: " + id + " already started other contest version");
+            }
+        }
+
+        user.addContestVersion(contest.getContestVersions()
+                .stream()
+                .filter(cv -> cv.getId().equals(request.getContestVersionId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Contest version with id: " + request.getContestVersionId() + " not found in contest with id: " + request.getContestId())));
+    }
+
+    protected User getCurrentUser() {
+        return getUserByEmail(getCurrentUserEmail());
+    }
+
+    private static String getCurrentUserEmail() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
     }
 
     @Override

@@ -4,7 +4,6 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
     <changeSet id="2025-03-15-create-table-task.xml" author="Shimady">
-        <createSequence sequenceName="task_id_seq"/>
 
         <createTable tableName="task">
             <column name="id" type="bigserial" autoIncrement="true">
@@ -18,11 +17,6 @@
             </column>
             <column name="test_cases_count" type="smallint">
                 <constraints nullable="false"/>
-            </column>
-            <column name="contest_version_id" type="bigint">
-                <constraints foreignKeyName="task_contest_version_fkey"
-                             references="contest_version(id)"
-                             nullable="false"/>
             </column>
         </createTable>
     </changeSet>

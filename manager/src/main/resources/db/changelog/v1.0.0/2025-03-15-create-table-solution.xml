@@ -4,7 +4,6 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
     <changeSet id="2025-03-15-create-table-solution.xml" author="Shimady">
-        <createSequence sequenceName="solution_id_seq"/>
 
         <createTable tableName="solution">
             <column name="id" type="bigserial" autoIncrement="true">
@@ -27,6 +26,11 @@
                              references="task(id)"
                              nullable="false"/>
             </column>
+            <column name="user_id" type="bigint">
+                <constraints foreignKeyName="solution_user_fkey"
+                             references="contest_user(id)"
+                             nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -34,7 +38,8 @@
         <sql>
             alter table solution
             add constraint solution_status_check
-            check (status in ('TIMED_OUT', 'COMPILE_ERROR', 'RUNTIME_ERROR', 'WRONG_ANSWER', 'ACCEPTED'))
+            check (status in ('INTERNAL_ERROR', 'TIMED_OUT', 'COMPILE_ERROR', 'RUNTIME_ERROR', 'WRONG_ANSWER',
+            'ACCEPTED'))
         </sql>
     </changeSet>
 

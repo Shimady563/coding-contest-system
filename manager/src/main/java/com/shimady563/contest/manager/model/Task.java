@@ -15,15 +15,7 @@ import java.util.Set;
 @Table(name = "task")
 public class Task {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "task_id_seq"
-    )
-    @SequenceGenerator(
-            name = "task_id_seq",
-            sequenceName = "task_id_seq",
-            allocationSize = 1
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -35,14 +27,13 @@ public class Task {
     @Column(name = "test_cases_count", nullable = false)
     private Short testCasesCount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contest_version_id", nullable = false)
-    private ContestVersion contestVersion;
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tasks")
+    private Set<ContestVersion> contestVersions = new HashSet<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
     private List<Solution> solutions = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "task")
     private Set<TestCase> testCases = new HashSet<>();
 
     public void addSolution(Solution solution) {
@@ -51,8 +42,9 @@ public class Task {
     }
 
     public void addTestCase(TestCase testCase) {
-        testCases.add(testCase);
-        testCase.setTask(this);
+        if (testCases.add(testCase)) {
+            testCase.setTask(this);
+        }
     }
 
     public void removeTestCase(TestCase testCase) {

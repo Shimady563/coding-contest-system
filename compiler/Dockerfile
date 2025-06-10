@@ -17,8 +17,8 @@ RUN adduser \
     appuser
 USER appuser
 EXPOSE 8080
-COPY --from=optimizer /optimizer/extracted/dependencies/ ./
-COPY --from=optimizer /optimizer/extracted/spring-boot-loader/ ./
-COPY --from=optimizer /optimizer/extracted/snapshot-dependencies/ ./
-COPY --from=optimizer /optimizer/extracted/application/ ./
+COPY --from=builder /builder/extracted/dependencies/ ./
+COPY --from=builder /builder/extracted/spring-boot-loader/ ./
+COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
+COPY --from=builder /builder/extracted/application/ ./
 ENTRYPOINT ["java", "-jar", "application.jar"]

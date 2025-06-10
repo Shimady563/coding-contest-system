@@ -4,7 +4,6 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
     <changeSet id="2025-03-15-create-table-contest.xml" author="Shimady">
-        <createSequence sequenceName="contest_id_seq"/>
 
         <createTable tableName="contest">
             <column name="id" type="bigserial" autoIncrement="true">
@@ -21,6 +20,11 @@
             </column>
             <column name="end_time" type="timestamp">
                 <constraints nullable="false"/>
+            </column>
+            <column name="group_id" type="bigint">
+                <constraints foreignKeyName="contest_group_fkey"
+                             references="student_group(id)"
+                             nullable="false"/>
             </column>
         </createTable>
     </changeSet>

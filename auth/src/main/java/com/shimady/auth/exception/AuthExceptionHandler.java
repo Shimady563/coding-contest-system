@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class AuthExceptionHandler {
     @ExceptionHandler(JwtException.class)
-    public ResponseEntity<AppError> handleResourceNotFoundException(ResourceNotFoundException e) {
+    public ResponseEntity<AppError> handleJwtException(JwtException e) {
         log.error(e.getMessage());
         return new ResponseEntity<>(
                 new AppError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()),

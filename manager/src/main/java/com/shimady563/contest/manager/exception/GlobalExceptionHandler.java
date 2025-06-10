@@ -10,6 +10,24 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<AppError> handleAccessDeniedException(AccessDeniedException e) {
+        log.error(e.getMessage());
+        return new ResponseEntity<>(
+                new AppError(e.getMessage(), HttpStatus.FORBIDDEN.value()),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(SubmissionInvalidException.class)
+    public ResponseEntity<AppError> handleSubmissionInvalidException(SubmissionInvalidException e) {
+        log.error(e.getMessage());
+        return new ResponseEntity<>(
+                new AppError(e.getMessage(), HttpStatus.FORBIDDEN.value()),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<AppError> handleResourceNotFoundException(ResourceNotFoundException e) {
         log.error(e.getMessage());

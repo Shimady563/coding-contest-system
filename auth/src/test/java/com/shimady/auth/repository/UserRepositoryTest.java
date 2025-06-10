@@ -1,6 +1,5 @@
 package com.shimady.auth.repository;
 
-import com.shimady.auth.model.Role;
 import com.shimady.auth.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +37,8 @@ public class UserRepositoryTest {
 
     @BeforeEach
     public void setUp() {
+        user.setFirstName("first");
+        user.setLastName("last");
         user.setEmail("email");
         user.setPassword("pass");
 
@@ -48,6 +49,8 @@ public class UserRepositoryTest {
     @Test
     public void testSave() {
         var newUser = new User();
+        newUser.setFirstName("newFirst");
+        newUser.setLastName("newLast");
         newUser.setEmail("newEmail");
         newUser.setPassword("newPass");
 

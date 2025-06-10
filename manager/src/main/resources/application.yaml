@@ -12,6 +12,17 @@ spring:
         format_sql: true
   liquibase:
     change-log: classpath:/db/changelog/db-changelog-master.xml
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            type:
+              mapping: com.shimady563.contest.manager.model.dto.CodeSubmissionDto:CodeSubmission
 jwt:
   token:
     access:
@@ -21,7 +32,7 @@ jwt:
       expiration: 604800000 # 1 week
       secret: 4e7dd4cfb4136b7aefd2560492b843a9c5cd006553dbb4c3f6e3ddbdac5fe1e67534ede1045df8ca0e88790e9df24a2e567bc0a3196663890825a012e3717adc
 auth:
-  whitelist: /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**
+  whitelist: /groups, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**, /actuator, /actuator/**
 server:
   servlet:
     context-path: /api/v1/

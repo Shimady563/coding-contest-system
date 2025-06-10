@@ -7,6 +7,3 @@ INSERT INTO user_contest_version (user_id, contest_version_id) VALUES
     (7, 2), (7, 4),
     (8, 3), (8, 4),
     (9, 1), (9, 5);
-
-
-
