@@ -57,8 +57,8 @@ public class AuthController {
 
     private ResponseEntity<Void> buildResponse(JwtResponse response) {
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(response.getAccessToken(), accessTokenCookieName, accessTokenExpiration))
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(response.getRefreshToken(), refreshTokenCookieName, refreshTokenExpiration))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(accessTokenCookieName, response.getAccessToken(), accessTokenExpiration))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(refreshTokenCookieName, response.getRefreshToken(), refreshTokenExpiration))
                 .build();
     }
 }
