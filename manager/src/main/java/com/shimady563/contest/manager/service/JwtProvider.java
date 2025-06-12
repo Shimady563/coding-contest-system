@@ -14,29 +14,15 @@ import java.security.Key;
 @Slf4j
 @Repository
 public class JwtProvider {
-    @Value("${jwt.token.access.expiration}")
-    private Long accessTokenExpiration;
-
-    @Value("${jwt.token.refresh.expiration}")
-    private Long refreshTokenExpiration;
-
     private final Key accessSecret;
-    private final Key refreshSecret;
 
     public JwtProvider(
-            @Value("${jwt.token.access.secret}") String accessSecret,
-            @Value("${jwt.token.refresh.secret}") String refreshSecret
-    ) {
+            @Value("${jwt.token.access.secret}") String accessSecret) {
         this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
-        this.refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
     }
 
     public boolean validateAccessToken(String token) {
         return validateToken(token, accessSecret);
-    }
-
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, refreshSecret);
     }
 
     private boolean validateToken(String token, Key secret) {

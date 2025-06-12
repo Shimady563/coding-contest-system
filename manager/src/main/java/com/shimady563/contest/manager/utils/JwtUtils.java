@@ -1,7 +1,8 @@
-package com.shimady.auth.utils;
+package com.shimady563.contest.manager.utils;
 
-import com.shimady.auth.model.JwtAuthentication;
-import com.shimady.auth.model.Role;
+
+import com.shimady563.contest.manager.model.JwtAuthentication;
+import com.shimady563.contest.manager.model.Role;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseCookie;
@@ -22,14 +23,5 @@ public class JwtUtils {
                 .findFirst()
                 .orElse(null);
         return tokenCookie == null ? null : tokenCookie.getValue();
-    }
-
-    public static String createCookieFromToken(String tokenName, String tokenValue, Long maxAge) {
-        return ResponseCookie.from(tokenName, tokenValue)
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(maxAge)
-                .build()
-                .toString();
     }
 }
