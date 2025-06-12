@@ -24,3 +24,8 @@ hs_err_pid*
 replay_pid*
 
 .idea
+.gradle
+build
+auth/build
+manager/build
+compiler/build
