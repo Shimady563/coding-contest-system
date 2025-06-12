@@ -9,45 +9,30 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 
 @Slf4j
 @Repository
 public class JwtProvider {
-    @Value("${jwt.token.access.expiration}")
-    private Long accessTokenExpiration;
+    private final SecretKey accessSecret;
 
-    @Value("${jwt.token.refresh.expiration}")
-    private Long refreshTokenExpiration;
-
-    private final Key accessSecret;
-    private final Key refreshSecret;
-
-    public JwtProvider(
-            @Value("${jwt.token.access.secret}") String accessSecret,
-            @Value("${jwt.token.refresh.secret}") String refreshSecret
-    ) {
+    public JwtProvider(@Value("${jwt.token.access.secret}") String accessSecret) {
         this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
-        this.refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
     }
 
     public boolean validateAccessToken(String token) {
         return validateToken(token, accessSecret);
     }
 
-    public boolean validateRefreshToken(String token) {
-        return validateToken(token, refreshSecret);
-    }
-
-    private boolean validateToken(String token, Key secret) {
+    private boolean validateToken(String token, SecretKey secret) {
         if (!StringUtils.hasText(token)) {
             return false;
         }
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secret)
+            Jwts.parser()
+                    .verifyWith(secret)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Jwt token expired: {}", e.getMessage());
@@ -63,11 +48,15 @@ public class JwtProvider {
         return false;
     }
 
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessSecret)
+    public Claims getClaimsFromAccessToken(String token) {
+        return getClaimsFromToken(token, accessSecret);
+    }
+
+    private Claims getClaimsFromToken(String token, SecretKey secret) {
+        return Jwts.parser()
+                .verifyWith(secret)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
