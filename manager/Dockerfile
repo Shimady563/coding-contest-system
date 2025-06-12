@@ -1,15 +1,10 @@
-FROM gradle:jdk21-alpine AS builder
-WORKDIR /builder
-COPY . /builder
-RUN gradle bootJar -x test --no-daemon
-
-FROM bellsoft/liberica-runtime-container:jre-21-cds-slim-glibc AS optimizer
+FROM bellsoft/liberica-runtime-container:jre-21-slim-glibc AS optimizer
 WORKDIR /optimizer
-ARG JAR_FILE=/builder/build/libs/*.jar
-COPY --from=builder ${JAR_FILE} application.jar
+ARG JAR_FILE=/build/libs/*.jar
+COPY  ${JAR_FILE} application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
-FROM bellsoft/liberica-runtime-container:jre-21-cds-slim-glibc AS runtime
+FROM bellsoft/liberica-runtime-container:jre-21-slim-glibc AS runtime
 WORKDIR /application
 ARG UID=10001
 RUN adduser \
