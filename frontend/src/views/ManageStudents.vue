@@ -4,141 +4,47 @@
 
     <div class="controls">
       <div class="search-filters">
-        <input
-          v-model="searchParams.firstName"
-          placeholder="Имя"
-          class="filter-input"
-        >
-        <input
-          v-model="searchParams.lastName"
-          placeholder="Фамилия"
-          class="filter-input"
-        >
-        <input
-          v-model="searchParams.email"
-          placeholder="Email"
-          class="filter-input"
-        >
-        <select v-model="searchParams.groupName" class="filter-select">
-          <option value="">Все группы</option>
-          <option v-for="group in groups" :value="group.name" :key="group.id">
-            {{ group.name }}
-          </option>
-        </select>
+        <input v-model="searchParams.firstName" placeholder="Имя" class="filter-input">
+        <input v-model="searchParams.lastName" placeholder="Фамилия" class="filter-input">
         <button @click="fetchStudents" class="search-btn">Поиск</button>
+        <button @click="resetSearch" class="reset-btn">Сбросить</button>
       </div>
-
-      <button @click="showAddStudentModal = true" class="add-btn">
-        Добавить студента
-      </button>
     </div>
 
-    <div class="students-table">
-      <table>
+    <div v-if="loading" class="loading-indicator">Загрузка...</div>
+
+    <div v-else class="students-table">
+      <div v-if="students.length === 0" class="no-results">
+        Студенты не найдены
+      </div>
+
+      <table v-else>
         <thead>
           <tr>
             <th>ID</th>
-            <th>Имя</th>
-            <th>Фамилия</th>
+            <th>ФИО</th>
             <th>Email</th>
             <th>Группа</th>
-            <th>Действия</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="student in students" :key="student.id">
             <td>{{ student.id }}</td>
-            <td>{{ student.firstName }}</td>
-            <td>{{ student.lastName }}</td>
+            <td>{{ student.lastName }} {{ student.firstName }}</td>
             <td>{{ student.email }}</td>
-            <td>{{ student.groupName }}</td>
-            <td class="actions">
-              <button @click="editStudent(student)" class="edit-btn">✏️</button>
-              <button @click="confirmDelete(student.id)" class="delete-btn">🗑️</button>
-            </td>
+            <td>{{ student.groupName || 'Не указана' }}</td>
           </tr>
         </tbody>
       </table>
 
       <div class="pagination">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 0"
-          class="page-btn"
-        >
+        <button @click="prevPage" :disabled="currentPage === 0" class="page-btn">
           Назад
         </button>
         <span>Страница {{ currentPage + 1 }} из {{ totalPages }}</span>
-        <button
-          @click="nextPage"
-          :disabled="currentPage >= totalPages - 1"
-          class="page-btn"
-        >
+        <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="page-btn">
           Вперед
         </button>
-      </div>
-    </div>
-
-    <!-- Модальное окно добавления/редактирования -->
-    <div v-if="showAddStudentModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <h2>{{ editingStudent ? 'Редактировать студента' : 'Добавить студента' }}</h2>
-
-        <form @submit.prevent="submitStudent">
-          <div class="form-group">
-            <label>Имя:</label>
-            <input v-model="formData.firstName" required>
-          </div>
-          <div class="form-group">
-            <label>Фамилия:</label>
-            <input v-model="formData.lastName" required>
-          </div>
-          <div class="form-group">
-            <label>Email:</label>
-            <input v-model="formData.email" type="email" required>
-          </div>
-          <div class="form-group">
-            <label>Пароль:</label>
-            <input
-              v-model="formData.password"
-              type="password"
-              :required="!editingStudent"
-            >
-          </div>
-          <div class="form-group">
-            <label>Группа:</label>
-            <select v-model="formData.groupId" required>
-              <option
-                v-for="group in groups"
-                :value="group.id"
-                :key="group.id"
-              >
-                {{ group.name }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" @click="closeModal" class="cancel-btn">
-              Отмена
-            </button>
-            <button type="submit" class="submit-btn">
-              {{ editingStudent ? 'Сохранить' : 'Добавить' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Модальное окно подтверждения удаления -->
-    <div v-if="showDeleteConfirm" class="modal">
-      <div class="modal-content confirm-modal">
-        <p>Вы уверены, что хотите удалить этого студента?</p>
-        <div class="confirm-actions">
-          <button @click="deleteStudent" class="confirm-btn">Да, удалить</button>
-          <button @click="showDeleteConfirm = false" class="cancel-btn">Отмена</button>
-        </div>
       </div>
     </div>
   </div>
@@ -151,152 +57,67 @@ export default {
   data() {
     return {
       students: [],
-      groups: [],
       currentPage: 0,
       pageSize: 10,
       totalPages: 1,
+      loading: false,
       searchParams: {
         firstName: '',
         lastName: '',
-        email: '',
-        groupName: '',
         role: 'ROLE_STUDENT'
-      },
-      showAddStudentModal: false,
-      showDeleteConfirm: false,
-      editingStudent: null,
-      studentToDelete: null,
-      formData: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        groupId: ''
       }
     };
   },
   async created() {
     await this.fetchStudents();
-    await this.fetchGroups();
   },
   methods: {
     async fetchStudents() {
+      this.loading = true;
       const token = getAccessToken();
-      const queryParams = new URLSearchParams({
-        ...this.searchParams,
-        pageNumber: this.currentPage,
-        pageSize: this.pageSize
-      }).toString();
 
       try {
-        const response = await fetch(`http://localhost:8080/api/users?${queryParams}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const query = new URLSearchParams({
+          firstName: this.searchParams.firstName,
+          lastName: this.searchParams.lastName,
+          role: 'ROLE_STUDENT',
+          pageNumber: this.currentPage,
+          pageSize: this.pageSize
+        }).toString();
 
-        if (response.ok) {
-          const data = await response.json();
-          this.students = data.content;
-          this.totalPages = data.totalPages;
-        } else {
-          console.error('Ошибка при загрузке студентов');
-        }
-      } catch (error) {
-        console.error('Ошибка:', error);
-      }
-    },
-
-    async fetchGroups() {
-      const token = getAccessToken();
-      try {
-        const response = await fetch('http://localhost:8080/api/groups', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          this.groups = await response.json();
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке групп:', error);
-      }
-    },
-
-    async submitStudent() {
-      const token = getAccessToken();
-      const url = this.editingStudent
-        ? `http://localhost:8080/api/users/${this.editingStudent.id}`
-        : 'http://localhost:8080/api/users';
-
-      const method = this.editingStudent ? 'PUT' : 'POST';
-
-      try {
-        const response = await fetch(url, {
-          method,
+        const response = await fetch(`/api/users?${query}`, {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(this.formData)
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
 
-        if (response.ok) {
-          this.closeModal();
-          await this.fetchStudents();
-        } else {
-          console.error('Ошибка при сохранении студента');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        this.students = data.content;
+        this.totalPages = data.totalPages;
       } catch (error) {
-        console.error('Ошибка:', error);
+        console.error('Fetch error:', error);
+        this.$toast.error(error.message.includes('Failed to fetch')
+          ? 'Не удалось подключиться к серверу'
+          : error.message);
+      } finally {
+        this.loading = false;
       }
     },
 
-    async deleteStudent() {
-      const token = getAccessToken();
-      try {
-        const response = await fetch(`http://localhost:8080/api/users/${this.studentToDelete}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          this.showDeleteConfirm = false;
-          await this.fetchStudents();
-        }
-      } catch (error) {
-        console.error('Ошибка при удалении студента:', error);
-      }
-    },
-
-    editStudent(student) {
-      this.editingStudent = student;
-      this.formData = {
-        firstName: student.firstName,
-        lastName: student.lastName,
-        email: student.email,
-        password: '',
-        groupId: student.groupId
-      };
-      this.showAddStudentModal = true;
-    },
-
-    confirmDelete(id) {
-      this.studentToDelete = id;
-      this.showDeleteConfirm = true;
-    },
-
-    closeModal() {
-      this.showAddStudentModal = false;
-      this.editingStudent = null;
-      this.resetForm();
-    },
-
-    resetForm() {
-      this.formData = {
+    resetSearch() {
+      this.searchParams = {
         firstName: '',
         lastName: '',
-        email: '',
-        password: '',
-        groupId: ''
+        role: 'ROLE_STUDENT'
       };
+      this.currentPage = 0;
+      this.fetchStudents();
     },
 
     nextPage() {
@@ -325,200 +146,112 @@ export default {
 
 h1 {
   color: #2c3e50;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  font-size: 28px;
 }
 
 .controls {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  gap: 16px;
   flex-wrap: wrap;
-  gap: 15px;
 }
 
 .search-filters {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.filter-input, .filter-select {
-  padding: 8px 12px;
+.filter-input {
+  padding: 10px 14px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
+  min-width: 200px;
 }
 
-.filter-select {
-  min-width: 150px;
-}
-
-.search-btn, .add-btn, .page-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
+.search-btn, .reset-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  border: none;
 }
 
 .search-btn {
-  background-color: #2f80ed;
+  background-color: #4a89dc;
   color: white;
 }
 
 .search-btn:hover {
-  background-color: #1e63c5;
+  background-color: #3a70c2;
 }
 
-.add-btn {
-  background-color: #27ae60;
-  color: white;
+.reset-btn {
+  background-color: #f5f7fa;
+  border: 1px solid #ddd;
 }
 
-.add-btn:hover {
-  background-color: #219653;
+.reset-btn:hover {
+  background-color: #e6e9ed;
+}
+
+.loading-indicator, .no-results {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
 }
 
 .students-table {
-  overflow-x: auto;
+  margin-top: 20px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 th, td {
-  padding: 12px 15px;
+  padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #f8f9fa;
   font-weight: 600;
+  color: #555;
 }
 
 tr:hover {
-  background-color: #f5f5f5;
-}
-
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.edit-btn, .delete-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 5px;
-}
-
-.edit-btn:hover {
-  color: #2f80ed;
-}
-
-.delete-btn:hover {
-  color: #e74c3c;
+  background-color: #f8f9fa;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .page-btn {
-  padding: 6px 12px;
-  background-color: #f0f0f0;
+  padding: 8px 16px;
+  background-color: #f5f7fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .page-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Модальные окна */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-}
-
-.confirm-modal {
-  text-align: center;
-}
-
-.close {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-.form-group input, .form-group select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.form-actions, .confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.cancel-btn {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.cancel-btn:hover {
-  background-color: #e0e0e0;
-}
-
-.submit-btn, .confirm-btn {
-  background-color: #2f80ed;
-  color: white;
-}
-
-.submit-btn:hover, .confirm-btn:hover {
-  background-color: #1e63c5;
 }
 
 @media (max-width: 768px) {
@@ -527,12 +260,11 @@ tr:hover {
   }
 
   .search-filters {
-    flex-direction: column;
+    width: 100%;
   }
 
-  .modal-content {
-    width: 90%;
-    padding: 20px 15px;
+  .filter-input {
+    width: 100%;
   }
 }
 </style>
