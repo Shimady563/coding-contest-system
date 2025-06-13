@@ -2,7 +2,7 @@ name: Test Compiler
 on:
   push:
     branches:
-      - 'main'
+      - main
       - 'release/**'
     paths:
       - 'compiler/**'
