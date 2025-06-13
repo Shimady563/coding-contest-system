@@ -3,7 +3,16 @@
 # Build all services
 ./gradlew bootJar
 
-# Build and start containers in detached mode
+if [ $? -ne 0 ]; then
+    echo "Error while building services"
+    exit 1
+fi
+
+# Build and start containers
 docker compose -f build-compose.yaml up --build -d
 
-echo "Services are running in background. Use 'docker compose logs' to view logs."
+if [ $? -ne 0 ]; then
+    echo "Error while building docker images"
+else
+    echo "Services are running in background. Use 'docker compose logs' to view logs"
+fi
