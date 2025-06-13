@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.AccessDeniedException;
+import com.shimady563.contest.manager.exception.DataConflictException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.*;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
@@ -148,7 +149,7 @@ class UserServiceTest {
 
         UserRegistrationRequestDto dto = new UserRegistrationRequestDto();
         dto.setContestId(1L);
-        dto.setContestVersionId(1L);
+        dto.setContestVersionId(2L);
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(contestService.getContestByIdWithContestVersions(1L)).willReturn(contest);
@@ -157,6 +158,27 @@ class UserServiceTest {
         assertThrows(AccessDeniedException.class, () ->
                 userService.registerUserForContestVersion(1L, dto)
         );
+    }
+
+    @Test
+    void shouldDoNothingWhenUserAlreadyStartedSpecifiedContestVersion() {
+        ContestVersion existingVersion = new ContestVersion();
+        existingVersion.setId(1L);
+        user.addContestVersion(existingVersion);
+
+        Contest contest = new Contest();
+        contest.setContestVersions(Set.of(existingVersion));
+
+        UserRegistrationRequestDto dto = new UserRegistrationRequestDto();
+        dto.setContestId(1L);
+        dto.setContestVersionId(1L);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        willReturn(user).given(userService).getCurrentUser();
+
+        userService.registerUserForContestVersion(1L, dto);
+
+        then(contestService).shouldHaveNoInteractions();
     }
 
     @Test
@@ -197,5 +219,27 @@ class UserServiceTest {
         );
 
         assertThat(result.getContent()).hasSize(1).containsExactly(response);
+    }
+
+    @Test
+    void shouldDeleteUserById() {
+        Long otherUserId = 100L;
+        User otherUser = new User();
+        otherUser.setId(otherUserId);
+
+        willReturn(user).given(userService).getCurrentUser();
+        userService.deleteUserById(otherUserId);
+
+        then(userRepository).should().deleteById(otherUserId);
+    }
+
+    @Test
+    void shouldThrowWhenTryingToDeleteCurrentUser() {
+        willReturn(user).given(userService).getCurrentUser();
+
+        assertThrows(DataConflictException.class,
+                () -> userService.deleteUserById(user.getId()));
+
+        then(userRepository).should(never()).deleteById(user.getId());
     }
 }

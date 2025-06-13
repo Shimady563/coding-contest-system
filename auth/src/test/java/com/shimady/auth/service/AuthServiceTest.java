@@ -3,7 +3,6 @@ package com.shimady.auth.service;
 import com.shimady.auth.model.Group;
 import com.shimady.auth.model.User;
 import com.shimady.auth.model.dto.JwtResponse;
-import com.shimady.auth.model.dto.RefreshJwtRequest;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
 import org.junit.jupiter.api.Test;
@@ -130,12 +129,11 @@ class AuthServiceTest {
 
     @Test
     void shouldRefreshToken() {
-        var request = new RefreshJwtRequest();
-        request.setRefreshToken("refreshToken");
+        var refreshToken = "refreshToken";
 
-        given(jwtService.refreshToken(request.getRefreshToken())).willReturn(new JwtResponse("newToken", "newRefreshToken"));
+        given(jwtService.refreshToken(refreshToken)).willReturn(new JwtResponse("newToken", "newRefreshToken"));
 
-        var response = authService.refreshToken(request);
+        var response = authService.refreshToken(refreshToken);
 
         assertNotNull(response);
         assertEquals("newToken", response.getAccessToken());

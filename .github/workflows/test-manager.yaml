@@ -2,7 +2,7 @@ name: Test Manager
 on:
   push:
     branches:
-      - 'main'
+      - main
       - 'release/**'
     paths:
       - 'manager/**'

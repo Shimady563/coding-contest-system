@@ -2,7 +2,10 @@ package com.shimady.auth.service;
 
 import com.shimady.auth.model.Group;
 import com.shimady.auth.model.User;
-import com.shimady.auth.model.dto.*;
+import com.shimady.auth.model.dto.JwtResponse;
+import com.shimady.auth.model.dto.SignInJwtRequest;
+import com.shimady.auth.model.dto.SignUpJwtRequest;
+import com.shimady.auth.model.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -61,8 +64,8 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtResponse refreshToken(RefreshJwtRequest request) {
-        return jwtService.refreshToken(request.getRefreshToken());
+    public JwtResponse refreshToken(String token) {
+        return jwtService.refreshToken(token);
     }
 
     protected String getUserEmail() {

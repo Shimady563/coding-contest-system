@@ -56,6 +56,10 @@ public class User implements UserDetails {
         contestVersions.add(contestVersion);
     }
 
+    public void removeContestVersion(ContestVersion contestVersion) {
+        contestVersions.remove(contestVersion);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(role);

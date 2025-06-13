@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.filter.JwtFilter;
 import com.shimady.auth.repository.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.NonNull;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -87,7 +87,7 @@ public class TestSecurityConfig {
         }
 
         @Override
-        protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
+        protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
             return true;
         }
     }

@@ -41,5 +41,10 @@ public class ContestVersion {
     public void removeTask(Task task) {
         tasks.remove(task);
     }
+
+    public void removeUsers() {
+        users.forEach(u -> u.removeContestVersion(this));
+        users.clear();
+    }
 }
 

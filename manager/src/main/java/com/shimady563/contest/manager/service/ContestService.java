@@ -2,6 +2,7 @@ package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Contest;
+import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Group;
 import com.shimady563.contest.manager.model.dto.ContestRequestDto;
 import com.shimady563.contest.manager.model.dto.ContestResponseDto;
@@ -81,7 +82,9 @@ public class ContestService {
     @Transactional
     public void deleteContestById(Long id) {
         log.info("Deleting contest with id: {}", id);
-        contestRepository.deleteById(id);
+        Contest contest = getContestByIdWithContestVersions(id);
+        contest.getContestVersions().forEach(ContestVersion::removeUsers);
+        contestRepository.delete(contest);
     }
 
     protected Contest getContestByIdWithContestVersions(Long id) {

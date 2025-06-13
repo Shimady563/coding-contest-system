@@ -35,27 +35,23 @@ public class JwtProvider {
     }
 
     public String generateAccessToken(User user) {
+        return generateToken(user, accessSecret, accessTokenExpiration);
+    }
+
+    public String generateRefreshToken(User user) {
+        return generateToken(user, refreshSecret, refreshTokenExpiration);
+    }
+
+    private String generateToken(User user, SecretKey secret, Long tokenExpiration) {
         Instant now = Instant.now();
-        Instant expiration = now.plusMillis(accessTokenExpiration);
+        Instant expiration = now.plusMillis(tokenExpiration);
 
         return Jwts.builder()
                 .subject(user.getEmail())
                 .claim("role", user.getRole())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiration))
-                .signWith(accessSecret)
-                .compact();
-    }
-
-    public String generateRefreshToken(User user) {
-        Instant now = Instant.now();
-        Instant expiration = now.plusMillis(refreshTokenExpiration);
-
-        return Jwts.builder()
-                .subject(user.getEmail())
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(expiration))
-                .signWith(refreshSecret)
+                .signWith(secret)
                 .compact();
     }
 

@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.AccessDeniedException;
+import com.shimady563.contest.manager.exception.DataConflictException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.*;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
@@ -105,6 +106,9 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void deleteUserById(Long id) {
         log.info("Deleting user with id: {}", id);
+        if (getCurrentUser().getId().equals(id)) {
+            throw new DataConflictException("User cannot delete itself");
+        }
         userRepository.deleteById(id);
     }
 
@@ -118,6 +122,10 @@ public class UserService implements UserDetailsService {
         User currentUser = getCurrentUser();
         if (!user.getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("User with id: " + id + " doesn't have the access to this contest version");
+        }
+
+        if (user.getContestVersions().stream().anyMatch(cv -> cv.getId().equals(request.getContestVersionId()))) {
+            return;
         }
 
         Contest contest = contestService.getContestByIdWithContestVersions(request.getContestId());
