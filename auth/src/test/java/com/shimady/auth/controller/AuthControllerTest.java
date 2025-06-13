@@ -2,10 +2,15 @@ package com.shimady.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.TestSecurityConfig;
-import com.shimady.auth.model.dto.*;
+import com.shimady.auth.model.dto.JwtResponse;
+import com.shimady.auth.model.dto.SignInJwtRequest;
+import com.shimady.auth.model.dto.SignUpJwtRequest;
+import com.shimady.auth.model.dto.UserResponse;
 import com.shimady.auth.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -18,8 +23,7 @@ import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
 @Import(TestSecurityConfig.class)
@@ -32,6 +36,12 @@ class AuthControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Value("${jwt.token.access.cookie.name}")
+    private String accessTokenCookieName;
+
+    @Value("${jwt.token.refresh.cookie.name}")
+    private String refreshTokenCookieName;
 
     @Test
     @WithMockUser(roles = {"TEACHER", "STUDENT"})
@@ -70,7 +80,8 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
+                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
     }
 
     @Test
@@ -88,24 +99,26 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
+                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
     }
 
     @Test
     @WithAnonymousUser
     void shouldRefreshToken() throws Exception {
-        var request = new RefreshJwtRequest();
-        request.setRefreshToken("refreshToken");
+        var refreshToken = "refreshToken";
+        Cookie cookie = new Cookie(refreshTokenCookieName, refreshToken);
         var response = new JwtResponse("newToken", "newRefreshToken");
 
-        given(authService.refreshToken(any(RefreshJwtRequest.class))).willReturn(response);
+        given(authService.refreshToken(refreshToken)).willReturn(response);
 
         mockMvc.perform(post("/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .cookie(cookie))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
+                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
     }
 }
 
