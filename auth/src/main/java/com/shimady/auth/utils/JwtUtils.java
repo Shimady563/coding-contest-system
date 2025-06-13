@@ -17,6 +17,9 @@ public class JwtUtils {
     }
 
     public static String getTokenFromCookies(Cookie[] cookies, String tokenName) {
+        if (cookies == null) {
+            return null;
+        }
         Cookie tokenCookie = Arrays.stream(cookies)
                 .filter(c -> c.getName().equals(tokenName))
                 .findFirst()
@@ -24,11 +27,12 @@ public class JwtUtils {
         return tokenCookie == null ? null : tokenCookie.getValue();
     }
 
-    public static String createCookieFromToken(String tokenName, String tokenValue, Long maxAge) {
+    public static String createCookieFromToken(String tokenName, String tokenValue, Long maxAgeMs) {
         return ResponseCookie.from(tokenName, tokenValue)
                 .httpOnly(true)
                 .secure(true)
-                .maxAge(maxAge)
+                .maxAge(maxAgeMs / 1000)
+                .path("/api/v1")
                 .build()
                 .toString();
     }

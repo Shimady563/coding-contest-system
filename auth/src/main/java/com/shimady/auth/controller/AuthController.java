@@ -50,7 +50,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refreshToken(@CookieValue(value = "${jwt.token.access.cookie.name}") String refreshToken) {
+    public ResponseEntity<Void> refreshToken(@CookieValue(value = "${jwt.token.refresh.cookie.name}") String refreshToken) {
         JwtResponse response = authService.refreshToken(refreshToken);
         return buildResponse(response);
     }

@@ -5,7 +5,6 @@ import com.shimady563.contest.manager.model.JwtAuthentication;
 import com.shimady563.contest.manager.model.Role;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
-import org.springframework.http.ResponseCookie;
 
 import java.util.Arrays;
 
@@ -18,6 +17,9 @@ public class JwtUtils {
     }
 
     public static String getTokenFromCookies(Cookie[] cookies, String tokenName) {
+        if (cookies == null) {
+            return null;
+        }
         Cookie tokenCookie = Arrays.stream(cookies)
                 .filter(c -> c.getName().equals(tokenName))
                 .findFirst()
