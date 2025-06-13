@@ -2,6 +2,7 @@ package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Contest;
+import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Group;
 import com.shimady563.contest.manager.model.dto.ContestRequestDto;
 import com.shimady563.contest.manager.model.dto.ContestResponseDto;
@@ -19,12 +20,14 @@ import org.springframework.data.domain.PageRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 class ContestServiceTest {
@@ -168,5 +171,32 @@ class ContestServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> contestService.getContestByIdWithContestVersions(999L));
+    }
+
+    @Test
+    void shouldDeleteContestById() {
+        Long contestId = 1L;
+        Contest contest = new Contest();
+        contest.setId(contestId);
+        ContestVersion version1 = new ContestVersion();
+        ContestVersion version2 = new ContestVersion();
+        contest.setContestVersions(Set.of(version1, version2));
+
+        given(contestRepository.findByIdWithContestVersions(contestId)).willReturn(Optional.of(contest));
+
+        contestService.deleteContestById(contestId);
+
+        then(contestRepository).should().delete(contest);
+    }
+
+    @Test
+    void shouldThrowWhileDeletingWhenContestNotFoundById() {
+        Long contestId = 99L;
+        given(contestRepository.findByIdWithContestVersions(contestId)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> contestService.deleteContestById(contestId));
+
+        then(contestRepository).should(never()).delete(any());
     }
 }
