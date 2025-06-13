@@ -20,6 +20,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,26 +52,26 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public Page<UserResponse> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
         StringBuilder logMessage = new StringBuilder().append("Searching for all users with ");
-        Specification<User> specification = Specification.where(null);
+        List<Specification<User>> specifications = new ArrayList<>();
 
         if (firstName != null) {
-            specification.and(UserSpecification.hasFirstName(firstName));
+            specifications.add(UserSpecification.hasFirstName(firstName));
             logMessage.append("first name: ").append(firstName).append(", ");
         }
         if (lastName != null) {
-            specification.and(UserSpecification.hasLastName(lastName));
+            specifications.add(UserSpecification.hasLastName(lastName));
             logMessage.append("last name: ").append(lastName).append(", ");
         }
         if (email != null) {
-            specification.and(UserSpecification.hasEmail(email));
+            specifications.add(UserSpecification.hasEmail(email));
             logMessage.append("email: ").append(email).append(", ");
         }
         if (role != null) {
-            specification.and(UserSpecification.hasRole(role));
+            specifications.add(UserSpecification.hasRole(role));
             logMessage.append("role: ").append(role).append(", ");
         }
         if (groupName != null) {
-            specification.and(UserSpecification.hasGroupName(groupName));
+            specifications.add(UserSpecification.hasGroupName(groupName));
             logMessage.append("group name: ").append(groupName).append(", ");
         }
 
@@ -81,7 +84,7 @@ public class UserService implements UserDetailsService {
         }
 
         log.info(logMessage.toString());
-        return userRepository.findAllFetchGroup(specification, pageRequest)
+        return userRepository.findAllFetchGroup(Specification.allOf(specifications), pageRequest)
                 .map(u -> mapper.map(u, UserResponse.class));
     }
 

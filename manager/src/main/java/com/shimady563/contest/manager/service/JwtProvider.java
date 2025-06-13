@@ -9,15 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 
 @Slf4j
 @Repository
 public class JwtProvider {
-    private final Key accessSecret;
+    private final SecretKey accessSecret;
 
-    public JwtProvider(
-            @Value("${jwt.token.access.secret}") String accessSecret) {
+    public JwtProvider(@Value("${jwt.token.access.secret}") String accessSecret) {
         this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
     }
 
@@ -25,15 +24,15 @@ public class JwtProvider {
         return validateToken(token, accessSecret);
     }
 
-    private boolean validateToken(String token, Key secret) {
+    private boolean validateToken(String token, SecretKey secret) {
         if (!StringUtils.hasText(token)) {
             return false;
         }
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secret)
+            Jwts.parser()
+                    .verifyWith(secret)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Jwt token expired: {}", e.getMessage());
@@ -49,11 +48,15 @@ public class JwtProvider {
         return false;
     }
 
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessSecret)
+    public Claims getClaimsFromAccessToken(String token) {
+        return getClaimsFromToken(token, accessSecret);
+    }
+
+    private Claims getClaimsFromToken(String token, SecretKey secret) {
+        return Jwts.parser()
+                .verifyWith(secret)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

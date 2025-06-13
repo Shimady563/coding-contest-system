@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         log.info("Jwt token validated successfully");
-        Claims claims = provider.getClaimsFromToken(token);
+        Claims claims = provider.getClaimsFromAccessToken(token);
         JwtAuthentication authentication = JwtUtils.generateAuthentication(claims);
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -60,7 +60,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         for (String path : whiteList) {
-            AntPathRequestMatcher matcher = new AntPathRequestMatcher(path);
+            PathPatternRequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(path);
             if (matcher.matches(request)) {
                 return true;
             }

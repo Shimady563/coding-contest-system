@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,30 +29,30 @@ public class SolutionService {
     @Transactional(readOnly = true)
     public Page<SolutionResponseDto> searchForSolutions(Status status, Long userId, Long contestId, LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageRequest) {
         StringBuilder logMessage = new StringBuilder().append("Searching for solutions with ");
-        Specification<Solution> specification = Specification.where(null);
+        List<Specification<Solution>> specifications = new ArrayList<>();
 
         if (status != null) {
-            specification.and(SolutionSpecification.hasStatus(status));
+            specifications.add(SolutionSpecification.hasStatus(status));
             logMessage.append("status: ").append(status).append(", ");
         }
 
         if (userId != null) {
-            specification.and(SolutionSpecification.hasUserId(userId));
+            specifications.add(SolutionSpecification.hasUserId(userId));
             logMessage.append("user id: ").append(userId).append(", ");
         }
 
         if (contestId != null) {
-            specification.and(SolutionSpecification.hasContestId(contestId));
+            specifications.add(SolutionSpecification.hasContestId(contestId));
             logMessage.append("contest id: ").append(contestId).append(", ");
         }
 
         if (startDateTime != null) {
-            specification.and(SolutionSpecification.hasSubmittedAtAfter(startDateTime));
+            specifications.add(SolutionSpecification.hasSubmittedAtAfter(startDateTime));
             logMessage.append("submitted at after: ").append(startDateTime).append(", ");
         }
 
         if (endDateTime != null) {
-            specification.and(SolutionSpecification.hasSubmittedAtBefore(endDateTime));
+            specifications.add(SolutionSpecification.hasSubmittedAtBefore(endDateTime));
             logMessage.append("submitted at before: ").append(endDateTime).append(", ");
         }
 
@@ -63,7 +65,7 @@ public class SolutionService {
         }
 
         log.info(logMessage.toString());
-        return solutionRepository.findAll(specification, pageRequest)
+        return solutionRepository.findAll(Specification.allOf(specifications), pageRequest)
                 .map(s -> mapper.map(s, SolutionResponseDto.class));
     }
 
