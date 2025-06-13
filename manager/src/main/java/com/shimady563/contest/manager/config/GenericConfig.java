@@ -1,5 +1,6 @@
 package com.shimady563.contest.manager.config;
 
+import com.shimady563.contest.manager.mapping.ContestVersionResponseMap;
 import com.shimady563.contest.manager.mapping.SolutionResponseDtoMap;
 import com.shimady563.contest.manager.mapping.TaskResponseDtoMap;
 import com.shimady563.contest.manager.mapping.UserResponseMap;
@@ -16,6 +17,7 @@ public class GenericConfig {
         mapper.addMappings(new UserResponseMap());
         mapper.addMappings(new TaskResponseDtoMap());
         mapper.addMappings(new SolutionResponseDtoMap());
+        mapper.addMappings(new ContestVersionResponseMap());
         return new ModelMapper();
     }
 }

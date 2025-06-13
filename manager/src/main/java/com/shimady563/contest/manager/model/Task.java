@@ -30,7 +30,7 @@ public class Task {
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "tasks")
     private Set<ContestVersion> contestVersions = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "task")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "task")
     private List<Solution> solutions = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "task")
