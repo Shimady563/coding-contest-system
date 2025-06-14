@@ -54,10 +54,12 @@ public class User implements UserDetails {
 
     public void addContestVersion(ContestVersion contestVersion) {
         contestVersions.add(contestVersion);
+        contestVersion.getUsers().add(this);
     }
 
     public void removeContestVersion(ContestVersion contestVersion) {
         contestVersions.remove(contestVersion);
+        contestVersion.getUsers().remove(this);
     }
 
     @Override

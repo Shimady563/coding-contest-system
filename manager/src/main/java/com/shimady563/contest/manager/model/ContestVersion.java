@@ -36,10 +36,12 @@ public class ContestVersion {
 
     public void addTask(Task task) {
         tasks.add(task);
+        task.getContestVersions().add(this);
     }
 
     public void removeTask(Task task) {
         tasks.remove(task);
+        task.getContestVersions().remove(this);
     }
 
     public void removeUsers() {
