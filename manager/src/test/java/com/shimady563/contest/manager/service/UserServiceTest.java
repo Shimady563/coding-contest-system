@@ -165,6 +165,29 @@ class UserServiceTest {
     }
 
     @Test
+    void shouldThrowWhenContestVersionNotInCurrentContest() {
+        ContestVersion existingVersion = new ContestVersion();
+        existingVersion.setName("name1");
+        existingVersion.setId(1L);
+        user.addContestVersion(existingVersion);
+
+        Contest contest = new Contest();
+        contest.addContestVersion(existingVersion);
+
+        UserRegistrationRequestDto dto = new UserRegistrationRequestDto();
+        dto.setContestId(1L);
+        dto.setContestVersionId(2L);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(contestService.getContestByIdWithContestVersions(1L)).willReturn(contest);
+        willReturn(user).given(userService).getCurrentUser();
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                userService.registerUserForContestVersion(1L, dto)
+        );
+    }
+
+    @Test
     void shouldDoNothingWhenUserAlreadyStartedSpecifiedContestVersion() {
         ContestVersion existingVersion = new ContestVersion();
         existingVersion.setId(1L);
