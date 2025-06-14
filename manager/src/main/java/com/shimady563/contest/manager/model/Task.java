@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -49,5 +46,18 @@ public class Task {
 
     public void removeTestCase(TestCase testCase) {
         testCases.remove(testCase);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Task task)) return false;
+        return Objects.equals(name, task.name)
+                && Objects.equals(description, task.description)
+                && Objects.equals(testCasesCount, task.testCasesCount);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, testCasesCount);
     }
 }

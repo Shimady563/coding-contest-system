@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Setter
@@ -47,6 +48,17 @@ public class ContestVersion {
     public void removeUsers() {
         users.forEach(u -> u.removeContestVersion(this));
         users.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ContestVersion that)) return false;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 }
 
