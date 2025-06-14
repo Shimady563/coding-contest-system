@@ -31,9 +31,6 @@ class SolutionServiceTest {
     @Mock
     private SolutionRepository solutionRepository;
 
-    @Mock
-    private ModelMapper mapper;
-
     @InjectMocks
     private SolutionService solutionService;
 
@@ -42,9 +39,9 @@ class SolutionServiceTest {
         Long id = 1L;
         Solution solution = new Solution();
         SolutionResponseDto dto = new SolutionResponseDto();
+        dto.setSubmittedAt(solution.getSubmittedAt());
 
         given(solutionRepository.findById(id)).willReturn(Optional.of(solution));
-        given(mapper.map(solution, SolutionResponseDto.class)).willReturn(dto);
 
         SolutionResponseDto result = solutionService.getSolutionById(id);
 
@@ -62,11 +59,11 @@ class SolutionServiceTest {
     void shouldSearchForSolutionsWithFilters() {
         Solution solution = new Solution();
         SolutionResponseDto dto = new SolutionResponseDto();
+        dto.setSubmittedAt(solution.getSubmittedAt());
         PageRequest pageRequest = PageRequest.of(0, 10);
         Page<Solution> solutionPage = new PageImpl<>(List.of(solution));
 
         given(solutionRepository.findAll(any(Specification.class), eq(pageRequest))).willReturn(solutionPage);
-        given(mapper.map(solution, SolutionResponseDto.class)).willReturn(dto);
 
         Page<SolutionResponseDto> result = solutionService.searchForSolutions(
                 Status.ACCEPTED,

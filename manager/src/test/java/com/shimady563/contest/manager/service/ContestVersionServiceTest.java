@@ -34,9 +34,6 @@ class ContestVersionServiceTest {
     @Mock
     private TaskService taskService;
 
-    @Mock
-    private ModelMapper mapper;
-
     @InjectMocks
     private ContestVersionService contestVersionService;
 
@@ -109,10 +106,10 @@ class ContestVersionServiceTest {
         Contest contest = new Contest();
         ContestVersion contestVersion = new ContestVersion();
         ContestVersionResponseDto dto = new ContestVersionResponseDto();
+        dto.setTaskIds(List.of());
 
         given(contestService.getContestById(1L)).willReturn(contest);
         given(contestVersionRepository.findByContest(contest)).willReturn(List.of(contestVersion));
-        given(mapper.map(contestVersion, ContestVersionResponseDto.class)).willReturn(dto);
 
         List<ContestVersionResponseDto> result = contestVersionService.getContestVersionsByContestId(1L);
 

@@ -19,5 +19,5 @@ public class TaskRequestDto {
     private String description;
 
     @NotEmpty(message = "test cases cannot be empty")
-    private List<TestCaseDto> testCases;
+    private List<TestCaseRequestDto> testCases;
 }

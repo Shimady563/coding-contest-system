@@ -1,17 +1,17 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.converter.UserConverter;
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.DataConflictException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.*;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
-import com.shimady563.contest.manager.model.dto.UserResponse;
-import com.shimady563.contest.manager.model.dto.UserUpdateRequest;
+import com.shimady563.contest.manager.model.dto.UserResponseDto;
+import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
 import com.shimady563.contest.manager.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,7 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final ModelMapper mapper;
     private final GroupService groupService;
     private final ContestService contestService;
 
@@ -46,12 +45,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUserResponseById(Long id) {
-        return mapper.map(getUserById(id), UserResponse.class);
+    public UserResponseDto getUserResponseById(Long id) {
+        return UserConverter.domain2Response(getUserById(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
+    public Page<UserResponseDto> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
         StringBuilder logMessage = new StringBuilder().append("Searching for all users with ");
         List<Specification<User>> specifications = new ArrayList<>();
 
@@ -86,11 +85,11 @@ public class UserService implements UserDetailsService {
 
         log.info(logMessage.toString());
         return userRepository.findAllFetchGroup(Specification.allOf(specifications), pageRequest)
-                .map(u -> mapper.map(u, UserResponse.class));
+                .map(UserConverter::domain2Response);
     }
 
     @Transactional
-    public void updateUserById(Long id, UserUpdateRequest request) {
+    public void updateUserById(Long id, UserUpdateRequestDto request) {
         log.info("Updating user with id: {}", id);
         User user = getUserById(id);
         user.setFirstName(request.getFirstName());

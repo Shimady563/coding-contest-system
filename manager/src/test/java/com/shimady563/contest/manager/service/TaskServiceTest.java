@@ -8,7 +8,7 @@ import com.shimady563.contest.manager.model.TestCase;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.TaskRequestDto;
 import com.shimady563.contest.manager.model.dto.TaskResponseDto;
-import com.shimady563.contest.manager.model.dto.TestCaseDto;
+import com.shimady563.contest.manager.model.dto.TestCaseRequestDto;
 import com.shimady563.contest.manager.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,18 +51,16 @@ class TaskServiceTest {
 
     private Task task;
     private TaskRequestDto requestDto;
-    private TestCase testCase;
-    private TestCaseDto testCaseDto;
 
     @BeforeEach
     void setUp() {
-        testCase = new TestCase();
+        TestCase testCase = new TestCase();
         testCase.setInput("in");
         testCase.setOutput("out");
 
-        testCaseDto = new TestCaseDto();
-        testCaseDto.setInput("in");
-        testCaseDto.setOutput("out");
+        TestCaseRequestDto testCaseRequestDto = new TestCaseRequestDto();
+        testCaseRequestDto.setInput("in");
+        testCaseRequestDto.setOutput("out");
 
         task = new Task();
         task.setId(1L);
@@ -72,13 +70,11 @@ class TaskServiceTest {
         requestDto = new TaskRequestDto();
         requestDto.setName("Sample Task");
         requestDto.setDescription("Description");
-        requestDto.setTestCases(List.of(testCaseDto));
+        requestDto.setTestCases(List.of(testCaseRequestDto));
     }
 
     @Test
     void shouldCreateTask() {
-        given(mapper.map(testCaseDto, TestCase.class)).willReturn(testCase);
-
         taskService.createTask(requestDto);
 
         then(taskRepository).should().save(any(Task.class));
@@ -87,7 +83,6 @@ class TaskServiceTest {
     @Test
     void shouldUpdateExistingTask() {
         given(taskRepository.findById(1L)).willReturn(Optional.of(task));
-        given(mapper.map(testCaseDto, TestCase.class)).willReturn(testCase);
 
         taskService.updateTaskById(1L, requestDto);
 
@@ -136,11 +131,11 @@ class TaskServiceTest {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Task task = new Task();
         TaskResponseDto dto = new TaskResponseDto();
+        dto.setTestCases(List.of());
 
         Page<Task> page = new PageImpl<>(List.of(task));
 
         given(taskRepository.findAll(pageRequest)).willReturn(page);
-        given(mapper.map(task, TaskResponseDto.class)).willReturn(dto);
 
         Page<TaskResponseDto> result = taskService.searchForTasks(pageRequest);
 
@@ -158,10 +153,10 @@ class TaskServiceTest {
 
         Task task = new Task();
         TaskResponseDto dto = new TaskResponseDto();
+        dto.setTestCases(List.of());
 
         given(userService.getCurrentUser()).willReturn(user);
         given(taskRepository.findByContestVersions(contestVersion)).willReturn(List.of(task));
-        given(mapper.map(task, TaskResponseDto.class)).willReturn(dto);
 
         List<TaskResponseDto> result = taskService.getTasksByContestVersionId(contestVersionId);
 
@@ -172,6 +167,7 @@ class TaskServiceTest {
     void shouldThrowAccessDeniedIfUserDoesNotHaveContestVersion() {
         ContestVersion contestVersion = new ContestVersion();
         contestVersion.setId(99L);
+
 
         User user = new User();
         user.setId(42L);

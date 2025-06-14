@@ -25,9 +25,6 @@ class GroupServiceTest {
     @Mock
     private GroupRepository groupRepository;
 
-    @Mock
-    private ModelMapper mapper;
-
     @InjectMocks
     private GroupService groupService;
 
@@ -60,8 +57,6 @@ class GroupServiceTest {
         GroupResponseDto dto2 = new GroupResponseDto();
 
         given(groupRepository.findAll()).willReturn(List.of(group1, group2));
-        given(mapper.map(group1, GroupResponseDto.class)).willReturn(dto1);
-        given(mapper.map(group2, GroupResponseDto.class)).willReturn(dto2);
 
         List<GroupResponseDto> result = groupService.getAllGroups();
 

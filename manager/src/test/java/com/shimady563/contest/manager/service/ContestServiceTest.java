@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -37,9 +36,6 @@ class ContestServiceTest {
     @Mock
     private ContestRepository contestRepository;
 
-    @Mock
-    private ModelMapper mapper;
-
     @InjectMocks
     private ContestService contestService;
 
@@ -50,10 +46,10 @@ class ContestServiceTest {
         Contest contest = new Contest();
         contest.setName(name);
         ContestResponseDto responseDto = new ContestResponseDto();
+        responseDto.setName(name);
 
         given(contestRepository.findByNameContainingIgnoreCase(name, pageRequest))
                 .willReturn(new PageImpl<>(List.of(contest)));
-        given(mapper.map(contest, ContestResponseDto.class)).willReturn(responseDto);
 
         Page<ContestResponseDto> result = contestService.getContestsByName(name, pageRequest);
 
@@ -76,7 +72,6 @@ class ContestServiceTest {
 
         given(groupService.getGroupById(groupId)).willReturn(group);
         given(contestRepository.save(any(Contest.class))).willReturn(savedContest);
-        given(mapper.map(savedContest, ContestResponseDto.class)).willReturn(responseDto);
 
         ContestResponseDto result = contestService.createContest(request);
 
@@ -124,7 +119,6 @@ class ContestServiceTest {
 
         given(groupService.getGroupById(groupId)).willReturn(group);
         given(contestRepository.findByGroup(group)).willReturn(List.of(contest));
-        given(mapper.map(contest, ContestResponseDto.class)).willReturn(dto);
 
         List<ContestResponseDto> result = contestService.getContestsByGroupId(groupId);
 
@@ -179,7 +173,10 @@ class ContestServiceTest {
         Contest contest = new Contest();
         contest.setId(contestId);
         ContestVersion version1 = new ContestVersion();
+        version1.setName("name1");
         ContestVersion version2 = new ContestVersion();
+        version2.setName("name2");
+
         contest.setContestVersions(Set.of(version1, version2));
 
         given(contestRepository.findByIdWithContestVersions(contestId)).willReturn(Optional.of(contest));

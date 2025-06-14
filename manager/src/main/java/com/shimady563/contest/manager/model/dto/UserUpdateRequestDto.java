@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserUpdateRequest {
+public class UserUpdateRequestDto {
     @NotEmpty(message = "first name cannot be blank")
     @Size(min = 4, max = 64,
             message = "name length should be between 4 and 64 characters")
@@ -27,12 +27,12 @@ public class UserUpdateRequest {
             message = "wrong format of email")
     private String email;
 
-    @Password(message = "password should be at least 8 characters long " +
-            "and contain at least one lower case letter, " +
-            "upper case letter, " +
-            "digit, " +
-            "symbol from @#$%^&+=")
-    private String password;
+//    @Password(message = "password should be at least 8 characters long " +
+//            "and contain at least one lower case letter, " +
+//            "upper case letter, " +
+//            "digit, " +
+//            "symbol from @#$%^&+=")
+//    private String password;
 
     @NotNull(message = "group id cannot be null")
     private Long groupId;

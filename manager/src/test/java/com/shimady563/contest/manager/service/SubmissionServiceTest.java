@@ -2,6 +2,7 @@ package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
 import com.shimady563.contest.manager.model.ContestVersion;
+import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.CodeSubmission;
 import com.shimady563.contest.manager.model.dto.CodeSubmissionDto;
@@ -10,11 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -24,13 +23,13 @@ import static org.mockito.BDDMockito.then;
 class SubmissionServiceTest {
 
     @Mock
-    private ModelMapper mapper;
-
-    @Mock
     private UserService userService;
 
     @Mock
     private ContestVersionService contestVersionService;
+
+    @Mock
+    private TaskService taskService;
 
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -42,25 +41,35 @@ class SubmissionServiceTest {
     void shouldSubmitValidSolution() {
         Long userId = 1L;
         Long contestVersionId = 2L;
+        Long taskId = 3L;
         CodeSubmissionDto dto = new CodeSubmissionDto();
         dto.setUserId(userId);
         dto.setContestVersionId(contestVersionId);
         dto.setSubmittedAt(LocalDateTime.now());
         dto.setStartTime(LocalDateTime.now().minusMinutes(10));
         dto.setEndTime(LocalDateTime.now().plusMinutes(10));
+        dto.setTaskId(taskId);
 
         User user = new User();
         user.setId(userId);
 
+        Task task = new Task();
+        task.setId(taskId);
+
         ContestVersion contestVersion = new ContestVersion();
         contestVersion.setId(contestVersionId);
-        contestVersion.setUsers(Set.of(user));
+        contestVersion.addTask(task);
+
+        user.addContestVersion(contestVersion);
 
         CodeSubmission submission = new CodeSubmission();
+        submission.setUserId(userId);
+        submission.setTaskId(taskId);
+        submission.setSubmittedAt(dto.getSubmittedAt());
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
-        given(mapper.map(dto, CodeSubmission.class)).willReturn(submission);
+        given(taskService.getTaskById(taskId)).willReturn(task);
 
         submissionService.submitSolution(dto);
 
@@ -81,6 +90,7 @@ class SubmissionServiceTest {
         then(contestVersionService).shouldHaveNoInteractions();
         then(userService).shouldHaveNoInteractions();
         then(kafkaTemplate).shouldHaveNoInteractions();
+        then(taskService).shouldHaveNoInteractions();
     }
 
     @Test
@@ -97,33 +107,75 @@ class SubmissionServiceTest {
         then(contestVersionService).shouldHaveNoInteractions();
         then(userService).shouldHaveNoInteractions();
         then(kafkaTemplate).shouldHaveNoInteractions();
+        then(taskService).shouldHaveNoInteractions();
     }
 
     @Test
     void shouldThrowIfUserNotInContestVersion() {
         Long userId = 1L;
         Long contestVersionId = 2L;
+        Long taskId = 3L;
         CodeSubmissionDto dto = new CodeSubmissionDto();
         dto.setUserId(userId);
         dto.setContestVersionId(contestVersionId);
         dto.setSubmittedAt(LocalDateTime.now());
         dto.setStartTime(LocalDateTime.now().minusMinutes(10));
         dto.setEndTime(LocalDateTime.now().plusMinutes(10));
+        dto.setTaskId(taskId);
 
         User user = new User();
         user.setId(userId);
 
+        Task task = new Task();
+        task.setId(taskId);
+
         ContestVersion contestVersion = new ContestVersion();
         contestVersion.setId(contestVersionId);
+        contestVersion.addTask(task);
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
+        given(taskService.getTaskById(taskId)).willReturn(task);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
                 .hasMessageContaining("User doesn't have the access");
 
-        then(mapper).shouldHaveNoInteractions();
+        then(kafkaTemplate).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldThrowIfTaskNotInContestVersion() {
+        Long userId = 1L;
+        Long contestVersionId = 2L;
+        Long taskId = 3L;
+        CodeSubmissionDto dto = new CodeSubmissionDto();
+        dto.setUserId(userId);
+        dto.setContestVersionId(contestVersionId);
+        dto.setSubmittedAt(LocalDateTime.now());
+        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
+        dto.setEndTime(LocalDateTime.now().plusMinutes(10));
+        dto.setTaskId(taskId);
+
+        User user = new User();
+        user.setId(userId);
+
+        Task task = new Task();
+        task.setId(taskId);
+
+        ContestVersion contestVersion = new ContestVersion();
+        contestVersion.setId(contestVersionId);
+
+        user.addContestVersion(contestVersion);
+
+        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(userService.getUserById(userId)).willReturn(user);
+        given(taskService.getTaskById(taskId)).willReturn(task);
+
+        assertThatThrownBy(() -> submissionService.submitSolution(dto))
+                .isInstanceOf(SubmissionInvalidException.class)
+                .hasMessageContaining("not found in contest version");
+
         then(kafkaTemplate).shouldHaveNoInteractions();
     }
 }

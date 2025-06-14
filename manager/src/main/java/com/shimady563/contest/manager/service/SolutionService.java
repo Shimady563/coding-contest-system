@@ -1,5 +1,6 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.converter.SolutionConverter;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Solution;
 import com.shimady563.contest.manager.model.Status;
@@ -8,7 +9,6 @@ import com.shimady563.contest.manager.repository.SolutionRepository;
 import com.shimady563.contest.manager.specification.SolutionSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SolutionService {
     private final SolutionRepository solutionRepository;
-    private final ModelMapper mapper;
 
     @Transactional(readOnly = true)
     public Page<SolutionResponseDto> searchForSolutions(Status status, Long userId, Long contestId, LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageRequest) {
@@ -66,14 +65,14 @@ public class SolutionService {
 
         log.info(logMessage.toString());
         return solutionRepository.findAll(Specification.allOf(specifications), pageRequest)
-                .map(s -> mapper.map(s, SolutionResponseDto.class));
+                .map(SolutionConverter::domain2Response);
     }
 
     @Transactional(readOnly = true)
     public SolutionResponseDto getSolutionById(Long id) {
         log.info("Getting solution by id: {}", id);
-        return mapper.map(solutionRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Solution with id: " + id + " not found")),
-                SolutionResponseDto.class);
+        return solutionRepository.findById(id)
+                .map(SolutionConverter::domain2Response)
+                .orElseThrow(() -> new ResourceNotFoundException("Solution with id: " + id + " not found"));
     }
 }

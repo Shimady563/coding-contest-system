@@ -5,8 +5,8 @@ import com.shimady563.contest.manager.exception.DataConflictException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.*;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
-import com.shimady563.contest.manager.model.dto.UserResponse;
-import com.shimady563.contest.manager.model.dto.UserUpdateRequest;
+import com.shimady563.contest.manager.model.dto.UserResponseDto;
+import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,10 +33,10 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private ModelMapper mapper;
+
     @Mock
     private GroupService groupService;
+
     @Mock
     private ContestService contestService;
 
@@ -97,7 +96,7 @@ class UserServiceTest {
     @Test
     void shouldUpdateUserById() {
         Long newUserId = 2L;
-        UserUpdateRequest request = new UserUpdateRequest();
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("new@example.com");
@@ -141,11 +140,16 @@ class UserServiceTest {
     @Test
     void shouldThrowWhenUserAlreadyStartedOtherContestVersionInCurrentContest() {
         ContestVersion existingVersion = new ContestVersion();
+        existingVersion.setName("name1");
         existingVersion.setId(1L);
+        ContestVersion newVersion = new ContestVersion();
+        newVersion.setName("name2");
+        newVersion.setId(2L);
         user.addContestVersion(existingVersion);
 
         Contest contest = new Contest();
-        contest.setContestVersions(Set.of(existingVersion));
+        contest.addContestVersion(existingVersion);
+        contest.addContestVersion(newVersion);
 
         UserRegistrationRequestDto dto = new UserRegistrationRequestDto();
         dto.setContestId(1L);
@@ -206,15 +210,16 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldSearchForUsersWhenGivenValidParams() {
+    void shouldFindUsers() {
         PageRequest pageRequest = PageRequest.of(0, 10);
         Page<User> userPage = new PageImpl<>(List.of(user));
-        UserResponse response = new UserResponse();
+        UserResponseDto response = new UserResponseDto();
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
 
         given(userRepository.findAllFetchGroup(any(), eq(pageRequest))).willReturn(userPage);
-        given(mapper.map(any(User.class), eq(UserResponse.class))).willReturn(response);
 
-        Page<UserResponse> result = userService.searchForUsers(
+        Page<UserResponseDto> result = userService.searchForUsers(
                 "John", "Doe", "john@example.com", Role.ROLE_STUDENT, "Group A", pageRequest
         );
 

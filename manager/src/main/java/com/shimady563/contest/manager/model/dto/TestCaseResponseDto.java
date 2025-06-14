@@ -4,14 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class TaskResponseDto {
+@AllArgsConstructor
+public class TestCaseResponseDto {
     private Long id;
-    private String name;
-    private String description;
-    private List<TestCaseResponseDto> testCases;
+    private String input;
+    private String output;
 }
