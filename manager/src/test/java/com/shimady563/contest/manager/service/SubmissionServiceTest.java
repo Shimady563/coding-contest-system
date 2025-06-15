@@ -139,7 +139,7 @@ class SubmissionServiceTest {
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
-                .hasMessageContaining("User doesn't have the access");
+                .hasMessageContaining("doesn't have the access to contest version");
 
         then(kafkaTemplate).shouldHaveNoInteractions();
     }
