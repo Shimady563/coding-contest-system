@@ -17,12 +17,12 @@ public class TaskConverter {
         return TaskMapper.INSTANCE.request2Domain(taskRequestDto);
     }
 
-    public static TaskResponseDto domain2Response(Task contestVersion) {
-        return TaskMapper.INSTANCE.domain2Response(contestVersion);
+    public static TaskResponseDto domain2Response(Task task) {
+        return TaskMapper.INSTANCE.domain2Response(task);
     }
 
-    public static TestCase dto2TestCase(TestCaseRequestDto dto) {
-        return TestCaseMapper.INSTANCE.request2Domain(dto);
+    public static TestCase dto2TestCase(TestCaseRequestDto testCaseRequestDto) {
+        return TestCaseMapper.INSTANCE.request2Domain(testCaseRequestDto);
     }
 
     @Mapper(uses = TestCaseMapper.class)
@@ -36,7 +36,7 @@ public class TaskConverter {
         @Mapping(source = "testCases", target = "testCasesCount")
         Task request2Domain(TaskRequestDto taskRequestDto);
 
-        TaskResponseDto domain2Response(Task contestVersion);
+        TaskResponseDto domain2Response(Task task);
 
         default Short collection2Short(Collection<?> collection) {
             return (short) collection.size();
@@ -51,6 +51,6 @@ public class TaskConverter {
 
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "task", ignore = true)
-        TestCase request2Domain(TestCaseRequestDto dto);
+        TestCase request2Domain(TestCaseRequestDto testCaseRequestDto);
     }
 }
