@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Status {
+public enum SolutionStatus {
     TIMED_OUT("Timed Out"),
     COMPILE_ERROR("Compile Error"),
     RUNTIME_ERROR("Runtime Error"),

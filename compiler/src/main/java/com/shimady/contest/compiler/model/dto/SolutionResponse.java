@@ -1,6 +1,6 @@
 package com.shimady.contest.compiler.model.dto;
 
-import com.shimady.contest.compiler.model.Status;
+import com.shimady.contest.compiler.model.SolutionStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SolutionResponse {
     private Long id;
-    private Status status;
+    private SolutionStatus status;
     private Long testsPassed;
 }

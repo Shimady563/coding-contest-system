@@ -2,7 +2,7 @@ package com.shimady.contest.compiler.service;
 
 import com.shimady.contest.compiler.converter.SolutionConverter;
 import com.shimady.contest.compiler.model.Solution;
-import com.shimady.contest.compiler.model.Status;
+import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.model.dto.SolutionResponse;
@@ -23,7 +23,7 @@ public class SolutionService {
     private final TaskService taskService;
 
     @Transactional
-    public void createSolution(String code, LocalDateTime submittedAt, Status status, Short testsPassed, Task task, User user) {
+    public void createSolution(String code, LocalDateTime submittedAt, SolutionStatus status, Short testsPassed, Task task, User user) {
         log.info("Creating solution for task: {}, with status: {}", task.getId(), status);
         Solution solution = new Solution();
         solution.setCode(code);

@@ -1,6 +1,6 @@
 package com.shimady.contest.compiler.service;
 
-import com.shimady.contest.compiler.model.Status;
+import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import com.shimady.contest.compiler.model.User;
@@ -48,7 +48,7 @@ public class CompilerService {
                             if (process.exitValue() != 0) {
                                 String result = new String(process.getInputStream().readAllBytes());
                                 log.info("Compilation failed: {}", result);
-                                solutionService.createSolution(code, submittedAt, Status.COMPILE_ERROR, (short) 0, task, user);
+                                solutionService.createSolution(code, submittedAt, SolutionStatus.COMPILE_ERROR, (short) 0, task, user);
                                 return null;
                             }
                             return 0;
@@ -72,14 +72,14 @@ public class CompilerService {
                         .thenApply(process -> {
                             if (process == null) {
                                 log.info("Runner process timed out on test: {}", localTestsPassed + 1);
-                                solutionService.createSolution(code, submittedAt, Status.TIMED_OUT, localTestsPassed, task, user);
+                                solutionService.createSolution(code, submittedAt, SolutionStatus.TIMED_OUT, localTestsPassed, task, user);
                                 return null;
                             }
                             try {
                                 String result = new String(process.getInputStream().readAllBytes());
                                 if (process.exitValue() != 0) {
                                     log.info("Runner process exited with code: {}, on test: {}, result: {}", process.exitValue(), localTestsPassed + 1, result);
-                                    solutionService.createSolution(code, submittedAt, Status.RUNTIME_ERROR, localTestsPassed, task, user);
+                                    solutionService.createSolution(code, submittedAt, SolutionStatus.RUNTIME_ERROR, localTestsPassed, task, user);
                                     return null;
                                 }
                                 return result;
@@ -96,19 +96,20 @@ public class CompilerService {
                 }
 
                 if (!result.strip().equals(testCase.getOutput())) {
-                    solutionService.createSolution(code, submittedAt, Status.WRONG_ANSWER, testsPassed, task, user);
+                    solutionService.createSolution(code, submittedAt, SolutionStatus.WRONG_ANSWER, testsPassed, task, user);
                     return;
                 }
                 testsPassed++;
             }
 
-            solutionService.createSolution(code, submittedAt, Status.ACCEPTED, testsPassed, task, user);
+            SolutionStatus solutionStatus = testsPassed.equals(task.getTestCasesCount()) ? SolutionStatus.ACCEPTED : SolutionStatus.WRONG_ANSWER;
+            solutionService.createSolution(code, submittedAt, solutionStatus, testsPassed, task, user);
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error while working with processes: {}", e.getMessage());
-            solutionService.createSolution(code, submittedAt, Status.INTERNAL_ERROR, (short) 0, task, user);
+            solutionService.createSolution(code, submittedAt, SolutionStatus.INTERNAL_ERROR, (short) 0, task, user);
         } catch (IOException e) {
             log.error("Error while working with files: {}", e.getMessage());
-            solutionService.createSolution(code, submittedAt, Status.INTERNAL_ERROR, (short) 0, task, user);
+            solutionService.createSolution(code, submittedAt, SolutionStatus.INTERNAL_ERROR, (short) 0, task, user);
         }
     }
 

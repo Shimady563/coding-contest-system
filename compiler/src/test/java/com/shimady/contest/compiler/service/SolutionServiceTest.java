@@ -1,7 +1,7 @@
 package com.shimady.contest.compiler.service;
 
 import com.shimady.contest.compiler.model.Solution;
-import com.shimady.contest.compiler.model.Status;
+import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.repository.SolutionRepository;
@@ -28,7 +28,7 @@ public class SolutionServiceTest {
     void shouldCreateSolution() {
         var testsPassed = 0;
         var code = "Code";
-        var status = Status.ACCEPTED;
+        var status = SolutionStatus.ACCEPTED;
         var submittedAt = LocalDateTime.now();
         var task = new Task();
         task.setName("Task");
