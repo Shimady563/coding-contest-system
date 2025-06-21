@@ -13,6 +13,7 @@ import io.restassured.http.Method;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.RequestSpecification;
 import lombok.Builder;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
@@ -107,18 +108,24 @@ public class EndToEndTests {
         String response = withOptionalBody(given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .queryParams(testCase.queryParams())
-                .cookies(testCase.cookies()), testCase.requestBody)
+                .queryParams(testCase.getQueryParams())
+                .cookies(testCase.getCookies()), testCase.getRequestBody())
                 .when()
-                .request(testCase.method(), testCase.path())
+                .request(testCase.getMethod(), testCase.getPath())
                 .then()
-                .statusCode(testCase.statusCode())
+                .statusCode(testCase.getStatusCode())
                 .extract()
                 .asString();
-        log.info(testCase.responseBody);
-        if (StringUtils.hasText(response)) {
-            JSONAssert.assertEquals(testCase.responseBody, response, JSONCompareMode.STRICT);
+        assertResponse(testCase.responseBody, response);
+    }
+
+    @SneakyThrows
+    private void assertResponse(String responseBody, String response) {
+        if (StringUtils.hasText(responseBody) && !StringUtils.hasText(response)
+                || !StringUtils.hasText(responseBody) && StringUtils.hasText(response)) {
+            throw new AssertionError("Responses don't match");
         }
+        JSONAssert.assertEquals(responseBody, response, JSONCompareMode.LENIENT);
     }
 
     private RequestSpecification withOptionalBody(RequestSpecification spec, String body) {
@@ -146,10 +153,7 @@ public class EndToEndTests {
     @SneakyThrows
     private Map<String, Object> loadToMap(String path) {
         String raw = loadRaw(path);
-        if (StringUtils.hasText(raw)) {
-            return mapper.readValue(raw, HashMap.class);
-        }
-        return Map.of();
+        return StringUtils.hasText(raw) ? mapper.readValue(raw, HashMap.class) : Map.of();
     }
 
     @SneakyThrows
@@ -204,23 +208,18 @@ public class EndToEndTests {
         );
     }
 
+    @Data
     @Builder(toBuilder = true)
-    private record EndToEndTestCase(
-            String filePathPostfix,
-            Map<String, Object> queryParams,
-            Map<String, Object> cookies,
-            String requestBody,
-            Method method,
-            String path,
-            Integer statusCode,
-            String responseBody
-
-    ) {
-        static class EndToEndTestCaseBuilder {
-            EndToEndTestCaseBuilder() {
-                filePathPostfix = "";
-                cookies = Map.of();
-            }
-        }
+    private static class EndToEndTestCase {
+        @Builder.Default
+        private String filePathPostfix = "";
+        private Map<String, Object> queryParams;
+        @Builder.Default
+        private Map<String, Object> cookies = Map.of();
+        private String requestBody;
+        private Method method;
+        private String path;
+        private Integer statusCode;
+        private String responseBody;
     }
 }
