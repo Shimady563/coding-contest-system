@@ -16,10 +16,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Named;
-import org.junit.jupiter.api.TestInstance;
+import org.json.JSONArray;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -91,13 +89,15 @@ public class EndToEndTests {
         RestAssured.defaultParser = Parser.JSON;
     }
 
-    @ParameterizedTest(name = "Позитивные кейсы")
+    @ParameterizedTest(name = "{0}")
+    @DisplayName("Positive cases")
     @MethodSource("getPositiveTestCases")
     void runPositiveEndToEndTests(EndToEndTestCase testCase) {
         sendRequest(preparePositiveTestCase(testCase));
     }
 
-    @ParameterizedTest(name = "Негативные кейсы")
+    @ParameterizedTest(name = "{0}")
+    @DisplayName("Negative cases")
     @MethodSource("getNegativeTestCases")
     void runNegativeEndToEndTests(EndToEndTestCase testCase) {
         sendRequest(prepareNegativeTestCase(testCase));
@@ -111,25 +111,27 @@ public class EndToEndTests {
                 .queryParams(testCase.getQueryParams())
                 .cookies(testCase.getCookies()), testCase.getRequestBody())
                 .when()
-                .request(testCase.getMethod(), testCase.getPath())
+                .request(testCase.getMethod(), getPath(testCase))
                 .then()
                 .statusCode(testCase.getStatusCode())
                 .extract()
                 .asString();
+        log.info(response);
         assertResponse(testCase.responseBody, response);
     }
 
     @SneakyThrows
-    private void assertResponse(String responseBody, String response) {
-        if (StringUtils.hasText(responseBody) && !StringUtils.hasText(response)
-                || !StringUtils.hasText(responseBody) && StringUtils.hasText(response)) {
-            throw new AssertionError("Responses don't match");
+    private void assertResponse(String expected, String actual) {
+        if (StringUtils.hasText(expected) && !StringUtils.hasText(actual)
+                || !StringUtils.hasText(expected) && StringUtils.hasText(actual)) {
+            throw new AssertionError("Responses don't match:\nexpected:\n" + expected + "\nactual:\n" + actual);
         }
-        JSONAssert.assertEquals(responseBody, response, JSONCompareMode.LENIENT);
-    }
 
-    private RequestSpecification withOptionalBody(RequestSpecification spec, String body) {
-        return StringUtils.hasText(body) ? spec.body(body) : spec;
+        if (expected.trim().startsWith("[")) {
+            JSONAssert.assertEquals(new JSONArray(expected), new JSONArray(actual), JSONCompareMode.LENIENT);
+        } else {
+            JSONAssert.assertEquals(expected, actual, JSONCompareMode.LENIENT);
+        }
     }
 
     private EndToEndTestCase prepareTestCase(EndToEndTestCase testCase, String filePrefix) {
@@ -162,6 +164,14 @@ public class EndToEndTests {
         return resource.exists() ? resource.getContentAsString(UTF_8) : "";
     }
 
+    private String getPath(EndToEndTestCase testCase) {
+        return testCase.getPath() + testCase.getPathParams();
+    }
+
+    private RequestSpecification withOptionalBody(RequestSpecification spec, String body) {
+        return StringUtils.hasText(body) ? spec.body(body) : spec;
+    }
+
     private String generateAccessToken(User user, Key secretKey, Long tokenExpiration) {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(tokenExpiration);
@@ -178,13 +188,63 @@ public class EndToEndTests {
         return Stream.of(
                 Arguments.of(
                         Named.of(
-                                "Positive test test case",
+                                "Getting contest by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
                                         .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Creating contest",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createContest")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.POST)
+                                        .path("/contests")
+                                        .statusCode(201)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating contest",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateContest")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.PUT)
+                                        .path("/contests")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by group id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestsByGroupId")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.GET)
+                                        .path("/contests/group")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteContestById")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.DELETE)
+                                        .path("/contests")
+                                        .pathParams("/1")
+                                        .statusCode(204)
                                         .build()
                         )
                 )
@@ -195,13 +255,63 @@ public class EndToEndTests {
         return Stream.of(
                 Arguments.of(
                         Named.of(
-                                "Negative test test case",
+                                "Getting contest by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Creating contest",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createContest")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.POST)
+                                        .path("/contests")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating contest",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateContest")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.PUT)
+                                        .path("/contests")
+                                        .pathParams("/1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by group id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestsByGroupId")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.GET)
+                                        .path("/contests/group")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteContestById")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.DELETE)
+                                        .path("/contests")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
                                         .build()
                         )
                 )
@@ -214,6 +324,8 @@ public class EndToEndTests {
         @Builder.Default
         private String filePathPostfix = "";
         private Map<String, Object> queryParams;
+        @Builder.Default
+        private String pathParams = "";
         @Builder.Default
         private Map<String, Object> cookies = Map.of();
         private String requestBody;

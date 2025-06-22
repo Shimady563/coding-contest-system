@@ -59,7 +59,6 @@ public class User implements UserDetails {
 
     public void removeContestVersion(ContestVersion contestVersion) {
         contestVersions.remove(contestVersion);
-        contestVersion.getUsers().remove(this);
     }
 
     @Override
