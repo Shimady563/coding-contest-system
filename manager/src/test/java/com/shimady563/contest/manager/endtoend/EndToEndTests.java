@@ -37,9 +37,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.security.Key;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -186,6 +189,7 @@ public class EndToEndTests {
 
     private Stream<Arguments> getPositiveTestCases() {
         return Stream.of(
+                //contest controller
                 Arguments.of(
                         Named.of(
                                 "Getting contest by name",
@@ -247,12 +251,51 @@ public class EndToEndTests {
                                         .statusCode(204)
                                         .build()
                         )
+                ),
+                //contest version controller
+                Arguments.of(
+                        Named.of(
+                                "Getting contest versions by contest id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestVersionsByContestId")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.GET)
+                                        .path("/contest-versions")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Creating contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createContestVersion")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.POST)
+                                        .path("/contest-versions")
+                                        .statusCode(201)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting contest version by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteContestVersionById")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.DELETE)
+                                        .path("/contest-versions")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
                 )
         );
     }
 
     private Stream<Arguments> getNegativeTestCases() {
         return Stream.of(
+                //contest controller
                 Arguments.of(
                         Named.of(
                                 "Getting contest by name",
@@ -310,6 +353,44 @@ public class EndToEndTests {
                                         .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.DELETE)
                                         .path("/contests")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                //contest version controller
+                Arguments.of(
+                        Named.of(
+                                "Getting contest versions by contest id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestVersionsByContestId")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.GET)
+                                        .path("/contest-versions")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Creating contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createContestVersion")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.POST)
+                                        .path("/contest-versions")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting contest version by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteContestVersionById")
+                                        .cookies(Map.of(tokenCookieName, teacherToken))
+                                        .method(Method.DELETE)
+                                        .path("/contest-versions")
                                         .pathParams("/-1")
                                         .statusCode(404)
                                         .build()
