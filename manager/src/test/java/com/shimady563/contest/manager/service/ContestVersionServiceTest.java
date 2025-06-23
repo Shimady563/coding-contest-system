@@ -114,4 +114,28 @@ class ContestVersionServiceTest {
 
         assertThat(result).hasSize(1).containsExactly(dto);
     }
+
+    @Test
+    void shouldDeleteContestById() {
+        Long contestVersionId = 1L;
+        ContestVersion contestVersion = new ContestVersion();
+        contestVersion.setId(contestVersionId);
+
+        given(contestVersionRepository.findById(contestVersionId)).willReturn(Optional.of(contestVersion));
+
+        contestVersionService.deleteContestVersionById(contestVersionId);
+
+        then(contestVersionRepository).should().delete(contestVersion);
+    }
+
+    @Test
+    void shouldThrowWhileDeletingWhenContestNotFoundById() {
+        Long contestVersionId = 99L;
+        given(contestVersionRepository.findById(contestVersionId)).willReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> contestVersionService.deleteContestVersionById(contestVersionId));
+
+        then(contestVersionRepository).should(never()).delete(any());
+    }
 }

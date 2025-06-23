@@ -57,8 +57,11 @@ public class ContestVersionService {
     }
 
     @Transactional
-    public void deleteContestById(Long id) {
+    public void deleteContestVersionById(Long id) {
         log.info("Deleting contest version with id: {}", id);
-        contestVersionRepository.deleteById(id);
+        ContestVersion contestVersion = getContestVersionById(id);
+        contestVersion.removeUsers();
+        contestVersionRepository.delete(contestVersion);
+
     }
 }

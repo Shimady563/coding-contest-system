@@ -34,6 +34,6 @@ public class ContestVersionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Secured({"ROLE_TEACHER"})
     public void deleteContestVersionById(@PathVariable Long id) {
-        contestVersionService.deleteContestById(id);
+        contestVersionService.deleteContestVersionById(id);
     }
 }
