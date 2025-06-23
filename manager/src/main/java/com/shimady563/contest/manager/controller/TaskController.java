@@ -43,7 +43,7 @@ public class TaskController {
     }
 
     @GetMapping("/contest-version")
-    @Secured({"ROLE_STUDENT"})
+    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     public List<TaskResponseDto> getTasksByContestVersionId(@RequestParam Long contestVersionId) {
         return taskService.getTasksByContestVersionId(contestVersionId);
     }

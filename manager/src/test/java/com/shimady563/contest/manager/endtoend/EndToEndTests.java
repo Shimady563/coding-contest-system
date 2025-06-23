@@ -37,12 +37,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -71,8 +68,7 @@ public class EndToEndTests {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    private String teacherToken;
-    private String studentToken;
+    private String token;
 
     @BeforeAll
     void setUpClass(@Value("${jwt.token.access.secret}") String secret,
@@ -80,9 +76,7 @@ public class EndToEndTests {
                     @Autowired UserRepository userRepository) {
         Key secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         log.info(String.valueOf(userRepository.findById(1L).get().getRole()));
-        log.info(String.valueOf(userRepository.findById(2L).get().getRole()));
-        this.teacherToken = generateAccessToken(userRepository.findById(1L).orElseThrow(), secretKey, tokenExpiration);
-        this.studentToken = generateAccessToken(userRepository.findById(2L).orElseThrow(), secretKey, tokenExpiration);
+        this.token = generateAccessToken(userRepository.findById(1L).orElseThrow(), secretKey, tokenExpiration);
     }
 
     @BeforeEach
@@ -140,6 +134,7 @@ public class EndToEndTests {
     private EndToEndTestCase prepareTestCase(EndToEndTestCase testCase, String filePrefix) {
         String fullPath = filePrefix + testCase.path + testCase.filePathPostfix;
         return testCase.toBuilder()
+                .cookies(Map.of(tokenCookieName, token))
                 .queryParams(loadToMap(fullPath + "/queryParams.json"))
                 .requestBody(loadRaw(fullPath + "/requestBody.json"))
                 .responseBody(loadRaw(fullPath + "/responseBody.json"))
@@ -195,7 +190,6 @@ public class EndToEndTests {
                                 "Getting contest by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(200)
@@ -207,7 +201,6 @@ public class EndToEndTests {
                                 "Creating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContest")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.POST)
                                         .path("/contests")
                                         .statusCode(201)
@@ -219,7 +212,6 @@ public class EndToEndTests {
                                 "Updating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateContest")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.PUT)
                                         .path("/contests")
                                         .pathParams("/1")
@@ -232,7 +224,6 @@ public class EndToEndTests {
                                 "Getting contest by group id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByGroupId")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests/group")
                                         .statusCode(200)
@@ -244,7 +235,6 @@ public class EndToEndTests {
                                 "Deleting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestById")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.DELETE)
                                         .path("/contests")
                                         .pathParams("/1")
@@ -258,7 +248,6 @@ public class EndToEndTests {
                                 "Getting contest versions by contest id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestVersionsByContestId")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contest-versions")
                                         .statusCode(200)
@@ -270,7 +259,6 @@ public class EndToEndTests {
                                 "Creating contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContestVersion")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.POST)
                                         .path("/contest-versions")
                                         .statusCode(201)
@@ -282,11 +270,34 @@ public class EndToEndTests {
                                 "Deleting contest version by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestVersionById")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.DELETE)
                                         .path("/contest-versions")
                                         .pathParams("/1")
                                         .statusCode(204)
+                                        .build()
+                        )
+                ),
+                //group controller
+                Arguments.of(
+                        Named.of(
+                                "Getting all groups",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getAllGroups")
+                                        .method(Method.GET)
+                                        .path("/groups")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                //test case controller
+                Arguments.of(
+                        Named.of(
+                                "Deleting test cases by ids",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteTestCasesByIds")
+                                        .method(Method.DELETE)
+                                        .path("/test-cases")
+                                        .statusCode(200)
                                         .build()
                         )
                 )
@@ -301,7 +312,6 @@ public class EndToEndTests {
                                 "Getting contest by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(403)
@@ -313,7 +323,6 @@ public class EndToEndTests {
                                 "Creating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContest")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.POST)
                                         .path("/contests")
                                         .statusCode(404)
@@ -325,7 +334,6 @@ public class EndToEndTests {
                                 "Updating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateContest")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.PUT)
                                         .path("/contests")
                                         .pathParams("/1")
@@ -338,7 +346,6 @@ public class EndToEndTests {
                                 "Getting contest by group id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByGroupId")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contests/group")
                                         .statusCode(404)
@@ -350,7 +357,6 @@ public class EndToEndTests {
                                 "Deleting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestById")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.DELETE)
                                         .path("/contests")
                                         .pathParams("/-1")
@@ -364,7 +370,6 @@ public class EndToEndTests {
                                 "Getting contest versions by contest id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestVersionsByContestId")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.GET)
                                         .path("/contest-versions")
                                         .statusCode(404)
@@ -376,7 +381,6 @@ public class EndToEndTests {
                                 "Creating contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContestVersion")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.POST)
                                         .path("/contest-versions")
                                         .statusCode(404)
@@ -388,7 +392,6 @@ public class EndToEndTests {
                                 "Deleting contest version by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestVersionById")
-                                        .cookies(Map.of(tokenCookieName, teacherToken))
                                         .method(Method.DELETE)
                                         .path("/contest-versions")
                                         .pathParams("/-1")
@@ -407,8 +410,7 @@ public class EndToEndTests {
         private Map<String, Object> queryParams;
         @Builder.Default
         private String pathParams = "";
-        @Builder.Default
-        private Map<String, Object> cookies = Map.of();
+        private Map<String, Object> cookies;
         private String requestBody;
         private Method method;
         private String path;
