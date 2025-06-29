@@ -1,0 +1,9 @@
+{
+  "code": "int main() { return 0; }",
+  "taskId": 2,
+  "userId": 4,
+  "contestVersionId": 1,
+  "startTime": "2025-04-16T07:08:07.015Z",
+  "endTime": "2025-04-16T10:08:07.015Z",
+  "submittedAt": "2025-04-16T09:08:07.015Z"
+}

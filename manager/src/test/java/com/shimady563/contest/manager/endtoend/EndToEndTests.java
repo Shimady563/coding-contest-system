@@ -14,8 +14,15 @@ import io.restassured.parsing.Parser;
 import io.restassured.specification.RequestSpecification;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.SneakyThrows;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.json.JSONArray;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,12 +41,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.KafkaContainer;
 
 import java.security.Key;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -68,6 +76,9 @@ public class EndToEndTests {
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private KafkaContainer kafkaContainer;
+
     private String token;
     private String studentToken;
 
@@ -91,14 +102,22 @@ public class EndToEndTests {
     @DisplayName("Positive cases")
     @MethodSource("getPositiveTestCases")
     void runPositiveEndToEndTests(EndToEndTestCase testCase) {
-        sendRequest(preparePositiveTestCase(testCase));
+        EndToEndTestCase preparedTestCase = preparePositiveTestCase(testCase);
+        sendRequest(preparedTestCase);
+        if (preparedTestCase instanceof EndToEndKafkaTestCase kafkaTestCase) {
+            handleKafkaMessage(kafkaTestCase);
+        }
     }
 
     @ParameterizedTest(name = "{0}")
     @DisplayName("Negative cases")
     @MethodSource("getNegativeTestCases")
     void runNegativeEndToEndTests(EndToEndTestCase testCase) {
-        sendRequest(prepareNegativeTestCase(testCase));
+        EndToEndTestCase preparedTestCase = prepareNegativeTestCase(testCase);
+        sendRequest(preparedTestCase);
+        if (preparedTestCase instanceof EndToEndKafkaTestCase kafkaTestCase) {
+            handleKafkaMessage(kafkaTestCase);
+        }
     }
 
     @SneakyThrows
@@ -118,6 +137,30 @@ public class EndToEndTests {
         assertResponse(testCase.responseBody, response);
     }
 
+    private Consumer<String, String> createConsumer() {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return new KafkaConsumer<>(props);
+    }
+
+    @SneakyThrows
+    private void handleKafkaMessage(EndToEndKafkaTestCase kafkaTestCase) {
+        try (Consumer<String, String> consumer = createConsumer()) {
+            consumer.subscribe(List.of(kafkaTestCase.resultingTopic));
+            ConsumerRecords<String, String> records;
+            do {
+                records = consumer.poll(Duration.of(1, TimeUnit.SECONDS.toChronoUnit()));
+            } while (records.isEmpty());
+            String value = records.iterator().next().value();
+            log.info(kafkaTestCase.expectedMessage);
+            assertResponse(kafkaTestCase.expectedMessage, value);
+        }
+    }
+
     @SneakyThrows
     private void assertResponse(String expected, String actual) {
         if (StringUtils.hasText(expected) && !StringUtils.hasText(actual)
@@ -134,12 +177,18 @@ public class EndToEndTests {
 
     private EndToEndTestCase prepareTestCase(EndToEndTestCase testCase, String filePrefix) {
         String fullPath = filePrefix + testCase.path + testCase.filePathPostfix;
-        return testCase.toBuilder()
+        EndToEndTestCase testCase1 = testCase.toBuilder()
                 .cookies(testCase.cookies == null ? Map.of(tokenCookieName, token) : testCase.cookies)
                 .queryParams(loadToMap(fullPath + "/queryParams.json"))
                 .requestBody(loadRaw(fullPath + "/requestBody.json"))
                 .responseBody(loadRaw(fullPath + "/responseBody.json"))
                 .build();
+        if (testCase1 instanceof EndToEndKafkaTestCase testCase2) {
+            return testCase2.toBuilder()
+                    .expectedMessage(loadRaw(fullPath + "/kafkaMessage.json"))
+                    .build();
+        }
+        return testCase1;
     }
 
     private EndToEndTestCase prepareNegativeTestCase(EndToEndTestCase testCase) {
@@ -360,6 +409,43 @@ public class EndToEndTests {
                                         .statusCode(204)
                                         .build()
                         )
+                ),
+                //solution controller
+                Arguments.of(
+                        Named.of(
+                                "Searching for solutions",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/searchForSolutions")
+                                        .method(Method.GET)
+                                        .path("/solutions")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting solution by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionById")
+                                        .method(Method.GET)
+                                        .path("/solutions")
+                                        .pathParams("/1")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                //submission controller
+                Arguments.of(
+                        Named.of(
+                                "Submitting solution",
+                                EndToEndKafkaTestCase.builder()
+                                        .filePathPostfix("/submitSolution")
+                                        .method(Method.POST)
+                                        .path("/submissions")
+                                        .statusCode(202)
+                                        .resultingTopic("submissionTopic")
+                                        .build()
+                        )
                 )
         );
     }
@@ -483,12 +569,59 @@ public class EndToEndTests {
                                         .statusCode(403)
                                         .build()
                         )
+                ),
+                //solution controller
+                Arguments.of(
+                        Named.of(
+                                "Getting solution by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionById")
+                                        .method(Method.GET)
+                                        .path("/solutions")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                //submission controller
+                Arguments.of(
+                        Named.of(
+                                "Submitting solution with invalid submission time",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/submissionTime/submitSolution")
+                                        .method(Method.POST)
+                                        .path("/submissions")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Submitting solution with user not registered for contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/user/submitSolution")
+                                        .method(Method.POST)
+                                        .path("/submissions")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Submitting solution with task from other contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/task/submitSolution")
+                                        .method(Method.POST)
+                                        .path("/submissions")
+                                        .statusCode(403)
+                                        .build()
+                        )
                 )
         );
     }
 
     @Data
-    @Builder(toBuilder = true)
+    @SuperBuilder(toBuilder = true)
     private static class EndToEndTestCase {
         @Builder.Default
         private String filePathPostfix = "";
@@ -501,5 +634,13 @@ public class EndToEndTests {
         private String path;
         private Integer statusCode;
         private String responseBody;
+    }
+
+    @Data
+    @SuperBuilder(toBuilder = true)
+    @EqualsAndHashCode(callSuper = true)
+    private static class EndToEndKafkaTestCase extends EndToEndTestCase {
+        private String resultingTopic;
+        private String expectedMessage;
     }
 }

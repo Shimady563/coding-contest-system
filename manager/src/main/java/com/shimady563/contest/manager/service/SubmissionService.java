@@ -40,7 +40,7 @@ public class SubmissionService {
         if (!contestVersion.getUsers().contains(user)) {
             throw new SubmissionInvalidException("User with id: " + submission.getUserId() + " doesn't have the access to contest version with id: " + submission.getContestVersionId());
         } else if (!contestVersion.getTasks().contains(task)) {
-            throw new SubmissionInvalidException("Task with id: " + submission.getTaskId() + " not found in contest version with id " + submission.getContestVersionId());
+            throw new SubmissionInvalidException("Task with id: " + submission.getTaskId() + " not found in contest version with id: " + submission.getContestVersionId());
         }
     }
 }

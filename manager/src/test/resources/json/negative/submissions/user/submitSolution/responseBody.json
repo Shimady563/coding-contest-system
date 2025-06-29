@@ -1,0 +1,4 @@
+{
+  "message": "User with id: 4 doesn't have the access to contest version with id: 1",
+  "code": 403
+}
