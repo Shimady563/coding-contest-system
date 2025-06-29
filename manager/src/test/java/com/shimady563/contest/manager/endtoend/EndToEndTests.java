@@ -69,13 +69,14 @@ public class EndToEndTests {
     private ResourceLoader resourceLoader;
 
     private String token;
+    private String studentToken;
 
     @BeforeAll
     void setUpClass(@Value("${jwt.token.access.secret}") String secret,
                     @Value("${jwt.token.access.expiration}") Long tokenExpiration,
                     @Autowired UserRepository userRepository) {
         Key secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
-        log.info(String.valueOf(userRepository.findById(1L).get().getRole()));
+        this.studentToken = generateAccessToken(userRepository.findById(2L).orElseThrow(), secretKey, tokenExpiration);
         this.token = generateAccessToken(userRepository.findById(1L).orElseThrow(), secretKey, tokenExpiration);
     }
 
@@ -134,7 +135,7 @@ public class EndToEndTests {
     private EndToEndTestCase prepareTestCase(EndToEndTestCase testCase, String filePrefix) {
         String fullPath = filePrefix + testCase.path + testCase.filePathPostfix;
         return testCase.toBuilder()
-                .cookies(Map.of(tokenCookieName, token))
+                .cookies(testCase.cookies == null ? Map.of(tokenCookieName, token) : testCase.cookies)
                 .queryParams(loadToMap(fullPath + "/queryParams.json"))
                 .requestBody(loadRaw(fullPath + "/requestBody.json"))
                 .responseBody(loadRaw(fullPath + "/responseBody.json"))
@@ -300,6 +301,65 @@ public class EndToEndTests {
                                         .statusCode(200)
                                         .build()
                         )
+                ),
+                //task controller
+                Arguments.of(
+                        Named.of(
+                                "Getting tasks",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/searchForTasks")
+                                        .method(Method.GET)
+                                        .path("/tasks")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Creating task",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createTask")
+                                        .method(Method.POST)
+                                        .path("/tasks")
+                                        .statusCode(201)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating task",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateTask")
+                                        .method(Method.PUT)
+                                        .path("/tasks")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting tasks by contest version id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getTasksByContestVersionId")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.GET)
+                                        .path("/tasks/contest-version")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting task",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteTaskById")
+                                        .method(Method.DELETE)
+                                        .path("/tasks")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
                 )
         );
     }
@@ -396,6 +456,31 @@ public class EndToEndTests {
                                         .path("/contest-versions")
                                         .pathParams("/-1")
                                         .statusCode(404)
+                                        .build()
+                        )
+                ),
+                //task controller
+                Arguments.of(
+                        Named.of(
+                                "Updating task",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateTask")
+                                        .method(Method.PUT)
+                                        .path("/tasks")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting tasks by contest version id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getTasksByContestVersionId")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.GET)
+                                        .path("/tasks/contest-version")
+                                        .statusCode(403)
                                         .build()
                         )
                 )

@@ -1,0 +1,10 @@
+{
+  "name": "Task 2",
+  "description": "Task 2 description",
+  "testCases": [
+    {
+      "input": "1 2",
+      "output": "3"
+    }
+  ]
+}
