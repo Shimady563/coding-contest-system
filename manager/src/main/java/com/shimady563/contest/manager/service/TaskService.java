@@ -29,7 +29,7 @@ public class TaskService {
     protected Task getTaskById(Long id) {
         log.info("Getting task by id: {}", id);
         return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
     }
 
     @Transactional

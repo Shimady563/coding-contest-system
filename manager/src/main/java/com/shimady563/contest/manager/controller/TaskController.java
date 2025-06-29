@@ -43,7 +43,7 @@ public class TaskController {
     }
 
     @GetMapping("/contest-version")
-    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
+    @Secured("ROLE_STUDENT")
     public List<TaskResponseDto> getTasksByContestVersionId(@RequestParam Long contestVersionId) {
         return taskService.getTasksByContestVersionId(contestVersionId);
     }
@@ -51,7 +51,7 @@ public class TaskController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Secured("ROLE_TEACHER")
-    public void deleteTask(@PathVariable Long id) {
+    public void deleteTaskById(@PathVariable Long id) {
         taskService.deleteTaskById(id);
     }
 }
