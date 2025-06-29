@@ -13,7 +13,7 @@ Next, clone repository to your local machine:
     git clone https://github.com/Shimady563/coding-contest-system.git
 ```
 
-To build all services before running the application, you can use the following command:
+To build all services before running the application (requires java installed), you can use the following command:
 
 Linux:
 
