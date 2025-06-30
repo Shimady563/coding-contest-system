@@ -9,10 +9,12 @@ import com.shimady.contest.compiler.repository.UserRepository;
 import com.shimady.contest.compiler.service.SolutionService;
 import com.shimady.contest.compiler.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Profile("local")
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
