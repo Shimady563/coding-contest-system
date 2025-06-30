@@ -446,6 +446,20 @@ public class EndToEndTests {
                                         .resultingTopic("submissionTopic")
                                         .build()
                         )
+                ),
+                //user controller
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
+                                        .statusCode(204)
+                                        .build()
+                        )
                 )
         );
     }
@@ -613,6 +627,46 @@ public class EndToEndTests {
                                         .filePathPostfix("/task/submitSolution")
                                         .method(Method.POST)
                                         .path("/submissions")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                //user controller
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong user id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/user")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/3")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong contest version id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/contest-version")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong contest id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/contest")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
                                         .statusCode(403)
                                         .build()
                         )

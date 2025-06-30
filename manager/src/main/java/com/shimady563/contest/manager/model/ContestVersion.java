@@ -53,12 +53,12 @@ public class ContestVersion {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ContestVersion that)) return false;
-        return Objects.equals(name, that.name);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hash(id, name);
     }
 }
 

@@ -133,12 +133,10 @@ public class UserService implements UserDetailsService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Contest version with id: " + request.getContestVersionId() + " not found in contest with id: " + request.getContestId()));
 
-        log.info(user.getContestVersions().toString());
-        log.info(contest.getContestVersions().toString());
         for (ContestVersion other : contest.getContestVersions()) {
             if (!other.equals(contestVersion)
                     && user.containsContestVersion(other)) {
-                throw new AccessDeniedException("User with id: " + id + " already started other contest version in contest with id " + request.getContestId());
+                throw new AccessDeniedException("User with id: " + id + " already started other contest version in contest with id: " + request.getContestId());
             }
         }
 
