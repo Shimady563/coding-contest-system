@@ -55,10 +55,18 @@ public class AuthController {
         return buildResponse(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(accessTokenCookieName))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(refreshTokenCookieName))
+                .build();
+    }
+
     private ResponseEntity<Void> buildResponse(JwtResponse response) {
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(accessTokenCookieName, response.getAccessToken(), accessTokenExpiration))
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createCookieFromToken(refreshTokenCookieName, response.getRefreshToken(), refreshTokenExpiration))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(accessTokenCookieName, response.getAccessToken(), accessTokenExpiration))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(refreshTokenCookieName, response.getRefreshToken(), refreshTokenExpiration))
                 .build();
     }
 }

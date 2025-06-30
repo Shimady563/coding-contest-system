@@ -120,6 +120,24 @@ class AuthControllerTest {
                 .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
                 .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
     }
+
+    @Test
+    @WithMockUser
+    void shouldLogoutUser() throws Exception {
+        var refreshToken = "refreshToken";
+        var accessToken = "accessToken";
+        Cookie refreshCookie = new Cookie(refreshTokenCookieName, refreshToken);
+        Cookie accessCookie = new Cookie(accessTokenCookieName, accessToken);
+
+        mockMvc.perform(post("/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(accessCookie)
+                        .cookie(refreshCookie))
+                .andExpect(status().isOk())
+                .andExpect(cookie().maxAge(accessTokenCookieName, 0))
+                .andExpect(cookie().maxAge(refreshTokenCookieName, 0));
+    }
 }
 
 

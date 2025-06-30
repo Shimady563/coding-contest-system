@@ -27,13 +27,20 @@ public class JwtUtils {
         return tokenCookie == null ? null : tokenCookie.getValue();
     }
 
-    public static String createCookieFromToken(String tokenName, String tokenValue, Long maxAgeMs) {
+    public static String createTokenCookie(String tokenName, String tokenValue, Long maxAgeMs) {
+        return createCookie(tokenName, tokenValue, maxAgeMs).toString();
+    }
+
+    public static String deleteTokenCookie(String tokenName) {
+        return createCookie(tokenName, "", 0L).toString();
+    }
+
+    private static ResponseCookie createCookie(String tokenName, String tokenValue, Long maxAgeMs) {
         return ResponseCookie.from(tokenName, tokenValue)
                 .httpOnly(true)
                 .secure(true)
-                .maxAge(maxAgeMs / 1000)
+                .maxAge(maxAgeMs / 1000L)
                 .path("/api/v1")
-                .build()
-                .toString();
+                .build();
     }
 }

@@ -24,7 +24,7 @@ jwt:
       secret: 4e7dd4cfb4136b7aefd2560492b843a9c5cd006553dbb4c3f6e3ddbdac5fe1e67534ede1045df8ca0e88790e9df24a2e567bc0a3196663890825a012e3717adc
       cookie.name: coding_contest_system_refresh_token
 auth:
-  whitelist: /signup, /login, /refresh, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**
+  whitelist: /signup, /login, /refresh, /logout, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**
 server:
   servlet:
     context-path: /api/v1/auth
