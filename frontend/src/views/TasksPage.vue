@@ -19,8 +19,6 @@
 </template>
 
 <script>
-// import { getAccessToken } from "@/js/auth";
-
 export default {
   name: "TasksPage",
   data() {
@@ -31,19 +29,10 @@ export default {
   },
   async mounted() {
     const versionId = this.$route.params.id;
-    const token = 1;
-
-    if (!versionId || !token) {
-      console.error("Не удалось получить versionId или токен.");
-      this.loading = false;
-      return;
-    }
 
     try {
       const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -64,7 +53,7 @@ export default {
       this.$router.push({
         name: 'StudentContest',
         params: { taskId: task.id },
-        query: { versionId: this.$route.params.id },  // передаем версию контеста через query
+        query: { versionId: this.$route.params.id },  
       });
     },
   },

@@ -47,7 +47,7 @@ export default {
       this.test = JSON.parse(stored);
       this.loading = false;
     } else {
-      this.fetchTest(); // если вдруг нет в localStorage — делаем запрос
+      this.fetchTest(); 
     }
   },
   methods: {

@@ -63,3 +63,21 @@ export async function getGroupIdForCurrentUser() {
     return null;
   }
 }
+
+export async function logoutUser() {
+  try {
+    const res = await fetch("http://localhost:8081/api/v1/auth/logout", {
+      method: "POST",
+      credentials: "include", // важно для удаления cookie
+    });
+
+    if (!res.ok) {
+      throw new Error("Не удалось выйти из аккаунта");
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Ошибка при выходе из аккаунта:", err);
+    return false;
+  }
+}

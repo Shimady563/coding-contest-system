@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
+import { getUserInfo, logoutUser } from "../js/auth";
 
 export default {
   data() {
@@ -45,15 +45,10 @@ export default {
   },
   methods: {
     async logout() {
-      try {
-        await fetch("http://localhost:8080/api/v1/auth/logout", {
-          method: "POST",
-          credentials: "include",
-        });
+      const success = await logoutUser();
+      if (success) {
         this.user = null;
         this.$router.push("/login");
-      } catch (e) {
-        console.error("Ошибка при выходе", e);
       }
     },
   },
