@@ -41,6 +41,12 @@ export default {
   },
   async mounted() {
     try {
+      const groupId = await getGroupIdForCurrentUser(); 
+
+      if (!groupId) {
+        throw new Error("groupId is null");
+      }
+
       const response = await fetch(`http://localhost:8080/api/v1/contests/group?groupId=${groupId}`, {
         credentials: 'include', 
       });

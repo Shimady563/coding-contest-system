@@ -30,6 +30,14 @@ export default {
     };
   },
   async mounted() {
+    const contestId = this.$route.params.id;
+
+    if (!contestId) {
+      console.error("Не удалось получить contestId или токен.");
+      this.loading = false;
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`, {
        credentials: "include"
