@@ -124,15 +124,8 @@ export default {
 
     async fetchTasks() {
       try {
-        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-        if (!tokenData || !tokenData.accessToken) {
-          throw new Error("Пользователь не авторизован");
-        }
-
         const response = await fetch('http://localhost:8080/api/v1/tasks', {
-          headers: {
-            Authorization: `Bearer ${tokenData.accessToken}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -212,11 +205,6 @@ export default {
       this.loading = true;
 
       try {
-        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-        if (!tokenData || !tokenData.accessToken) {
-          throw new Error("Пользователь не авторизован");
-        }
-
         const contestPayload = {
           name: this.controlWork.name,
           description: this.controlWork.description,
@@ -229,8 +217,8 @@ export default {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokenData.accessToken}`
           },
+          credentials: 'include',
           body: JSON.stringify(contestPayload)
         });
 
@@ -255,8 +243,8 @@ export default {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${tokenData.accessToken}`
             },
+            credentials: 'include',
             body: JSON.stringify(variantPayload)
           });
 

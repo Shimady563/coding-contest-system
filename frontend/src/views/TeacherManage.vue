@@ -52,15 +52,8 @@ export default {
   methods: {
     async fetchContests() {
       try {
-        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-        if (!tokenData || !tokenData.accessToken) {
-          throw new Error("Пользователь не авторизован");
-        }
-
-        const response = await fetch('http://localhost:8080/api/v1/contests?name=', {
-          headers: {
-            Authorization: `Bearer ${tokenData.accessToken}`,
-          },
+        const response = await fetch("http://localhost:8080/api/v1/contests?name=", {
+          credentials: "include"
         });
 
         if (!response.ok) {
@@ -77,15 +70,8 @@ export default {
 
     async fetchTasks() {
       try {
-        const tokenData = JSON.parse(localStorage.getItem("tokenData"));
-        if (!tokenData || !tokenData.accessToken) {
-          throw new Error("Пользователь не авторизован");
-        }
-
-        const response = await fetch('http://localhost:8080/api/v1/tasks', {
-          headers: {
-            Authorization: `Bearer ${tokenData.accessToken}`,
-          },
+        const response = await fetch("http://localhost:8080/api/v1/tasks", {
+          credentials: "include"
         });
 
         if (!response.ok) {

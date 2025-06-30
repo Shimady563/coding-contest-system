@@ -29,7 +29,7 @@
 
 
 <script>
-import {getGroupIdForCurrentUser } from "@/js/auth";
+import { getGroupIdForCurrentUser } from "@/js/auth";
 
 export default {
   name: "StudentContestsPage",
@@ -41,22 +41,9 @@ export default {
   },
   async mounted() {
     try {
-      const accessToken = 1;
-      const groupId = await getGroupIdForCurrentUser();
-
-      if (!accessToken || !groupId) {
-        console.error("Не удалось получить токен или ID группы");
-        this.loading = false;
-        return;
-      }
-
       const response = await fetch(`http://localhost:8080/api/v1/contests/group?groupId=${groupId}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        credentials: 'include', 
       });
-
-
 
       if (!response.ok) {
         throw new Error("Не удалось загрузить контрольные");
