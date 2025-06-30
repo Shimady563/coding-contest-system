@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { getAccessToken } from "@/js/auth";
+// import { getAccessToken } from "@/js/auth";
 
 export default {
   name: "ContestVersionsPage",
@@ -33,7 +33,7 @@ export default {
   },
   async mounted() {
     const contestId = this.$route.params.id;
-    const token = getAccessToken();
+    const token = 1;
 
     if (!contestId || !token) {
       console.error("Не удалось получить contestId или токен.");

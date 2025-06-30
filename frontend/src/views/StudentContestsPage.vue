@@ -29,7 +29,7 @@
 
 
 <script>
-import { getAccessToken, getGroupIdForCurrentUser } from "@/js/auth";
+import {getGroupIdForCurrentUser } from "@/js/auth";
 
 export default {
   name: "StudentContestsPage",
@@ -41,7 +41,7 @@ export default {
   },
   async mounted() {
     try {
-      const accessToken = getAccessToken();
+      const accessToken = 1;
       const groupId = await getGroupIdForCurrentUser();
 
       if (!accessToken || !groupId) {
