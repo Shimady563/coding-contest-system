@@ -51,8 +51,6 @@
 </template>
 
 <script>
-import { getAccessToken } from '@/js/auth';
-
 export default {
   data() {
     return {
@@ -74,7 +72,6 @@ export default {
   methods: {
     async fetchStudents() {
       this.loading = true;
-      const token = getAccessToken();
 
       try {
         const query = new URLSearchParams({
@@ -87,9 +84,9 @@ export default {
 
         const response = await fetch(`/api/users?${query}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          credentials: 'include',
         });
 
         if (!response.ok) {

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getUserInfo, getAccessToken } from '@/js/auth'
+import { getUserInfo } from '@/js/auth'
 
 import HomeView from '../views/HomeView.vue';
 import Login from "../views/Login.vue";
@@ -40,29 +40,18 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  // Получаем токен и информацию о пользователе
-  const token = getAccessToken();
-  const user = token ? await getUserInfo() : null; // Получаем информацию только если есть токен
+  const user = await getUserInfo();
 
-  // Страницы, доступные только для неавторизованных
+  // Страницы только для неавторизованных
   if (to.meta.requiresUnauth) {
-    if (token) {
-      // Если пользователь авторизован, перенаправляем на главную
-      return next('/');
-    } else {
-      // Разрешаем доступ к страницам входа/регистрации
-      return next();
-    }
+    if (user) return next('/');
+    return next();
   }
 
-  // Страницы, требующие авторизации
+  // Страницы только для авторизованных
   if (to.meta.requiresAuth) {
-    if (!token) {
-      // Перенаправляем на страницу входа, если нет токена
-      return next('/login');
-    }
+    if (!user) return next('/login');
 
-    // Проверка роли для преподавательских страниц
     if (to.meta.requiresTeacher && user?.role !== 'teacher') {
       return next('/access-denied');
     }
