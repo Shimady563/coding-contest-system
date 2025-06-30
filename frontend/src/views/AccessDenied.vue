@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { getUserInfo } from '@/js/auth';
+import { getUserInfo, logoutUser } from "../js/auth";
 
 export default {
   name: 'AccessDenied',
@@ -38,12 +38,15 @@ export default {
     this.userRole = user?.role;
   },
   methods: {
-    logout() {
-      localStorage.removeItem('tokenData');
-      this.$router.push('/login');
-    }
-  }
-}
+    async logout() {
+      const success = await logoutUser();
+      if (success) {
+        this.user = null;
+        this.$router.push("/login");
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>

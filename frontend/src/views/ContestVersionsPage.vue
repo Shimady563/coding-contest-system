@@ -11,9 +11,9 @@
     <ul v-else class="version-list">
       <li v-for="version in versions" :key="version.id" class="version-item">
         <div class="version-info">
-          <router-link :to="`/contest-version/${version.id}/tasks`" class="version-link">
+          <a href="#" class="version-link" @click.prevent="confirmStart(version)">
             {{ version.name }}
-          </router-link>
+          </a>
         </div>
       </li>
     </ul>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { getUserInfo } from "../js/auth";
+
 export default {
   name: "ContestVersionsPage",
   data() {
@@ -29,7 +31,69 @@ export default {
       loading: true,
     };
   },
+  methods: {
+    async confirmStart(version) {
+      const userInfo = await getUserInfo();
+      try {
+        // Сначала проверяем доступ к задачам варианта
+        const tasksResponse = await fetch(
+          `http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${version.id}`,
+          {
+            credentials: "include"
+          }
+        );
+
+        if (tasksResponse.status === 403) {
+          // Нет доступа — надо регистрироваться
+          const confirmed = confirm(
+            `Вы точно уверены, что хотите начать с вариантом "${version.name}"?\nПосле выбора смена будет невозможна.`
+          );
+
+          if (!confirmed) return;
+
+          // Отправляем PATCH-запрос на регистрацию
+          const patchResponse = await fetch(
+            `http://localhost:8080/api/v1/users/start/${userInfo.id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                contestVersionId: version.id,
+                contestId: this.$route.params.id
+              })
+            }
+          );
+
+          if (patchResponse.status === 403) {
+            alert("Вы уже выбрали вариант и не можете сменить его.");
+            return;
+          }
+
+          if (!patchResponse.ok) {
+            throw new Error("Ошибка регистрации на вариант");
+          }
+
+          // Регистрация прошла успешно — переходим к задачам
+          this.$router.push(`/contest-version/${version.id}/tasks`);
+        } else if (tasksResponse.ok) {
+          // Есть доступ — просто переходим к задачам
+          this.$router.push(`/contest-version/${version.id}/tasks`);
+        } else {
+          throw new Error("Не удалось получить доступ к задачам варианта");
+        }
+      } catch (err) {
+        console.error("Ошибка при обработке варианта:", err);
+        alert("Произошла ошибка. Попробуйте позже.");
+      }
+    }
+  },
   async mounted() {
+    const userInfo = await getUserInfo();
+    console.log("Информация о пользователе:", userInfo);
+
     const contestId = this.$route.params.id;
 
     if (!contestId) {
@@ -39,9 +103,16 @@ export default {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`, {
-       credentials: "include"
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`,
+        { credentials: "include" }
+      );
+
+      if (response.status === 403) {
+        // Пользователь уже выбрал вариант — направляем сразу к задачам
+        alert("Вы уже зарегистрированы на вариант.");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Ошибка загрузки вариантов");
