@@ -1,6 +1,6 @@
 //package com.shimady.contest.compiler.service;
 //
-//import com.shimady.contest.compiler.model.Status;
+//import com.shimady.contest.compiler.model.SolutionStatus;
 //import com.shimady.contest.compiler.model.Task;
 //import com.shimady.contest.compiler.model.TestCase;
 //import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.ACCEPTED, (short) 1, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.ACCEPTED, (short) 1, sampleTask);
 //    }
 //
 //    @Test
@@ -55,7 +55,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.COMPILE_ERROR, (short) 0, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.COMPILE_ERROR, (short) 0, sampleTask);
 //    }
 //
 //    @Test
@@ -73,7 +73,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.RUNTIME_ERROR, (short) 0, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.RUNTIME_ERROR, (short) 0, sampleTask);
 //    }
 //
 //    @Test
@@ -89,7 +89,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.TIMED_OUT, (short) 0, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.TIMED_OUT, (short) 0, sampleTask);
 //    }
 //
 //    @Test
@@ -108,7 +108,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.WRONG_ANSWER, (short) 0, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.WRONG_ANSWER, (short) 0, sampleTask);
 //    }
 //
 //    @Test
@@ -117,7 +117,7 @@
 //
 //        compilerService.compileAndRun(sampleCode, sampleTask);
 //
-//        then(solutionService).should().createSolution(sampleCode, Status.INTERNAL_ERROR, (short) 0, sampleTask);
+//        then(solutionService).should().createSolution(sampleCode, SolutionStatus.INTERNAL_ERROR, (short) 0, sampleTask);
 //    }
 //}
 //

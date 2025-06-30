@@ -86,8 +86,6 @@
 </template>
 
 <script>
-import { getAccessToken, getRefreshToken } from '@/js/auth'
-
 export default {
   data() {
     return {
@@ -152,39 +150,33 @@ export default {
           })),
         };
 
-        let accessToken = getAccessToken();
-        const refreshToken = getRefreshToken();
-
-        const makeRequest = async (token) => {
+        const makeRequest = async () => {
           return await fetch('http://localhost:8080/api/v1/tasks', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
             },
+            credentials: 'include', 
             body: JSON.stringify(data),
           });
         };
 
-        let response = await makeRequest(accessToken);
+        let response = await makeRequest();
 
-        if (response.status === 401 && refreshToken) {
+        if (response.status === 401) {
           const refreshResponse = await fetch('http://localhost:8080/api/v1/auth/refresh', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ refreshToken }),
+            credentials: 'include'
           });
 
           if (!refreshResponse.ok) {
             throw new Error('Не удалось обновить токен');
           }
 
-          const tokens = await refreshResponse.json();
-          accessToken = tokens.accessToken;
-          localStorage.setItem('tokenData', JSON.stringify(tokens));
-          response = await makeRequest(accessToken);
+          response = await makeRequest();
         }
 
         if (!response.ok) {

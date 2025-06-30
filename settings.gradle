@@ -1,0 +1,2 @@
+rootProject.name = 'coding-contest-system'
+include 'auth', 'compiler', 'manager'

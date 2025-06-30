@@ -3,7 +3,7 @@ services:
     container_name: manager
     build:
       context: ./manager
-      dockerfile: build.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8080:8080'
     environment:
@@ -28,7 +28,7 @@ services:
     container_name: compiler
     build:
       context: ./compiler
-      dockerfile: build.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8082:8080'
     environment:
@@ -36,6 +36,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_PROFILES_ACTIVE=local
     depends_on:
       manager:
         condition: service_healthy
@@ -48,7 +49,7 @@ services:
     container_name: auth
     build:
       context: ./auth
-      dockerfile: build.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - '8081:8080'
     environment:

@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
+import { getUserInfo, logoutUser } from "../js/auth";
 
 export default {
   data() {
@@ -47,10 +47,12 @@ export default {
     this.user = userInfo;
   },
   methods: {
-    logout() {
-      localStorage.removeItem("tokenData");
-      this.user = null;
-      this.$router.push("/login");
+    async logout() {
+      const success = await logoutUser();
+      if (success) {
+        this.user = null;
+        this.$router.push("/login");
+      }
     },
   },
 };

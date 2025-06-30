@@ -1,5 +1,6 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.converter.ContestVersionConverter;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Contest;
 import com.shimady563.contest.manager.model.ContestVersion;
@@ -9,7 +10,6 @@ import com.shimady563.contest.manager.model.dto.ContestVersionResponseDto;
 import com.shimady563.contest.manager.repository.ContestVersionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +22,6 @@ public class ContestVersionService {
     private final ContestVersionRepository contestVersionRepository;
     private final ContestService contestService;
     private final TaskService taskService;
-    private final ModelMapper mapper;
 
     protected ContestVersion getContestVersionById(Long id) {
         log.info("Getting contest version by id: {}", id);
@@ -39,10 +38,9 @@ public class ContestVersionService {
     @Transactional
     public void createContestVersion(ContestVersionRequestDto request) {
         log.info("Creating contest version from request: {}", request);
-        ContestVersion contestVersion = new ContestVersion();
+        ContestVersion contestVersion = ContestVersionConverter.request2Domain(request);
         Contest contest = contestService.getContestById(request.getContestId());
         List<Task> tasks = taskService.getTasksByIds(request.getTaskIds());
-        contestVersion.setName(request.getName());
         contest.addContestVersion(contestVersion);
         tasks.forEach(contestVersion::addTask);
         contestVersionRepository.save(contestVersion);
@@ -54,13 +52,16 @@ public class ContestVersionService {
         Contest contest = contestService.getContestById(contestId);
         return contestVersionRepository.findByContest(contest)
                 .stream()
-                .map(cv -> mapper.map(cv, ContestVersionResponseDto.class))
+                .map(ContestVersionConverter::domain2Response)
                 .toList();
     }
 
     @Transactional
-    public void deleteContestById(Long id) {
+    public void deleteContestVersionById(Long id) {
         log.info("Deleting contest version with id: {}", id);
-        contestVersionRepository.deleteById(id);
+        ContestVersion contestVersion = getContestVersionById(id);
+        contestVersion.removeUsers();
+        contestVersionRepository.delete(contestVersion);
+
     }
 }

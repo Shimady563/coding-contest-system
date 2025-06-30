@@ -20,7 +20,7 @@ public class Solution {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private SolutionStatus status;
 
     @Column(name = "tests_passed", nullable = false)
     private Short testsPassed;

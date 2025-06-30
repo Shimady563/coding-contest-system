@@ -1,8 +1,12 @@
 package com.shimady.auth.service;
 
+import com.shimady.auth.converter.AuthConverter;
 import com.shimady.auth.model.Group;
 import com.shimady.auth.model.User;
-import com.shimady.auth.model.dto.*;
+import com.shimady.auth.model.dto.JwtResponse;
+import com.shimady.auth.model.dto.SignInJwtRequest;
+import com.shimady.auth.model.dto.SignUpJwtRequest;
+import com.shimady.auth.model.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,29 +27,16 @@ public class AuthService {
     @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
         User user = userService.getUserByEmail(getUserEmail());
-        return new UserResponse(
-                user.getId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getGroup() == null ? "Teacher" : user.getGroup().getName(),
-                user.getGroup() == null ? -1L : user.getGroup().getId()
-        );
+        return AuthConverter.domain2Response(user);
     }
 
     @Transactional
     public JwtResponse signUp(SignUpJwtRequest request) {
         log.info("Signing up user with email: {}", request.getEmail());
-
-        User user = new User();
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        User user = AuthConverter.signUpRequest2Domain(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Group group = groupService.getGroupById(request.getGroupId());
         group.addUser(user);
-
         userService.saveUser(user);
         return jwtService.generateTokens(user);
     }
@@ -61,8 +52,8 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtResponse refreshToken(RefreshJwtRequest request) {
-        return jwtService.refreshToken(request.getRefreshToken());
+    public JwtResponse refreshToken(String token) {
+        return jwtService.refreshToken(token);
     }
 
     protected String getUserEmail() {

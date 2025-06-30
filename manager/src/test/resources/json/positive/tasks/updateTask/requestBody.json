@@ -1,0 +1,11 @@
+{
+  "name": "Task 2",
+  "description": "Task 2 description",
+  "contestVersionId": 2,
+  "testCases": [
+    {
+      "input": "1 2",
+      "output": "3"
+    }
+  ]
+}

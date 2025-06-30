@@ -8,7 +8,7 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @TestConfiguration
 public class KafkaTestConfig {
-    @Value("${kafka.topic.1}")
+    @Value("${kafka.topic.submission}")
     private String topic;
 
     @Bean

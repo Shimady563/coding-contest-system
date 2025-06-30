@@ -54,6 +54,11 @@ public class User implements UserDetails {
 
     public void addContestVersion(ContestVersion contestVersion) {
         contestVersions.add(contestVersion);
+        contestVersion.getUsers().add(this);
+    }
+
+    public void removeContestVersion(ContestVersion contestVersion) {
+        contestVersions.remove(contestVersion);
     }
 
     @Override
@@ -64,6 +69,21 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(firstName, user.firstName)
+                && Objects.equals(lastName, user.lastName)
+                && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password)
+                && role == user.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName, email, password, role);
     }
 }
 

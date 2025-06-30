@@ -2,8 +2,8 @@ package com.shimady563.contest.manager.controller;
 
 import com.shimady563.contest.manager.model.Role;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
-import com.shimady563.contest.manager.model.dto.UserResponse;
-import com.shimady563.contest.manager.model.dto.UserUpdateRequest;
+import com.shimady563.contest.manager.model.dto.UserResponseDto;
+import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Secured({"ROLE_TEACHER"})
-    public UserResponse getUserById(@PathVariable Long id) {
+    public UserResponseDto getUserById(@PathVariable Long id) {
         return userService.getUserResponseById(id);
     }
 
     @GetMapping("")
     @Secured({"ROLE_TEACHER"})
-    public Page<UserResponse> searchForUsers(
+    public Page<UserResponseDto> searchForUsers(
             @RequestParam(required = false) String firstName,
             @RequestParam(required = false) String lastName,
             @RequestParam(required = false) String email,
@@ -42,7 +42,7 @@ public class UserController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Secured({"ROLE_TEACHER"})
-    public void updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest request) {
+    public void updateUserById(@PathVariable Long id, @Valid @RequestBody UserUpdateRequestDto request) {
         userService.updateUserById(id, request);
     }
 

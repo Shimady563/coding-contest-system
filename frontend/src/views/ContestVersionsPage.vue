@@ -21,8 +21,6 @@
 </template>
 
 <script>
-import { getAccessToken } from "@/js/auth";
-
 export default {
   name: "ContestVersionsPage",
   data() {
@@ -33,9 +31,8 @@ export default {
   },
   async mounted() {
     const contestId = this.$route.params.id;
-    const token = getAccessToken();
 
-    if (!contestId || !token) {
+    if (!contestId) {
       console.error("Не удалось получить contestId или токен.");
       this.loading = false;
       return;
@@ -43,9 +40,7 @@ export default {
 
     try {
       const response = await fetch(`http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+       credentials: "include"
       });
 
       if (!response.ok) {

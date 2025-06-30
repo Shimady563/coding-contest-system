@@ -1,16 +1,20 @@
 package com.shimady.contest.compiler;
 
 import com.shimady.contest.compiler.model.Task;
+import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.model.dto.SolutionResponse;
 import com.shimady.contest.compiler.repository.TaskRepository;
+import com.shimady.contest.compiler.repository.UserRepository;
 import com.shimady.contest.compiler.service.SolutionService;
 import com.shimady.contest.compiler.service.SubmissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Profile("local")
 @RestController
 @RequestMapping("/test")
 @RequiredArgsConstructor
@@ -18,6 +22,7 @@ public class TestController {
     private final SubmissionService submissionService;
     private final SolutionService solutionService;
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
     @PostMapping("/submit")
     public void run(@RequestBody CodeSubmission submission) {
@@ -27,6 +32,12 @@ public class TestController {
             task.setDescription("");
             task.setTestCasesCount((short) 0);
             taskRepository.save(task);
+        }
+        if (!userRepository.existsById(1L)) {
+            User user = new User();
+            user.setEmail("");
+            user.setPassword("");
+            userRepository.save(user);
         }
         submissionService.submitSolution(submission);
     }

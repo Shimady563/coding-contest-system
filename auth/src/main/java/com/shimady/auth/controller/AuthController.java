@@ -1,19 +1,35 @@
 package com.shimady.auth.controller;
 
-import com.shimady.auth.model.dto.*;
+import com.shimady.auth.model.dto.JwtResponse;
+import com.shimady.auth.model.dto.SignInJwtRequest;
+import com.shimady.auth.model.dto.SignUpJwtRequest;
+import com.shimady.auth.model.dto.UserResponse;
 import com.shimady.auth.service.AuthService;
+import com.shimady.auth.utils.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+
+    @Value("${jwt.token.access.expiration}")
+    private Long accessTokenExpiration;
+
+    @Value("${jwt.token.refresh.expiration}")
+    private Long refreshTokenExpiration;
+
+    @Value("${jwt.token.access.cookie.name}")
+    private String accessTokenCookieName;
+
+    @Value("${jwt.token.refresh.cookie.name}")
+    private String refreshTokenCookieName;
 
     @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     @GetMapping("/me")
@@ -22,17 +38,35 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public JwtResponse signUp(@Valid @RequestBody SignUpJwtRequest request) {
-        return authService.signUp(request);
+    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpJwtRequest request) {
+        JwtResponse response = authService.signUp(request);
+        return buildResponse(response);
     }
 
     @PostMapping("/login")
-    public JwtResponse signIn(@RequestBody SignInJwtRequest request) {
-        return authService.authenticate(request);
+    public ResponseEntity<Void> signIn(@RequestBody SignInJwtRequest request) {
+        JwtResponse response = authService.authenticate(request);
+        return buildResponse(response);
     }
 
     @PostMapping("/refresh")
-    public JwtResponse refreshToken(@Valid @RequestBody RefreshJwtRequest request) {
-        return authService.refreshToken(request);
+    public ResponseEntity<Void> refreshToken(@CookieValue(value = "${jwt.token.refresh.cookie.name}") String refreshToken) {
+        JwtResponse response = authService.refreshToken(refreshToken);
+        return buildResponse(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(accessTokenCookieName))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(refreshTokenCookieName))
+                .build();
+    }
+
+    private ResponseEntity<Void> buildResponse(JwtResponse response) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(accessTokenCookieName, response.getAccessToken(), accessTokenExpiration))
+                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(refreshTokenCookieName, response.getRefreshToken(), refreshTokenExpiration))
+                .build();
     }
 }

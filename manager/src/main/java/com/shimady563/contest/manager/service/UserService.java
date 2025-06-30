@@ -1,16 +1,17 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.converter.UserConverter;
 import com.shimady563.contest.manager.exception.AccessDeniedException;
+import com.shimady563.contest.manager.exception.DataConflictException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.*;
 import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
-import com.shimady563.contest.manager.model.dto.UserResponse;
-import com.shimady563.contest.manager.model.dto.UserUpdateRequest;
+import com.shimady563.contest.manager.model.dto.UserResponseDto;
+import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
 import com.shimady563.contest.manager.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,12 +21,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final ModelMapper mapper;
     private final GroupService groupService;
     private final ContestService contestService;
 
@@ -42,33 +45,33 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUserResponseById(Long id) {
-        return mapper.map(getUserById(id), UserResponse.class);
+    public UserResponseDto getUserResponseById(Long id) {
+        return UserConverter.domain2Response(getUserById(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
+    public Page<UserResponseDto> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
         StringBuilder logMessage = new StringBuilder().append("Searching for all users with ");
-        Specification<User> specification = Specification.where(null);
+        List<Specification<User>> specifications = new ArrayList<>();
 
         if (firstName != null) {
-            specification.and(UserSpecification.hasFirstName(firstName));
+            specifications.add(UserSpecification.hasFirstName(firstName));
             logMessage.append("first name: ").append(firstName).append(", ");
         }
         if (lastName != null) {
-            specification.and(UserSpecification.hasLastName(lastName));
+            specifications.add(UserSpecification.hasLastName(lastName));
             logMessage.append("last name: ").append(lastName).append(", ");
         }
         if (email != null) {
-            specification.and(UserSpecification.hasEmail(email));
+            specifications.add(UserSpecification.hasEmail(email));
             logMessage.append("email: ").append(email).append(", ");
         }
         if (role != null) {
-            specification.and(UserSpecification.hasRole(role));
+            specifications.add(UserSpecification.hasRole(role));
             logMessage.append("role: ").append(role).append(", ");
         }
         if (groupName != null) {
-            specification.and(UserSpecification.hasGroupName(groupName));
+            specifications.add(UserSpecification.hasGroupName(groupName));
             logMessage.append("group name: ").append(groupName).append(", ");
         }
 
@@ -81,12 +84,12 @@ public class UserService implements UserDetailsService {
         }
 
         log.info(logMessage.toString());
-        return userRepository.findAllFetchGroup(specification, pageRequest)
-                .map(u -> mapper.map(u, UserResponse.class));
+        return userRepository.findAllFetchGroup(Specification.allOf(specifications), pageRequest)
+                .map(UserConverter::domain2Response);
     }
 
     @Transactional
-    public void updateUserById(Long id, UserUpdateRequest request) {
+    public void updateUserById(Long id, UserUpdateRequestDto request) {
         log.info("Updating user with id: {}", id);
         User user = getUserById(id);
         user.setFirstName(request.getFirstName());
@@ -102,6 +105,9 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void deleteUserById(Long id) {
         log.info("Deleting user with id: {}", id);
+        if (getCurrentUser().getId().equals(id)) {
+            throw new DataConflictException("User cannot delete itself");
+        }
         userRepository.deleteById(id);
     }
 
@@ -117,19 +123,26 @@ public class UserService implements UserDetailsService {
             throw new AccessDeniedException("User with id: " + id + " doesn't have the access to this contest version");
         }
 
-        Contest contest = contestService.getContestByIdWithContestVersions(request.getContestVersionId());
+        if (user.getContestVersions().stream().anyMatch(cv -> cv.getId().equals(request.getContestVersionId()))) {
+            return;
+        }
+
+        Contest contest = contestService.getContestByIdWithContestVersions(request.getContestId());
+        ContestVersion contestVersion = contest.getContestVersions().stream()
+                .filter(cv -> cv.getId().equals(request.getContestVersionId()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Contest version with id: " + request.getContestVersionId() + " not found in contest with id: " + request.getContestId()));
+
+        log.info(user.getContestVersions().toString());
+        log.info(contest.getContestVersions().toString());
         for (ContestVersion other : contest.getContestVersions()) {
-            if (other.getId().equals(request.getContestVersionId())
-                    || user.containsContestVersion(other)) {
-                throw new AccessDeniedException("User with id: " + id + " already started other contest version");
+            if (!other.equals(contestVersion)
+                    && user.containsContestVersion(other)) {
+                throw new AccessDeniedException("User with id: " + id + " already started other contest version in contest with id " + request.getContestId());
             }
         }
 
-        user.addContestVersion(contest.getContestVersions()
-                .stream()
-                .filter(cv -> cv.getId().equals(request.getContestVersionId()))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Contest version with id: " + request.getContestVersionId() + " not found in contest with id: " + request.getContestId())));
+        user.addContestVersion(contestVersion);
     }
 
     protected User getCurrentUser() {

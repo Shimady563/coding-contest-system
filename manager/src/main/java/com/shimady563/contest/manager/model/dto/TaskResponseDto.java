@@ -13,5 +13,5 @@ public class TaskResponseDto {
     private Long id;
     private String name;
     private String description;
-    private List<TestCaseDto> testCases;
+    private List<TestCaseResponseDto> testCases;
 }

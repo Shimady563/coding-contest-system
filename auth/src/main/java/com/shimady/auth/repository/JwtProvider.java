@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
 
@@ -23,8 +23,8 @@ public class JwtProvider {
     @Value("${jwt.token.refresh.expiration}")
     private Long refreshTokenExpiration;
 
-    private final Key accessSecret;
-    private final Key refreshSecret;
+    private final SecretKey accessSecret;
+    private final SecretKey refreshSecret;
 
     public JwtProvider(
             @Value("${jwt.token.access.secret}") String accessSecret,
@@ -35,27 +35,23 @@ public class JwtProvider {
     }
 
     public String generateAccessToken(User user) {
-        Instant now = Instant.now();
-        Instant expiration = now.plusMillis(accessTokenExpiration);
-
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole())
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(expiration))
-                .signWith(accessSecret, SignatureAlgorithm.HS512)
-                .compact();
+        return generateToken(user, accessSecret, accessTokenExpiration);
     }
 
     public String generateRefreshToken(User user) {
+        return generateToken(user, refreshSecret, refreshTokenExpiration);
+    }
+
+    private String generateToken(User user, SecretKey secret, Long tokenExpiration) {
         Instant now = Instant.now();
-        Instant expiration = now.plusMillis(refreshTokenExpiration);
+        Instant expiration = now.plusMillis(tokenExpiration);
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(expiration))
-                .signWith(refreshSecret, SignatureAlgorithm.HS512)
+                .subject(user.getEmail())
+                .claim("role", user.getRole())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(secret)
                 .compact();
     }
 
@@ -67,15 +63,15 @@ public class JwtProvider {
         return validateToken(token, refreshSecret);
     }
 
-    private boolean validateToken(String token, Key secret) {
+    private boolean validateToken(String token, SecretKey secret) {
         if (!StringUtils.hasText(token)) {
             return false;
         }
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secret)
+            Jwts.parser()
+                    .verifyWith(secret)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Jwt token expired: {}", e.getMessage());
@@ -99,20 +95,23 @@ public class JwtProvider {
         return getEmailFromToken(token, refreshSecret);
     }
 
-    private String getEmailFromToken(String token, Key secret) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secret)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    private String getEmailFromToken(String token, SecretKey secret) {
+        return getClaimsFromToken(token, secret).getSubject();
     }
 
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessSecret)
+    public Claims getClaimsFromAccessToken(String token) {
+        return getClaimsFromToken(token, accessSecret);
+    }
+
+    public Claims getClaimsFromRefreshToken(String token) {
+        return getClaimsFromToken(token, refreshSecret);
+    }
+
+    private Claims getClaimsFromToken(String token, SecretKey secret) {
+        return Jwts.parser()
+                .verifyWith(secret)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }

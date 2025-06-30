@@ -18,7 +18,6 @@ import TaskDescription from "../components/TaskDescription.vue";
 import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
-import { getAccessToken } from "@/js/auth";
 
 export default {
   components: {
@@ -34,28 +33,41 @@ export default {
       loadingTasks: false,
     };
   },
-  watch: {
-    // Добавляем вотчер для параметров маршрута
-    '$route.params.taskId': {
-      immediate: true,
-      handler(newTaskId) {
-        if (newTaskId) {
-          this.loadTaskData(newTaskId);
-        }
-      }
-    }
-  },
   async created() {
-    await this.loadTasksList();
     const taskId = this.$route.params.taskId;
-    if (taskId) {
-      await this.loadTaskData(taskId);
+    const versionId = this.$route.query.versionId;
+
+    if (!taskId || !versionId) {
+      console.error("Не удалось получить необходимые параметры.");
+      return;
+    }
+
+    try {
+      this.loadingTasks = true;
+      const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
+        credentials: "include",
+      });
+      const result = await response.json();
+      this.tasksList = result ?? [];
+
+      const task = this.tasksList.find(t => t.id === parseInt(taskId));
+      if (task) {
+        this.taskData = task;
+      } else {
+        const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+          credentials: "include",
+        });
+        this.taskData = await singleTaskResponse.json();
+      }
+    } catch (e) {
+      console.error("Ошибка при загрузке задания:", e.message);
+    } finally {
+      this.loadingTasks = false;
     }
   },
   computed: {
     currentIndex() {
-      if (!this.taskData || !this.tasksList.length) return -1;
-      return this.tasksList.findIndex(task => task.id === parseInt(this.taskData.id));
+      return this.tasksList.findIndex(task => task.id === this.taskData?.id);
     },
     prevTask() {
       if (this.currentIndex > 0) {
@@ -71,46 +83,48 @@ export default {
     },
   },
   methods: {
-    async loadTasksList() {
-      const versionId = this.$route.query.versionId;
-      const token = getAccessToken();
+    async sendCode() {
+      const codeEditor = this.$refs.codeEditor;
+      if (!codeEditor || !codeEditor.editor) return;
 
-      if (!versionId || !token) {
-        console.error("Не удалось получить необходимые параметры.");
-        return;
-      }
+      const code = codeEditor.editor.getValue();
+
+      // Получение пользователя
+      const userInfoResponse = await fetch("http://localhost:8080/api/v1/auth/me", {
+        credentials: "include",
+      });
+      const userInfo = await userInfoResponse.json();
+
+      const payload = {
+        code,
+        taskId: this.taskData.id,
+        userId: userInfo.id,
+        contestVersionId: parseInt(this.$route.query.versionId),
+        startTime: this.taskData?.startTime ?? new Date().toISOString(),
+        endTime: this.taskData?.endTime ?? new Date().toISOString(),
+        submittedAt: new Date().toISOString(),
+      };
 
       try {
-        this.loadingTasks = true;
-        const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await fetch("http://localhost:8080/api/v1/submissions", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         });
-        const result = await response.json();
-        this.tasksList = result ?? [];
-      } catch (e) {
-        console.error("Ошибка при загрузке списка заданий:", e.message);
-      } finally {
-        this.loadingTasks = false;
-      }
-    },
-    async loadTaskData(taskId) {
-      const token = getAccessToken();
 
-      try {
-        // Сначала ищем задачу в уже загруженном списке
-        const taskFromList = this.tasksList.find(t => t.id === parseInt(taskId));
-        if (taskFromList) {
-          this.taskData = taskFromList;
-          return;
+        if (response.ok) {
+          const submission = await response.json();
+          if (submission?.id) {
+            this.$refs.outputResults.fetchResults(submission.id);
+          }
+        } else {
+          console.error("Ошибка при отправке кода:", await response.text());
         }
-
-        // Если не нашли в списке, загружаем отдельно
-        const response = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        this.taskData = await response.json();
       } catch (e) {
-        console.error("Ошибка при загрузке задания:", e.message);
+        console.error("Ошибка при отправке кода:", e);
       }
     },
     goToPrevTask() {

@@ -11,6 +11,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_ACTIVE_PROFILES=local
     depends_on:
       postgres:
         condition: service_healthy

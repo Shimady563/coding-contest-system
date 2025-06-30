@@ -1,17 +1,16 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.converter.TaskConverter;
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Task;
-import com.shimady563.contest.manager.model.TestCase;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.TaskRequestDto;
 import com.shimady563.contest.manager.model.dto.TaskResponseDto;
 import com.shimady563.contest.manager.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -19,49 +18,39 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskService {
     private final TaskRepository taskRepository;
-    private final ModelMapper mapper;
     private final UserService userService;
 
     protected Task getTaskById(Long id) {
         log.info("Getting task by id: {}", id);
         return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
     }
 
     @Transactional
     public void createTask(TaskRequestDto request) {
         log.info("Creating task with name: {}, test cases: {}",
                 request.getName(), request.getTestCases());
-        Task task = new Task();
-        task.setName(request.getName());
-        task.setDescription(request.getDescription());
-        request.getTestCases()
-                .stream()
-                .map(dto -> mapper.map(dto, TestCase.class))
-                .forEach(task::addTestCase);
-        task.setTestCasesCount((short) task.getTestCases().size());
+        Task task = TaskConverter.request2Domain(request);
+        request.getTestCases().stream().map(TaskConverter::dto2TestCase).forEach(task::addTestCase);
         taskRepository.save(task);
     }
 
     @Transactional
     public void updateTaskById(Long id, TaskRequestDto request) {
-        log.info("Creating task with name: {}", request.getName());
+        log.info("Updating task with name: {}", request.getName());
         Task task = getTaskById(id);
         task.setName(request.getName());
         task.setDescription(request.getDescription());
-        Set<TestCase> newTestCases = request.getTestCases()
+        request.getTestCases()
                 .stream()
-                .map(dto -> mapper.map(dto, TestCase.class))
-                .collect(Collectors.toSet());
-        task.getTestCases().retainAll(newTestCases);
+                .map(TaskConverter::dto2TestCase)
+                .forEach(task::addTestCase);
         task.setTestCasesCount((short) task.getTestCases().size());
         taskRepository.save(task);
     }
@@ -74,7 +63,7 @@ public class TaskService {
     public Page<TaskResponseDto> searchForTasks(PageRequest pageRequest) {
         log.info("Searching for tasks");
         return taskRepository.findAll(pageRequest)
-                .map(t -> mapper.map(t, TaskResponseDto.class));
+                .map(TaskConverter::domain2Response);
     }
 
     @Transactional
@@ -99,7 +88,7 @@ public class TaskService {
         ContestVersion contestVersion = optContestVersion.get();
 
         return taskRepository.findByContestVersions(contestVersion).stream()
-                .map(t -> mapper.map(t, TaskResponseDto.class))
+                .map(TaskConverter::domain2Response)
                 .toList();
     }
 }
