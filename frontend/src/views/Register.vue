@@ -97,7 +97,7 @@ export default {
         const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          credentials: "include", // <-- cookie
           body: JSON.stringify({
             firstName: this.firstName,
             lastName: this.lastName,
@@ -114,8 +114,6 @@ export default {
           return;
         }
 
-        const data = await response.json();
-        localStorage.setItem("tokenData", JSON.stringify(data));
         this.$root.notify('Регистрация прошла успешно!', 'success');
         this.$router.push("/").then(() => window.location.reload());
       } catch (err) {

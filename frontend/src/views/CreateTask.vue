@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { getAccessToken, getRefreshToken } from '@/js/auth'
+// import { getAccessToken, getRefreshToken } from '@/js/auth'
 
 export default {
   data() {
@@ -152,8 +152,8 @@ export default {
           })),
         };
 
-        let accessToken = getAccessToken();
-        const refreshToken = getRefreshToken();
+        let accessToken = 1;
+        const refreshToken = 1;
 
         const makeRequest = async (token) => {
           return await fetch('http://localhost:8080/api/v1/tasks', {

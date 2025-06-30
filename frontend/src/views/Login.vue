@@ -43,10 +43,11 @@ export default {
     async login() {
       try {
         this.$root.notify('Попытка входа...', 'info');
-        
+
         const response = await fetch("http://localhost:8081/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include", // <-- чтобы куки установились
           body: JSON.stringify({ email: this.email, password: this.password }),
         });
 
@@ -57,40 +58,8 @@ export default {
           return;
         }
 
-        const data = await response.json();
-        localStorage.setItem("tokenData", JSON.stringify(data));
         this.$root.notify('Вход выполнен успешно!', 'success');
-
-        this.$router.push("/").then(() => {
-          window.location.reload();
-        });
-
-        const authHeader = `${data.type} ${data.accessToken}`;
-        console.log("Authorization header:", authHeader);
-
-        const meResponse = await fetch("http://localhost:8081/api/v1/auth/me", {
-          headers: {
-            "Authorization": authHeader,
-          },
-        });
-
-        if (!meResponse.ok) {
-          const errText = await meResponse.text();
-          console.error("Ошибка /auth/me:", meResponse.status, errText);
-          if (meResponse.status === 401) {
-            this.errorMessage = "Токен истек или неверный. Пожалуйста, войдите снова.";
-          } else {
-            this.errorMessage = "Ошибка авторизации. Попробуйте ещё раз.";
-          }
-          this.$root.notify(this.errorMessage, 'error');
-          return;
-        }
-
-        const userData = await meResponse.json();
-        console.log("Пользователь:", userData);
-
-        this.$router.push("/");
-
+        this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
         console.error("Ошибка при входе", err);
         this.errorMessage = "Сервер недоступен или ошибка сети";

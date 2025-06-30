@@ -44,10 +44,17 @@ export default {
     this.user = userInfo;
   },
   methods: {
-    logout() {
-      localStorage.removeItem("tokenData");
-      this.user = null;
-      this.$router.push("/login");
+    async logout() {
+      try {
+        await fetch("http://localhost:8080/api/v1/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        this.user = null;
+        this.$router.push("/login");
+      } catch (e) {
+        console.error("Ошибка при выходе", e);
+      }
     },
   },
 };

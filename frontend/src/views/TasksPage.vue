@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { getAccessToken } from "@/js/auth";
+// import { getAccessToken } from "@/js/auth";
 
 export default {
   name: "TasksPage",
@@ -31,7 +31,7 @@ export default {
   },
   async mounted() {
     const versionId = this.$route.params.id;
-    const token = getAccessToken();
+    const token = 1;
 
     if (!versionId || !token) {
       console.error("Не удалось получить versionId или токен.");

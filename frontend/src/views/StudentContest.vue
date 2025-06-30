@@ -18,7 +18,6 @@ import TaskDescription from "../components/TaskDescription.vue";
 import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
-import { getAccessToken } from "@/js/auth";
 
 export default {
   components: {
@@ -37,28 +36,27 @@ export default {
   async created() {
     const taskId = this.$route.params.taskId;
     const versionId = this.$route.query.versionId;
-    const token = getAccessToken();
 
-    if (!taskId || !versionId || !token) {
+    if (!taskId || !versionId) {
       console.error("Не удалось получить необходимые параметры.");
       return;
     }
 
     try {
-      // Загружаем все задания этой версии контеста
       this.loadingTasks = true;
       const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       const result = await response.json();
       this.tasksList = result ?? [];
 
-      // Загружаем текущую задачу
       const task = this.tasksList.find(t => t.id === parseInt(taskId));
       if (task) {
         this.taskData = task;
       } else {
-        const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`);
+        const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+          credentials: "include",
+        });
         this.taskData = await singleTaskResponse.json();
       }
     } catch (e) {
@@ -90,56 +88,43 @@ export default {
       if (!codeEditor || !codeEditor.editor) return;
 
       const code = codeEditor.editor.getValue();
-      const token = getAccessToken();
 
-      if (!token) {
-        console.error("Токен не найден.");
-        return;
-      }
-
-      // Получаем информацию о пользователе
-      const userInfo = await import("@/js/auth").then(module => module.getUserInfo());
-      if (!userInfo || !userInfo.id) {
-        console.error("Не удалось получить информацию о пользователе.");
-        return;
-      }
-
-      // Берем startTime и endTime из задачи
-      const startTime = this.taskData?.startTime ?? new Date().toISOString();
-      const endTime = this.taskData?.endTime ?? new Date().toISOString();
-
-      const now = new Date().toISOString(); // время отправки
+      // Получение пользователя
+      const userInfoResponse = await fetch("http://localhost:8080/api/v1/auth/me", {
+        credentials: "include",
+      });
+      const userInfo = await userInfoResponse.json();
 
       const payload = {
-        code: code,
+        code,
         taskId: this.taskData.id,
-        userId: userInfo.id, // <-- реальный ID пользователя
+        userId: userInfo.id,
         contestVersionId: parseInt(this.$route.query.versionId),
-        startTime: startTime,
-        endTime: endTime,
-        submittedAt: now,
+        startTime: this.taskData?.startTime ?? new Date().toISOString(),
+        endTime: this.taskData?.endTime ?? new Date().toISOString(),
+        submittedAt: new Date().toISOString(),
       };
 
       try {
         const response = await fetch("http://localhost:8080/api/v1/submissions", {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
         });
 
         if (response.ok) {
           const submission = await response.json();
-          if (submission && submission.id) {
+          if (submission?.id) {
             this.$refs.outputResults.fetchResults(submission.id);
           }
         } else {
           console.error("Ошибка при отправке кода:", await response.text());
         }
-      } catch (error) {
-        console.error("Ошибка при отправке кода:", error);
+      } catch (e) {
+        console.error("Ошибка при отправке кода:", e);
       }
     },
     goToPrevTask() {
