@@ -6,6 +6,8 @@ import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.CodeSubmission;
 import com.shimady563.contest.manager.model.dto.CodeSubmissionDto;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,6 +24,7 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionServiceTest {
+    private final String topic = "submissionTopic";
 
     @Mock
     private UserService userService;
@@ -36,6 +40,14 @@ class SubmissionServiceTest {
 
     @InjectMocks
     private SubmissionService submissionService;
+
+    @BeforeEach
+    @SneakyThrows
+    public void setUp() {
+        Field field = submissionService.getClass().getDeclaredField("topic");
+        field.setAccessible(true);
+        field.set(submissionService, topic);
+    }
 
     @Test
     void shouldSubmitValidSolution() {
@@ -73,7 +85,7 @@ class SubmissionServiceTest {
 
         submissionService.submitSolution(dto);
 
-        then(kafkaTemplate).should().send("submissionTopic", submission);
+        then(kafkaTemplate).should().send(topic, submission);
     }
 
     @Test

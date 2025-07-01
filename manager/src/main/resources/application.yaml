@@ -27,6 +27,9 @@ auth:
 server:
   servlet:
     context-path: /api/v1/
+kafka:
+  topic:
+    submission: submissionTopic
 logging:
   level:
     root: info

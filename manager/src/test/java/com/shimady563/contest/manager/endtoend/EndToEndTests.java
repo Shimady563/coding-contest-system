@@ -67,6 +67,9 @@ public class EndToEndTests {
     @Value("${jwt.token.access.cookie.name}")
     private String tokenCookieName;
 
+    @Value("${kafka.topic.submission}")
+    public String submissionTopic;
+
     @LocalServerPort
     private Integer port;
 
@@ -455,7 +458,7 @@ public class EndToEndTests {
                                         .method(Method.POST)
                                         .path("/submissions")
                                         .statusCode(202)
-                                        .resultingTopic("submissionTopic")
+                                        .resultingTopic(submissionTopic)
                                         .build()
                         )
                 ),
