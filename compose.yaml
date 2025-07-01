@@ -8,6 +8,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_PROFILES_ACTIVE=prod
+      - JWT_TOKEN_ACCESS_SECRET=e2572ccf3dad3fbae0d34ab2d395a3d8d538d9031b0c3037f302c077c344cd6c75e15ab7a5322fcf35e87d1ad3e813008f7bff153d4b912d358da6707ff10825
+      - JWT_TOKEN_ACCESS_EXPIRATION=21600000
+      - JWT_TOKEN_ACCESS_COOKIE_NAME=coding_contest_system_access_token
     healthcheck:
       test: [ 'CMD', 'wget', '--spider', '-q', 'http://localhost:8080/api/v1/actuator/health' ]
       interval: 10s
@@ -30,6 +34,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       manager:
         condition: service_healthy
@@ -49,6 +54,13 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - SPRING_DATA_REDIS_PASSWORD=redis
+      - SPRING_PROFILES_ACTIVE=prod
+      - JWT_TOKEN_ACCESS_SECRET=e2572ccf3dad3fbae0d34ab2d395a3d8d538d9031b0c3037f302c077c344cd6c75e15ab7a5322fcf35e87d1ad3e813008f7bff153d4b912d358da6707ff10825
+      - JWT_TOKEN_ACCESS_EXPIRATION=21600000
+      - JWT_TOKEN_ACCESS_COOKIE_NAME=coding_contest_system_access_token
+      - JWT_TOKEN_REFRESH_SECRET=4e7dd4cfb4136b7aefd2560492b843a9c5cd006553dbb4c3f6e3ddbdac5fe1e67534ede1045df8ca0e88790e9df24a2e567bc0a3196663890825a012e3717adc
+      - JWT_TOKEN_REFRESH_EXPIRATION=604800000
+      - JWT_TOKEN_REFRESH_COOKIE_NAME=coding_contest_system_refresh_token
     depends_on:
       manager:
         condition: service_healthy
