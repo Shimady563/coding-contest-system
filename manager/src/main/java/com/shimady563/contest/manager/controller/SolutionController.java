@@ -10,6 +10,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/solutions")
@@ -35,5 +36,11 @@ public class SolutionController {
     @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     public SolutionResponseDto getSolutionById(@PathVariable Long id) {
         return solutionService.getSolutionById(id);
+    }
+
+    @GetMapping("/task")
+    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
+    public List<SolutionResponseDto> getSolutionsByTaskId(@RequestParam Long taskId) {
+        return solutionService.getSolutionsByTaskId(taskId);
     }
 }

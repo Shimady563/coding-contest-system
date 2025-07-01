@@ -3,6 +3,8 @@ package com.shimady563.contest.manager.service;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Solution;
 import com.shimady563.contest.manager.model.Status;
+import com.shimady563.contest.manager.model.Task;
+import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.SolutionResponseDto;
 import com.shimady563.contest.manager.repository.SolutionRepository;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,12 @@ class SolutionServiceTest {
 
     @Mock
     private SolutionRepository solutionRepository;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private TaskService taskService;
 
     @InjectMocks
     private SolutionService solutionService;
@@ -74,5 +82,24 @@ class SolutionServiceTest {
         );
 
         assertThat(result.getContent()).hasSize(1).containsExactly(dto);
+    }
+
+    @Test
+    void shouldGetSolutionsByTaskId() {
+        Long taskId = 1L;
+        User user = new User();
+        Task task = new Task();
+        task.setId(taskId);
+        Solution solution = new Solution();
+        SolutionResponseDto dto = new SolutionResponseDto();
+        dto.setSubmittedAt(solution.getSubmittedAt());
+
+        willReturn(user).given(userService).getCurrentUser();
+        given(taskService.getTaskById(taskId)).willReturn(task);
+        given(solutionRepository.findByUserAndTask(user, task)).willReturn(List.of(solution));
+
+        List<SolutionResponseDto> result = solutionService.getSolutionsByTaskId(taskId);
+
+        assertThat(result).hasSize(1).containsExactly(dto);
     }
 }
