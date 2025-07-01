@@ -11,20 +11,13 @@
     <ul v-else class="contest-list">
       <li v-for="contest in contests" :key="contest.id" class="contest-item">
         <div class="contest-info">
-          <template v-if="isContestActive(contest.startTime, contest.endTime)">
-            <router-link
-              :to="`/contest/${contest.id}`"
-              class="contest-link"
-              @click.native="selectContest(contest)"
-            >
-              {{ contest.name }}
-            </router-link>
-          </template>
-          <template v-else>
-            <span class="contest-name-disabled" title="Контрольная недоступна">
-              {{ contest.name }}
-            </span>
-          </template>
+          <router-link
+            :to="`/contest/${contest.id}`"
+            class="contest-link"
+            @click.native="selectContest(contest)"
+          >
+            {{ contest.name }}
+          </router-link>
           <p class="description">{{ contest.description }}</p>
           <p class="time">
             🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
@@ -94,10 +87,6 @@ export default {
         hour: "2-digit",
         minute: "2-digit",
       });
-    },
-    isContestActive(startTime, endTime) {
-      const now = new Date();
-      return new Date(startTime) <= now && now <= new Date(endTime);
     },
     ...mapMutations('contest', ['setCurrentContest']),
     selectContest(contest) {

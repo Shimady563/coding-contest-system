@@ -38,12 +38,23 @@ export default {
       return this.currentContest;
     }
   },
-  mounted() {
+  async mounted() {
     this.loadVersions();
   },
   methods: {
     async loadVersions() {
       const contestId = this.$route.params.id;
+
+      const start = new Date(this?.contest.startTime);
+      const end =  new Date(this?.contest.endTime);
+      const now = new Date();
+
+      console.log(start, end)
+
+      if (now < start || now > end) {
+        this.$router.replace('/access-denied-contest');
+        return;
+      }
 
       try {
         const response = await fetch(

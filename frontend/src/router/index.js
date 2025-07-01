@@ -27,11 +27,12 @@ const routes = [
   { path: '/create-task', component: CreateTask, meta: { requiresAuth: true, requiresTeacher: true }},
   { path: '/solve-contest', component: StudentContestsPage},
   { path: '/edit-contest/:id', component: EditContest, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
-  { path: '/contest/:id', component: ContestVersionsPage},
-  { path: '/contest-version/:id/tasks', component: TasksPage},
+  { path: '/contest/:id', component: ContestVersionsPage, meta: { requiresAuth: true }  },
+  { path: '/contest-version/:id/tasks', component: TasksPage },
   { path: '/task/:taskId', component: StudentContest, name: 'StudentContest' },
   { path: '/manage-students', component: ManageStudents, meta: { requiresAuth: true, requiresTeacher: true } },
-  { path: '/access-denied', component: () => import('@/views/AccessDenied.vue') }
+  { path: '/access-denied', component: () => import('@/views/AccessDenied.vue') },
+  { path: '/access-denied-contest', name: 'AccessDenied', component: () => import('@/views/AccessDeniedPage.vue') }  
 ];
 
 const router = createRouter({
