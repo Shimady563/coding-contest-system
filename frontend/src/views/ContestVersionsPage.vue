@@ -1,6 +1,6 @@
 <template>
   <div class="contest-versions-container">
-    <h1>Варианты контрольной</h1>
+    <h1>Варианты контрольной {{ contest?.name }}</h1>
 
     <div v-if="loading" class="loading">Загрузка...</div>
 
@@ -22,6 +22,7 @@
 
 <script>
 import { getUserInfo } from "../js/auth";
+import { mapGetters } from 'vuex';
 
 export default {
   name: "ContestVersionsPage",
@@ -31,7 +32,41 @@ export default {
       loading: true,
     };
   },
+  computed: {
+    ...mapGetters('contest', ['currentContest']),
+    contest() {
+      return this.currentContest;
+    }
+  },
+  mounted() {
+    this.loadVersions();
+  },
   methods: {
+    async loadVersions() {
+      const contestId = this.$route.params.id;
+
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`,
+          { credentials: "include" }
+        );
+
+        if (response.status === 403) {
+          alert("Вы уже зарегистрированы на вариант.");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Ошибка загрузки вариантов");
+        }
+
+        this.versions = await response.json();
+      } catch (error) {
+        console.error("Ошибка:", error.message);
+      } finally {
+        this.loading = false;
+      }
+    },
     async confirmStart(version) {
       const userInfo = await getUserInfo();
       try {
@@ -89,42 +124,7 @@ export default {
         alert("Произошла ошибка. Попробуйте позже.");
       }
     }
-  },
-  async mounted() {
-    const userInfo = await getUserInfo();
-    console.log("Информация о пользователе:", userInfo);
-
-    const contestId = this.$route.params.id;
-
-    if (!contestId) {
-      console.error("Не удалось получить contestId или токен.");
-      this.loading = false;
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`,
-        { credentials: "include" }
-      );
-
-      if (response.status === 403) {
-        // Пользователь уже выбрал вариант — направляем сразу к задачам
-        alert("Вы уже зарегистрированы на вариант.");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Ошибка загрузки вариантов");
-      }
-
-      this.versions = await response.json();
-    } catch (error) {
-      console.error("Ошибка:", error.message);
-    } finally {
-      this.loading = false;
-    }
-  },
+  }
 };
 </script>
 

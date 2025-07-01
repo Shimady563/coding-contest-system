@@ -19,6 +19,7 @@ import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
 import { getUserInfo } from "../js/auth";
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -35,6 +36,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters('contest', ['currentContest']),
+    contest() {
+      return this.currentContest;
+    },
     currentIndex() {
       return this.tasksList.findIndex(task => task.id === Number(this.taskData?.id));
     },
@@ -98,7 +103,7 @@ export default {
 
       const code = codeEditor.editor.getValue().trim();
       if (!code) {
-        alert("Код не может быть пустым");
+        this.$root.notify("Код не может быть пустым", "warning");
         return;
       }
 
@@ -110,8 +115,8 @@ export default {
           taskId: this.taskData.id,
           userId: userInfo.id,
           contestVersionId: parseInt(this.$route.query.versionId),
-          startTime: new Date().toISOString(),
-          endTime: new Date().toISOString(),
+          startTime: this.contest?.startTime,
+          endTime: this.contest?.endTime,
           submittedAt: new Date().toISOString(),
         };
 
@@ -125,23 +130,29 @@ export default {
         });
 
         if (response.ok) {
-          const text = await response.text();
-          const submission = text ? JSON.parse(text) : null;
+          this.$root.notify("Код успешно отправлен", "success");
 
-          if (submission?.id) {
-            this.$refs.outputResults.fetchResults(submission.id);
-            alert("Код успешно отправлен");
-          } else {
-            alert("Ответ от сервера пустой или не содержит ID отправки.");
+          try {
+            const text = await response.text();
+            const submission = text ? JSON.parse(text) : null;
+            if (submission?.id) {
+              this.$refs.outputResults.fetchResults(submission.id);
+            }
+          } catch (err) {
+            console.warn("Ответ не содержит данных или не в JSON формате");
           }
         } else {
           const errorText = await response.text();
+          if (response.status === 400) {
+            this.$root.notify("Контрольная завершена. Отправка запрещена.", "error");
+          } else {
+            this.$root.notify("Не удалось отправить код: " + errorText, "error");
+          }
           console.error("Ошибка при отправке кода:", errorText);
-          alert("Не удалось отправить код: " + errorText);
         }
       } catch (e) {
         console.error("Ошибка:", e);
-        alert("Произошла ошибка при отправке кода.");
+        this.$root.notify("Произошла ошибка при отправке кода", "error");
       }
     },
     goToPrevTask() {

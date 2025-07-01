@@ -11,9 +11,20 @@
     <ul v-else class="contest-list">
       <li v-for="contest in contests" :key="contest.id" class="contest-item">
         <div class="contest-info">
-          <router-link :to="`/contest/${contest.id}`" class="contest-link">
-            {{ contest.name }}
-          </router-link>
+          <template v-if="isContestActive(contest.startTime, contest.endTime)">
+            <router-link
+              :to="`/contest/${contest.id}`"
+              class="contest-link"
+              @click.native="selectContest(contest)"
+            >
+              {{ contest.name }}
+            </router-link>
+          </template>
+          <template v-else>
+            <span class="contest-name-disabled" title="Контрольная недоступна">
+              {{ contest.name }}
+            </span>
+          </template>
           <p class="description">{{ contest.description }}</p>
           <p class="time">
             🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
@@ -27,9 +38,9 @@
   </div>
 </template>
 
-
 <script>
 import { getGroupIdForCurrentUser } from "@/js/auth";
+import { mapMutations } from "vuex";
 
 export default {
   name: "StudentContestsPage",
@@ -84,6 +95,14 @@ export default {
         minute: "2-digit",
       });
     },
+    isContestActive(startTime, endTime) {
+      const now = new Date();
+      return new Date(startTime) <= now && now <= new Date(endTime);
+    },
+    ...mapMutations('contest', ['setCurrentContest']),
+    selectContest(contest) {
+      this.setCurrentContest(contest);
+    }
   },
 };
 </script>
@@ -160,5 +179,12 @@ h1 {
 .time {
   font-size: 14px;
   color: #999;
+}
+
+.contest-name-disabled {
+  font-size: 18px;
+  color: #aaa;
+  font-weight: 600;
+  cursor: not-allowed;
 }
 </style>
