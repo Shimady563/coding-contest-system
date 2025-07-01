@@ -434,6 +434,18 @@ public class EndToEndTests {
                                         .build()
                         )
                 ),
+                Arguments.of(
+                        Named.of(
+                                "Getting solutions by task id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionsByTaskId")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.GET)
+                                        .path("/solutions/task")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
                 //submission controller
                 Arguments.of(
                         Named.of(
@@ -593,6 +605,17 @@ public class EndToEndTests {
                                         .method(Method.GET)
                                         .path("/solutions")
                                         .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting solutions by task id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionsByTaskId")
+                                        .method(Method.GET)
+                                        .path("/solutions/task")
                                         .statusCode(404)
                                         .build()
                         )
