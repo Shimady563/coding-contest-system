@@ -3,11 +3,11 @@
       <div class="access-denied-card">
         <div class="icon-container warning-icon">⚠</div>
         <h1>Доступ запрещён</h1>
-        <p class="message">
+        <p class="message-access-denied">
           Контрольная работа ещё не началась или уже завершена. Пожалуйста, вернитесь позже.
         </p>
         <div class="actions">
-          <router-link to="/" class="btn primary-btn">На главную</router-link>
+          <router-link to="/solve-contest" class="btn primary-btn">К контрольным</router-link>
         </div>
       </div>
     </div>

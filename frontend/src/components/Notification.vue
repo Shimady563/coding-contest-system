@@ -35,7 +35,7 @@
   }
   </script>
   
-  <style scoped>
+  <style>
   .notification {
     position: fixed;
     top: 20px;

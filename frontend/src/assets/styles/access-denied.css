@@ -34,7 +34,7 @@
     font-weight: 600;
   }
   
-  .message {
+  .message-access-denied {
     font-size: 18px;
     color: #4d2c2a;
     margin-bottom: 16px;
@@ -96,7 +96,7 @@
       font-size: 24px;
     }
   
-    .message, .details {
+    .message-access-denied, .details {
       font-size: 16px;
     }
   }
