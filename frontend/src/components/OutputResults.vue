@@ -4,22 +4,16 @@
     <table v-if="results.length">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>№</th>
           <th>Статус</th>
           <th>Дата отправки</th>
-          <th>Имя задачи</th>
-          <th>Пользователь</th>
-          <th>Код</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="result in results" :key="result.id">
-          <td>{{ result.id }}</td>
-          <td :class="result.status.toLowerCase()">{{ result.status }}</td>
+        <tr v-for="(result, index) in results" :key="result.id">
+          <td>{{ index + 1 }}</td>
+          <td :class="statusClass(result.status)">{{ result.status }}</td>
           <td>{{ new Date(result.submittedAt).toLocaleString() }}</td>
-          <td>{{ result.taskName }}</td>
-          <td>{{ result.username }}</td>
-          <td><pre>{{ result.code }}</pre></td>
         </tr>
       </tbody>
     </table>
@@ -53,6 +47,17 @@ export default {
       } catch (error) {
         console.error('Error fetching results:', error);
         this.results = [];
+      }
+    },
+    statusClass(status) {
+      switch (status) {
+        case "ACCEPTED": return "status-accepted";
+        case "WRONG_ANSWER": return "status-wrong";
+        case "COMPILE_ERROR": return "status-compile";
+        case "RUNTIME_ERROR": return "status-runtime";
+        case "TIMED_OUT": return "status-timeout";
+        case "INTERNAL_ERROR": return "status-internal";
+        default: return "";
       }
     },
   },
@@ -89,24 +94,32 @@ th, td {
   text-align: left;
 }
 th {
-  background-color: #333;
+  background-color: #2c3e50;
   color: white;
 }
-.accepted {
-  color: green;
+
+.status-accepted {
+  color: #2ecc71; /* зелёный */
   font-weight: bold;
 }
-.failed {
-  color: red;
+.status-wrong {
+  color: #e67e22; /* оранжевый */
   font-weight: bold;
 }
-.pending {
-  color: orange;
+.status-compile {
+  color: #3498db; /* синий */
   font-weight: bold;
 }
-pre {
-  white-space: pre-wrap;
-  max-width: 300px;
-  overflow-x: auto;
+.status-runtime {
+  color: #e74c3c; /* красный */
+  font-weight: bold;
+}
+.status-timeout {
+  color: #9b59b6; /* фиолетовый */
+  font-weight: bold;
+}
+.status-internal {
+  color: #7f8c8d; /* серый */
+  font-weight: bold;
 }
 </style>
