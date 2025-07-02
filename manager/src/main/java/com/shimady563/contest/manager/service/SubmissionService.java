@@ -2,6 +2,7 @@ package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.converter.CodeSubmissionConverter;
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
+import com.shimady563.contest.manager.model.Contest;
 import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.User;
@@ -32,12 +33,14 @@ public class SubmissionService {
 
     private void checkSubmissionValidity(CodeSubmissionDto submission) {
         log.info("Checking if the code submission is valid: {}", submission);
-        if (submission.getSubmittedAt().isBefore(submission.getStartTime())
-                || submission.getSubmittedAt().isAfter(submission.getEndTime())) {
+        ContestVersion contestVersion = contestVersionService.getContestVersionById(submission.getContestVersionId());
+        Contest contest = contestVersion.getContest();
+
+        if (submission.getSubmittedAt().isBefore(contest.getStartTime())
+                || submission.getSubmittedAt().isAfter(contest.getEndTime())) {
             throw new SubmissionInvalidException("Submission was sent after or before the start of the contest: " + submission);
         }
 
-        ContestVersion contestVersion = contestVersionService.getContestVersionById(submission.getContestVersionId());
         User user = userService.getUserById(submission.getUserId());
         Task task = taskService.getTaskById(submission.getTaskId());
 

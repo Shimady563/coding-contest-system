@@ -22,6 +22,7 @@ public class ContestVersionService {
     private final ContestVersionRepository contestVersionRepository;
     private final ContestService contestService;
     private final TaskService taskService;
+    private final UserService userService;
 
     protected ContestVersion getContestVersionById(Long id) {
         log.info("Getting contest version by id: {}", id);
@@ -39,7 +40,7 @@ public class ContestVersionService {
     public void createContestVersion(ContestVersionRequestDto request) {
         log.info("Creating contest version from request: {}", request);
         ContestVersion contestVersion = ContestVersionConverter.request2Domain(request);
-        Contest contest = contestService.getContestById(request.getContestId());
+        Contest contest = contestService.getContestByIdInternal(request.getContestId());
         List<Task> tasks = taskService.getTasksByIds(request.getTaskIds());
         contest.addContestVersion(contestVersion);
         tasks.forEach(contestVersion::addTask);
@@ -49,7 +50,7 @@ public class ContestVersionService {
     @Transactional(readOnly = true)
     public List<ContestVersionResponseDto> getContestVersionsByContestId(Long contestId) {
         log.info("Getting contest versions by contest id: {}", contestId);
-        Contest contest = contestService.getContestById(contestId);
+        Contest contest = contestService.getContestByIdInternal(contestId);
         return contestVersionRepository.findByContest(contest)
                 .stream()
                 .map(ContestVersionConverter::domain2Response)

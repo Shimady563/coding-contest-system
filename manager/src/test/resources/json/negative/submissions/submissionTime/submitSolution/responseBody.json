@@ -1,4 +1,0 @@
-{
-  "message": "Submission was sent after or before the start of the contest: CodeSubmissionDto(code=int main() { return 0; }, taskId=2, userId=2, contestVersionId=1, startTime=2025-04-16T07:08:07.015, endTime=2025-04-16T09:08:07.015, submittedAt=2025-04-16T09:08:08.015)",
-  "code": 403
-}
