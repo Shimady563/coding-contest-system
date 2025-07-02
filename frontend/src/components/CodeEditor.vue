@@ -22,8 +22,6 @@ export default {
       indentWithTabs: true,
     });
 
-    console.log("CodeMirror initialized:", this.editor);
-
     this.editor.setValue(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);
   },
 };

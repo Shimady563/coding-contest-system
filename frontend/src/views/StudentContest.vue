@@ -133,11 +133,7 @@ export default {
           this.$root.notify("Код успешно отправлен", "success");
 
           try {
-            const text = await response.text();
-            const submission = text ? JSON.parse(text) : null;
-            if (submission?.id) {
-              this.$refs.outputResults.fetchResults(submission.id);
-            }
+            this.$refs.outputResults.fetchResults();
           } catch (err) {
             console.warn("Ответ не содержит данных или не в JSON формате");
           }
