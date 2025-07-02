@@ -44,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> signIn(@RequestBody SignInJwtRequest request) {
+    public ResponseEntity<Void> signIn(@Valid @RequestBody SignInJwtRequest request) {
         JwtResponse response = authService.authenticate(request);
         return buildResponse(response);
     }
