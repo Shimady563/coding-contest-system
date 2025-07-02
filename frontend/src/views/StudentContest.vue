@@ -19,7 +19,6 @@ import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
 import { getUserInfo } from "../js/auth";
-import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -33,13 +32,10 @@ export default {
       taskData: null,
       tasksList: [],
       loadingTasks: false,
+      contest: null
     };
   },
   computed: {
-    ...mapGetters('contest', ['currentContest']),
-    contest() {
-      return this.currentContest;
-    },
     currentIndex() {
       return this.tasksList.findIndex(task => task.id === Number(this.taskData?.id));
     },
@@ -67,7 +63,27 @@ export default {
   methods: {
     async loadTask() {
       const taskId = this.$route.params.taskId;
-      const versionId = this.$route.query.versionId;
+      const versionId = this.$route.params.versionId;
+      const contestId = this.$route.params.contestId;
+
+      try {
+        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+          credentials: "include"
+        });
+        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
+        this.contest = await contestResponse.json();
+      } catch {
+        return;
+      }
+
+      const start = new Date(this?.contest.startTime);
+      const end =  new Date(this?.contest.endTime);
+      const now = new Date();
+
+      if (now < start || now > end) {
+        this.$router.replace('/access-denied-contest');
+        return;
+      }
 
       if (!taskId || !versionId) {
         console.error("Не удалось получить необходимые параметры.");
@@ -114,9 +130,7 @@ export default {
           code,
           taskId: this.taskData.id,
           userId: userInfo.id,
-          contestVersionId: parseInt(this.$route.query.versionId),
-          startTime: this.contest?.startTime,
-          endTime: this.contest?.endTime,
+          contestVersionId: parseInt(this.$route.params.versionId),
           submittedAt: new Date().toISOString(),
         };
 
@@ -131,12 +145,15 @@ export default {
 
         if (response.ok) {
           this.$root.notify("Код успешно отправлен", "success");
-
-          try {
+            
+          this.$refs.outputResults.fetchResults();
+          
+          let count = 0;
+          const interval = setInterval(() => {
             this.$refs.outputResults.fetchResults();
-          } catch (err) {
-            console.warn("Ответ не содержит данных или не в JSON формате");
-          }
+            count++;
+            if (count >= 5) clearInterval(interval); 
+          }, 2000);
         } else {
           const errorText = await response.text();
           if (response.status === 400) {
@@ -155,8 +172,11 @@ export default {
       if (this.prevTask) {
         this.$router.push({
           name: 'StudentContest',
-          params: { taskId: this.prevTask.id },
-          query: { versionId: this.$route.query.versionId },
+          params: {
+            contestId: this.$route.params.contestId,
+            versionId: this.$route.params.versionId,
+            taskId: this.prevTask.id,
+          },
         });
       }
     },
@@ -164,8 +184,11 @@ export default {
       if (this.nextTask) {
         this.$router.push({
           name: 'StudentContest',
-          params: { taskId: this.nextTask.id },
-          query: { versionId: this.$route.query.versionId },
+          params: {
+            contestId: this.$route.params.contestId,
+            versionId: this.$route.params.versionId,
+            taskId: this.nextTask.id,
+          },
         });
       }
     },

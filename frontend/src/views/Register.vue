@@ -97,7 +97,7 @@ export default {
         const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include", // <-- cookie
+          credentials: "include", 
           body: JSON.stringify({
             firstName: this.firstName,
             lastName: this.lastName,

@@ -23,7 +23,10 @@
             🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
           </p>
         </div>
-        <span class="status">
+        <span
+          class="status"
+          :class="getStatusClass(getContestStatus(contest.startTime, contest.endTime))"
+        >
           Статус: {{ getContestStatus(contest.startTime, contest.endTime) }}
         </span>
       </li>
@@ -33,7 +36,6 @@
 
 <script>
 import { getGroupIdForCurrentUser } from "@/js/auth";
-import { mapMutations } from "vuex";
 
 export default {
   name: "StudentContestsPage",
@@ -88,9 +90,17 @@ export default {
         minute: "2-digit",
       });
     },
-    ...mapMutations('contest', ['setCurrentContest']),
-    selectContest(contest) {
-      this.setCurrentContest(contest);
+    getStatusClass(status) {
+      switch (status) {
+        case "Ожидается":
+          return "status-upcoming";
+        case "Активна":
+          return "status-active";
+        case "Завершена":
+          return "status-finished";
+        default:
+          return "";
+      }
     }
   },
 };
@@ -153,8 +163,21 @@ h1 {
 
 .status {
   font-size: 14px;
-  color: #555;
+  font-weight: 500;
 }
+
+.status-upcoming {
+  color: #f39c12; /* оранжевый */
+}
+
+.status-active {
+  color: #27ae60; /* зелёный */
+}
+
+.status-finished {
+  color: #c0392b; /* красный */
+}
+
 
 .contest-info {
   flex: 1;

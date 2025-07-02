@@ -22,7 +22,6 @@
 
 <script>
 import { getUserInfo } from "../js/auth";
-import { mapGetters } from 'vuex';
 
 export default {
   name: "ContestVersionsPage",
@@ -32,24 +31,26 @@ export default {
       loading: true,
     };
   },
-  computed: {
-    ...mapGetters('contest', ['currentContest']),
-    contest() {
-      return this.currentContest;
-    }
-  },
   async mounted() {
     this.loadVersions();
   },
   methods: {
     async loadVersions() {
-      const contestId = this.$route.params.id;
+      const contestId = this.$route.params.contestId;
+
+      try {
+        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+          credentials: "include"
+        });
+        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
+        this.contest = await contestResponse.json();
+      } catch {
+        return;
+      }
 
       const start = new Date(this?.contest.startTime);
       const end =  new Date(this?.contest.endTime);
       const now = new Date();
-
-      console.log(start, end)
 
       if (now < start || now > end) {
         this.$router.replace('/access-denied-contest');
@@ -108,7 +109,7 @@ export default {
               credentials: "include",
               body: JSON.stringify({
                 contestVersionId: version.id,
-                contestId: this.$route.params.id
+                contestId: this.$route.params.contestId
               })
             }
           );
@@ -121,12 +122,10 @@ export default {
           if (!patchResponse.ok) {
             throw new Error("Ошибка регистрации на вариант");
           }
-
-          // Регистрация прошла успешно — переходим к задачам
-          this.$router.push(`/contest-version/${version.id}/tasks`);
+          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
         } else if (tasksResponse.ok) {
           // Есть доступ — просто переходим к задачам
-          this.$router.push(`/contest-version/${version.id}/tasks`);
+          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
         } else {
           throw new Error("Не удалось получить доступ к задачам варианта");
         }
