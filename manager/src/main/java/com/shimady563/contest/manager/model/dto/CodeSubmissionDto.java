@@ -24,12 +24,6 @@ public class CodeSubmissionDto {
     @NotNull(message = "contest version id cannot be null")
     private Long contestVersionId;
 
-    @NotNull(message = "start time cannot be null")
-    private LocalDateTime startTime;
-
-    @NotNull(message = "end time cannot be null")
-    private LocalDateTime endTime;
-
     @NotNull(message = "submitted at cannot be null")
     private LocalDateTime submittedAt;
 }
