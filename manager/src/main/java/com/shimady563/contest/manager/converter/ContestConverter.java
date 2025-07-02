@@ -29,7 +29,7 @@ public class ContestConverter {
         @Mapping(source = "group", target = "groupId")
         ContestResponseDto domain2Response(Contest contest);
 
-        default Long group2Id(Group group) {
+        default Long group2Long(Group group) {
             return group == null ? null : group.getId();
         }
     }

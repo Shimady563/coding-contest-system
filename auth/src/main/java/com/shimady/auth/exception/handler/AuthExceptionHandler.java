@@ -1,5 +1,6 @@
-package com.shimady.auth.exception;
+package com.shimady.auth.exception.handler;
 
+import com.shimady.auth.exception.AppError;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,9 +14,8 @@ public class AuthExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<AppError> handleJwtException(JwtException e) {
         log.error(e.getMessage());
-        return new ResponseEntity<>(
-                new AppError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()),
-                HttpStatus.UNAUTHORIZED
-        );
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new AppError(e.getMessage(), HttpStatus.UNAUTHORIZED.value()));
     }
 }
