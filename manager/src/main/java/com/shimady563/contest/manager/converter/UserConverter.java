@@ -20,11 +20,11 @@ public class UserConverter {
         @Mapping(source = "group", target = "groupName")
         UserResponseDto domain2Response(User user);
 
-        default Long group2Id(Group group) {
+        default Long group2Long(Group group) {
             return group == null ? null : group.getId();
         }
 
-        default String group2Name(Group group) {
+        default String group2String(Group group) {
             return group == null ? null : group.getName();
         }
     }

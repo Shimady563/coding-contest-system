@@ -1,11 +1,11 @@
-package com.shimady563.contest.manager.exception;
+package com.shimady563.contest.manager.exception.handler;
 
-import jakarta.validation.ConstraintViolation;
+import com.shimady563.contest.manager.converter.ViolationConverter;
+import com.shimady563.contest.manager.exception.ValidationError;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,45 +19,23 @@ public class ValidationExceptionHandler {
     public ResponseEntity<ValidationError> handleConstraintViolationException(ConstraintViolationException e) {
         List<ValidationError.Violation> violations = e.getConstraintViolations()
                 .stream()
-                .map(this::mapConstraintViolationToViolation)
+                .map(ViolationConverter::constraintViolation2Violation)
                 .toList();
         log.info("Validation errors: {}", violations);
-        return new ResponseEntity<>(
-                new ValidationError(
-                        violations,
-                        HttpStatus.BAD_REQUEST.value()
-                ),
-                HttpStatus.BAD_REQUEST
-        );
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ValidationError(violations, HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationError> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         List<ValidationError.Violation> violations = e.getBindingResult().getFieldErrors()
                 .stream()
-                .map(this::mapFieldErrorToViolation)
+                .map(ViolationConverter::fieldError2Violation)
                 .toList();
         log.info("Validation errors: {}", violations);
-        return new ResponseEntity<>(
-                new ValidationError(
-                        violations,
-                        HttpStatus.BAD_REQUEST.value()
-                ),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    private ValidationError.Violation mapConstraintViolationToViolation(ConstraintViolation<?> violation) {
-        return new ValidationError.Violation(
-                violation.getPropertyPath().toString(),
-                violation.getMessage()
-        );
-    }
-
-    private ValidationError.Violation mapFieldErrorToViolation(FieldError error) {
-        return new ValidationError.Violation(
-                error.getField(),
-                error.getDefaultMessage()
-        );
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ValidationError(violations, HttpStatus.BAD_REQUEST.value()));
     }
 }
