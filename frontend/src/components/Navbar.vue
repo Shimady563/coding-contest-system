@@ -4,10 +4,10 @@
       <router-link to="/" class="logo">🧠 Coding Contest</router-link>
 
       <ul class="nav-links" v-if="user">
-        <li v-if="user.role === 'student'">
+        <li v-if="user?.role === 'student'">
           <router-link class="links" to="/solve-contest">Контрольные</router-link>
         </li>
-        <li v-if="user.role === 'teacher'">
+        <li v-if="user?.role === 'teacher'">
           <router-link class="links" to="/manage-contests">Управление заданиями</router-link>
         </li>
         <li v-if="user.role === 'teacher'">
@@ -43,8 +43,12 @@ export default {
     };
   },
   async created() {
-    const userInfo = await getUserInfo();
-    this.user = userInfo;
+    try {
+      const userInfo = await getUserInfo();
+      this.user = userInfo;
+    } catch (e) {
+      this.user = null;
+    }
   },
   methods: {
     async logout() {

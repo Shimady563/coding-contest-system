@@ -4,11 +4,11 @@
       <h2>Вход в систему</h2>
       <div>
         <label>Email:</label>
-        <input type="email" v-model="email" required />
+        <input name="email" type="email" v-model="email" required autocomplete="email" />
       </div>
       <div>
         <label>Пароль:</label>
-        <input type="password" v-model="password" required />
+        <input name="current-password" type="password" v-model="password" required autocomplete="current-password" />
       </div>
       <button 
         type="submit" 
@@ -47,7 +47,7 @@ export default {
         const response = await fetch("http://localhost:8081/api/v1/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include", // <-- чтобы куки установились
+          credentials: "include",
           body: JSON.stringify({ email: this.email, password: this.password }),
         });
 
@@ -85,6 +85,7 @@ export default {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h2 {
@@ -156,5 +157,22 @@ p {
   font-size: 14px;
   margin-top: 10px;
   text-align: center;
+}
+
+form > div {
+  margin-bottom: 1rem;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

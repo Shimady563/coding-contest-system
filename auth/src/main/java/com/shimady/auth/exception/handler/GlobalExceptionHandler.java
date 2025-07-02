@@ -1,5 +1,7 @@
-package com.shimady.auth.exception;
+package com.shimady.auth.exception.handler;
 
+import com.shimady.auth.exception.AppError;
+import com.shimady.auth.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -67,6 +67,9 @@ public class EndToEndTests {
     @Value("${jwt.token.access.cookie.name}")
     private String tokenCookieName;
 
+    @Value("${kafka.topic.submission}")
+    public String submissionTopic;
+
     @LocalServerPort
     private Integer port;
 
@@ -133,7 +136,7 @@ public class EndToEndTests {
                 .statusCode(testCase.getStatusCode())
                 .extract()
                 .asString();
-        log.info(response);
+        log.info("Response: {}", response);
         assertResponse(testCase.responseBody, response);
     }
 
@@ -156,7 +159,7 @@ public class EndToEndTests {
                 records = consumer.poll(Duration.of(1, TimeUnit.SECONDS.toChronoUnit()));
             } while (records.isEmpty());
             String value = records.iterator().next().value();
-            log.info(kafkaTestCase.expectedMessage);
+            log.info("Kafka message: {}", value);
             assertResponse(kafkaTestCase.expectedMessage, value);
         }
     }
@@ -169,9 +172,9 @@ public class EndToEndTests {
         }
 
         if (expected.trim().startsWith("[")) {
-            JSONAssert.assertEquals(new JSONArray(expected), new JSONArray(actual), JSONCompareMode.LENIENT);
+            JSONAssert.assertEquals(new JSONArray(expected), new JSONArray(actual), JSONCompareMode.NON_EXTENSIBLE);
         } else {
-            JSONAssert.assertEquals(expected, actual, JSONCompareMode.LENIENT);
+            JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
         }
     }
 
@@ -201,6 +204,7 @@ public class EndToEndTests {
     }
 
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     private Map<String, Object> loadToMap(String path) {
         String raw = loadRaw(path);
         return StringUtils.hasText(raw) ? mapper.readValue(raw, HashMap.class) : Map.of();
@@ -237,11 +241,23 @@ public class EndToEndTests {
                 //contest controller
                 Arguments.of(
                         Named.of(
-                                "Getting contest by name",
+                                "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
                                         .method(Method.GET)
                                         .path("/contests")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestById")
+                                        .method(Method.GET)
+                                        .path("/contests")
+                                        .pathParams("/1")
                                         .statusCode(200)
                                         .build()
                         )
@@ -434,6 +450,18 @@ public class EndToEndTests {
                                         .build()
                         )
                 ),
+                Arguments.of(
+                        Named.of(
+                                "Getting solutions by task id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionsByTaskId")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.GET)
+                                        .path("/solutions/task")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
                 //submission controller
                 Arguments.of(
                         Named.of(
@@ -443,7 +471,21 @@ public class EndToEndTests {
                                         .method(Method.POST)
                                         .path("/submissions")
                                         .statusCode(202)
-                                        .resultingTopic("submissionTopic")
+                                        .resultingTopic(submissionTopic)
+                                        .build()
+                        )
+                ),
+                //user controller
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
+                                        .statusCode(204)
                                         .build()
                         )
                 )
@@ -455,12 +497,24 @@ public class EndToEndTests {
                 //contest controller
                 Arguments.of(
                         Named.of(
-                                "Getting contest by name",
+                                "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestById")
+                                        .method(Method.GET)
+                                        .path("/contests")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
                                         .build()
                         )
                 ),
@@ -583,12 +637,23 @@ public class EndToEndTests {
                                         .build()
                         )
                 ),
+                Arguments.of(
+                        Named.of(
+                                "Getting solutions by task id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getSolutionsByTaskId")
+                                        .method(Method.GET)
+                                        .path("/solutions/task")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
                 //submission controller
                 Arguments.of(
                         Named.of(
                                 "Submitting solution with invalid submission time",
                                 EndToEndTestCase.builder()
-                                        .filePathPostfix("/submissionTime/submitSolution")
+                                        .filePathPostfix("/submitSolution/submissionTime")
                                         .method(Method.POST)
                                         .path("/submissions")
                                         .statusCode(403)
@@ -599,7 +664,7 @@ public class EndToEndTests {
                         Named.of(
                                 "Submitting solution with user not registered for contest version",
                                 EndToEndTestCase.builder()
-                                        .filePathPostfix("/user/submitSolution")
+                                        .filePathPostfix("/submitSolution/user")
                                         .method(Method.POST)
                                         .path("/submissions")
                                         .statusCode(403)
@@ -610,9 +675,49 @@ public class EndToEndTests {
                         Named.of(
                                 "Submitting solution with task from other contest version",
                                 EndToEndTestCase.builder()
-                                        .filePathPostfix("/task/submitSolution")
+                                        .filePathPostfix("/submitSolution/task")
                                         .method(Method.POST)
                                         .path("/submissions")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                //user controller
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong user id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/user")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/3")
+                                        .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong contest version id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/contest-version")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Registering user for contest version with wrong contest id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/registerUserForContestVersion/contest")
+                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .method(Method.PATCH)
+                                        .path("/users/start")
+                                        .pathParams("/2")
                                         .statusCode(403)
                                         .build()
                         )

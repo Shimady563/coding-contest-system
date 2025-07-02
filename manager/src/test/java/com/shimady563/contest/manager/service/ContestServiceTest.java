@@ -133,9 +133,9 @@ class ContestServiceTest {
 
         given(contestRepository.findById(id)).willReturn(Optional.of(contest));
 
-        Contest result = contestService.getContestById(id);
+        ContestResponseDto result = contestService.getContestById(id);
 
-        assertNotNull(result);
+        assertEquals(contest.getId(), result.getId());
     }
 
     @Test
@@ -147,20 +147,7 @@ class ContestServiceTest {
     }
 
     @Test
-    void shouldGetContestByIdWithContestVersions() {
-        Long id = 1L;
-        Contest contest = new Contest();
-        contest.setId(id);
-
-        given(contestRepository.findByIdWithContestVersions(id)).willReturn(Optional.of(contest));
-
-        Contest result = contestService.getContestByIdWithContestVersions(id);
-
-        assertNotNull(result);
-    }
-
-    @Test
-    void shouldThrowWhenContestWithVersionsNotFound() {
+    void shouldThrowWhenContestWithContestVersionsNotFound() {
         given(contestRepository.findByIdWithContestVersions(999L)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,

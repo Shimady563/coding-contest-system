@@ -1,6 +1,6 @@
 <template>
   <div class="contest-versions-container">
-    <h1>Варианты контрольной</h1>
+    <h1>Варианты контрольной {{ contest?.name }}</h1>
 
     <div v-if="loading" class="loading">Загрузка...</div>
 
@@ -11,9 +11,9 @@
     <ul v-else class="version-list">
       <li v-for="version in versions" :key="version.id" class="version-item">
         <div class="version-info">
-          <router-link :to="`/contest-version/${version.id}/tasks`" class="version-link">
+          <a href="#" class="version-link" @click.prevent="confirmStart(version)">
             {{ version.name }}
-          </router-link>
+          </a>
         </div>
       </li>
     </ul>
@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { getUserInfo } from "../js/auth";
+
 export default {
   name: "ContestVersionsPage",
   data() {
@@ -30,30 +32,109 @@ export default {
     };
   },
   async mounted() {
-    const contestId = this.$route.params.id;
+    this.loadVersions();
+  },
+  methods: {
+    async loadVersions() {
+      const contestId = this.$route.params.contestId;
 
-    if (!contestId) {
-      console.error("Не удалось получить contestId или токен.");
-      this.loading = false;
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`, {
-       credentials: "include"
-      });
-
-      if (!response.ok) {
-        throw new Error("Ошибка загрузки вариантов");
+      try {
+        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+          credentials: "include"
+        });
+        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
+        this.contest = await contestResponse.json();
+      } catch {
+        return;
       }
 
-      this.versions = await response.json();
-    } catch (error) {
-      console.error("Ошибка:", error.message);
-    } finally {
-      this.loading = false;
+      const start = new Date(this?.contest.startTime);
+      const end =  new Date(this?.contest.endTime);
+      const now = new Date();
+
+      if (now < start || now > end) {
+        this.$router.replace('/access-denied-contest');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`,
+          { credentials: "include" }
+        );
+
+        if (response.status === 403) {
+          alert("Вы уже зарегистрированы на вариант.");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Ошибка загрузки вариантов");
+        }
+
+        this.versions = await response.json();
+      } catch (error) {
+        console.error("Ошибка:", error.message);
+      } finally {
+        this.loading = false;
+      }
+    },
+    async confirmStart(version) {
+      const userInfo = await getUserInfo();
+      try {
+        // Сначала проверяем доступ к задачам варианта
+        const tasksResponse = await fetch(
+          `http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${version.id}`,
+          {
+            credentials: "include"
+          }
+        );
+
+        if (tasksResponse.status === 403) {
+          // Нет доступа — надо регистрироваться
+          const confirmed = confirm(
+            `Вы точно уверены, что хотите начать с вариантом "${version.name}"?\nПосле выбора смена будет невозможна.`
+          );
+
+          if (!confirmed) return;
+
+          // Отправляем PATCH-запрос на регистрацию
+          const patchResponse = await fetch(
+            `http://localhost:8080/api/v1/users/start/${userInfo.id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                contestVersionId: version.id,
+                contestId: this.$route.params.contestId
+              })
+            }
+          );
+
+          if (patchResponse.status === 403) {
+            alert("Вы уже выбрали вариант и не можете сменить его.");
+            return;
+          }
+
+          if (!patchResponse.ok) {
+            throw new Error("Ошибка регистрации на вариант");
+          }
+          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
+        } else if (tasksResponse.ok) {
+          // Есть доступ — просто переходим к задачам
+          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
+        } else {
+          throw new Error("Не удалось получить доступ к задачам варианта");
+        }
+      } catch (err) {
+        console.error("Ошибка при обработке варианта:", err);
+        alert("Произошла ошибка. Попробуйте позже.");
+      }
     }
-  },
+  }
 };
 </script>
 

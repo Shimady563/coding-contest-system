@@ -11,7 +11,11 @@
     <ul v-else class="contest-list">
       <li v-for="contest in contests" :key="contest.id" class="contest-item">
         <div class="contest-info">
-          <router-link :to="`/contest/${contest.id}`" class="contest-link">
+          <router-link
+            :to="`/contest/${contest.id}`"
+            class="contest-link"
+            @click.native="selectContest(contest)"
+          >
             {{ contest.name }}
           </router-link>
           <p class="description">{{ contest.description }}</p>
@@ -19,14 +23,16 @@
             🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
           </p>
         </div>
-        <span class="status">
+        <span
+          class="status"
+          :class="getStatusClass(getContestStatus(contest.startTime, contest.endTime))"
+        >
           Статус: {{ getContestStatus(contest.startTime, contest.endTime) }}
         </span>
       </li>
     </ul>
   </div>
 </template>
-
 
 <script>
 import { getGroupIdForCurrentUser } from "@/js/auth";
@@ -84,6 +90,18 @@ export default {
         minute: "2-digit",
       });
     },
+    getStatusClass(status) {
+      switch (status) {
+        case "Ожидается":
+          return "status-upcoming";
+        case "Активна":
+          return "status-active";
+        case "Завершена":
+          return "status-finished";
+        default:
+          return "";
+      }
+    }
   },
 };
 </script>
@@ -145,8 +163,21 @@ h1 {
 
 .status {
   font-size: 14px;
-  color: #555;
+  font-weight: 500;
 }
+
+.status-upcoming {
+  color: #f39c12; /* оранжевый */
+}
+
+.status-active {
+  color: #27ae60; /* зелёный */
+}
+
+.status-finished {
+  color: #c0392b; /* красный */
+}
+
 
 .contest-info {
   flex: 1;
@@ -160,5 +191,12 @@ h1 {
 .time {
   font-size: 14px;
   color: #999;
+}
+
+.contest-name-disabled {
+  font-size: 18px;
+  color: #aaa;
+  font-weight: 600;
+  cursor: not-allowed;
 }
 </style>

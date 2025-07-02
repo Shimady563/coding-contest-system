@@ -1,11 +1,14 @@
 package com.shimady563.contest.manager.service;
 
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
+import com.shimady563.contest.manager.model.Contest;
 import com.shimady563.contest.manager.model.ContestVersion;
 import com.shimady563.contest.manager.model.Task;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.CodeSubmission;
 import com.shimady563.contest.manager.model.dto.CodeSubmissionDto;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,6 +25,7 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionServiceTest {
+    private final String topic = "submissionTopic";
 
     @Mock
     private UserService userService;
@@ -37,6 +42,14 @@ class SubmissionServiceTest {
     @InjectMocks
     private SubmissionService submissionService;
 
+    @BeforeEach
+    @SneakyThrows
+    public void setUp() {
+        Field field = submissionService.getClass().getDeclaredField("topic");
+        field.setAccessible(true);
+        field.set(submissionService, topic);
+    }
+
     @Test
     void shouldSubmitValidSolution() {
         Long userId = 1L;
@@ -46,8 +59,6 @@ class SubmissionServiceTest {
         dto.setUserId(userId);
         dto.setContestVersionId(contestVersionId);
         dto.setSubmittedAt(LocalDateTime.now());
-        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
-        dto.setEndTime(LocalDateTime.now().plusMinutes(10));
         dto.setTaskId(taskId);
 
         User user = new User();
@@ -60,6 +71,11 @@ class SubmissionServiceTest {
         contestVersion.setId(contestVersionId);
         contestVersion.addTask(task);
 
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().minusMinutes(10));
+        contest.setEndTime(LocalDateTime.now().plusMinutes(10));
+
+        contestVersion.setContest(contest);
         user.addContestVersion(contestVersion);
 
         CodeSubmission submission = new CodeSubmission();
@@ -73,21 +89,31 @@ class SubmissionServiceTest {
 
         submissionService.submitSolution(dto);
 
-        then(kafkaTemplate).should().send("submissionTopic", submission);
+        then(kafkaTemplate).should().send(topic, submission);
     }
 
     @Test
     void shouldThrowIfSubmittedBeforeStartTime() {
+        Long contestVersionId = 1L;
         CodeSubmissionDto dto = new CodeSubmissionDto();
-        dto.setSubmittedAt(LocalDateTime.now().minusMinutes(15));
-        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
-        dto.setEndTime(LocalDateTime.now().plusMinutes(10));
+        dto.setContestVersionId(contestVersionId);
+        dto.setSubmittedAt(LocalDateTime.now());
+
+        ContestVersion contestVersion = new ContestVersion();
+        contestVersion.setId(contestVersionId);
+
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().plusMinutes(10));
+        contest.setEndTime(LocalDateTime.now().plusMinutes(20));
+
+        contestVersion.setContest(contest);
+
+        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
                 .hasMessageContaining("Submission was sent after or before");
 
-        then(contestVersionService).shouldHaveNoInteractions();
         then(userService).shouldHaveNoInteractions();
         then(kafkaTemplate).shouldHaveNoInteractions();
         then(taskService).shouldHaveNoInteractions();
@@ -95,16 +121,26 @@ class SubmissionServiceTest {
 
     @Test
     void shouldThrowIfSubmittedAfterEndTime() {
+        Long contestVersionId = 1L;
         CodeSubmissionDto dto = new CodeSubmissionDto();
-        dto.setSubmittedAt(LocalDateTime.now().plusMinutes(15));
-        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
-        dto.setEndTime(LocalDateTime.now().plusMinutes(5));
+        dto.setContestVersionId(contestVersionId);
+        dto.setSubmittedAt(LocalDateTime.now());
+
+        ContestVersion contestVersion = new ContestVersion();
+        contestVersion.setId(contestVersionId);
+
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().minusMinutes(20));
+        contest.setEndTime(LocalDateTime.now().minusMinutes(10));
+
+        contestVersion.setContest(contest);
+
+        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
                 .hasMessageContaining("Submission was sent after or before");
 
-        then(contestVersionService).shouldHaveNoInteractions();
         then(userService).shouldHaveNoInteractions();
         then(kafkaTemplate).shouldHaveNoInteractions();
         then(taskService).shouldHaveNoInteractions();
@@ -119,8 +155,6 @@ class SubmissionServiceTest {
         dto.setUserId(userId);
         dto.setContestVersionId(contestVersionId);
         dto.setSubmittedAt(LocalDateTime.now());
-        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
-        dto.setEndTime(LocalDateTime.now().plusMinutes(10));
         dto.setTaskId(taskId);
 
         User user = new User();
@@ -132,6 +166,12 @@ class SubmissionServiceTest {
         ContestVersion contestVersion = new ContestVersion();
         contestVersion.setId(contestVersionId);
         contestVersion.addTask(task);
+
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().minusMinutes(10));
+        contest.setEndTime(LocalDateTime.now().plusMinutes(10));
+
+        contestVersion.setContest(contest);
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
@@ -153,8 +193,6 @@ class SubmissionServiceTest {
         dto.setUserId(userId);
         dto.setContestVersionId(contestVersionId);
         dto.setSubmittedAt(LocalDateTime.now());
-        dto.setStartTime(LocalDateTime.now().minusMinutes(10));
-        dto.setEndTime(LocalDateTime.now().plusMinutes(10));
         dto.setTaskId(taskId);
 
         User user = new User();
@@ -165,6 +203,12 @@ class SubmissionServiceTest {
 
         ContestVersion contestVersion = new ContestVersion();
         contestVersion.setId(contestVersionId);
+
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().minusMinutes(10));
+        contest.setEndTime(LocalDateTime.now().plusMinutes(10));
+
+        contestVersion.setContest(contest);
 
         user.addContestVersion(contestVersion);
 

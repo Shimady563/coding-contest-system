@@ -4,7 +4,6 @@
       <div class="loader"></div>
     </div>
 
-    <!-- Контент -->
     <template v-else>
       <!-- Гостевой доступ -->
       <header class="header" v-if="!user">

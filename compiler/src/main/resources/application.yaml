@@ -1,17 +1,8 @@
 spring:
   application:
     name: Compiler
-  profiles:
-    active: local
   datasource:
-    username: postgres
-    password: postgres
     driver-class-name: org.postgresql.Driver
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
   kafka:
     consumer:
       group-id: compiler
@@ -21,7 +12,7 @@ spring:
         spring:
           json:
             trusted:
-              packages: "*"
+              packages: com.shimady563.contest.manager.model
             type:
               mapping: com.shimady563.contest.manager.model.dto.CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
 kafka:

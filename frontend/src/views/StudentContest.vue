@@ -18,6 +18,7 @@ import TaskDescription from "../components/TaskDescription.vue";
 import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
+import { getUserInfo } from "../js/auth";
 
 export default {
   components: {
@@ -31,43 +32,12 @@ export default {
       taskData: null,
       tasksList: [],
       loadingTasks: false,
+      contest: null
     };
-  },
-  async created() {
-    const taskId = this.$route.params.taskId;
-    const versionId = this.$route.query.versionId;
-
-    if (!taskId || !versionId) {
-      console.error("Не удалось получить необходимые параметры.");
-      return;
-    }
-
-    try {
-      this.loadingTasks = true;
-      const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
-        credentials: "include",
-      });
-      const result = await response.json();
-      this.tasksList = result ?? [];
-
-      const task = this.tasksList.find(t => t.id === parseInt(taskId));
-      if (task) {
-        this.taskData = task;
-      } else {
-        const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
-          credentials: "include",
-        });
-        this.taskData = await singleTaskResponse.json();
-      }
-    } catch (e) {
-      console.error("Ошибка при загрузке задания:", e.message);
-    } finally {
-      this.loadingTasks = false;
-    }
   },
   computed: {
     currentIndex() {
-      return this.tasksList.findIndex(task => task.id === this.taskData?.id);
+      return this.tasksList.findIndex(task => task.id === Number(this.taskData?.id));
     },
     prevTask() {
       if (this.currentIndex > 0) {
@@ -82,30 +52,88 @@ export default {
       return null;
     },
   },
+  watch: {
+    '$route.params.taskId': {
+      immediate: true,
+      handler() {
+        this.loadTask();
+      }
+    }
+  },
   methods: {
+    async loadTask() {
+      const taskId = this.$route.params.taskId;
+      const versionId = this.$route.params.versionId;
+      const contestId = this.$route.params.contestId;
+
+      try {
+        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+          credentials: "include"
+        });
+        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
+        this.contest = await contestResponse.json();
+      } catch {
+        return;
+      }
+
+      const start = new Date(this?.contest.startTime);
+      const end =  new Date(this?.contest.endTime);
+      const now = new Date();
+
+      if (now < start || now > end) {
+        this.$router.replace('/access-denied-contest');
+        return;
+      }
+
+      if (!taskId || !versionId) {
+        console.error("Не удалось получить необходимые параметры.");
+        return;
+      }
+
+      try {
+        this.loadingTasks = true;
+        const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
+          credentials: "include",
+        });
+        const result = await response.json();
+        this.tasksList = result ?? [];
+
+        const task = this.tasksList.find(t => t.id === parseInt(taskId));
+        if (task) {
+          this.taskData = task;
+        } else {
+          const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+            credentials: "include",
+          });
+          this.taskData = await singleTaskResponse.json();
+        }
+      } catch (e) {
+        console.error("Ошибка при загрузке задания:", e.message);
+      } finally {
+        this.loadingTasks = false;
+      }
+    },
     async sendCode() {
       const codeEditor = this.$refs.codeEditor;
       if (!codeEditor || !codeEditor.editor) return;
 
-      const code = codeEditor.editor.getValue();
-
-      // Получение пользователя
-      const userInfoResponse = await fetch("http://localhost:8080/api/v1/auth/me", {
-        credentials: "include",
-      });
-      const userInfo = await userInfoResponse.json();
-
-      const payload = {
-        code,
-        taskId: this.taskData.id,
-        userId: userInfo.id,
-        contestVersionId: parseInt(this.$route.query.versionId),
-        startTime: this.taskData?.startTime ?? new Date().toISOString(),
-        endTime: this.taskData?.endTime ?? new Date().toISOString(),
-        submittedAt: new Date().toISOString(),
-      };
+      const code = codeEditor.editor.getValue().trim();
+      if (!code) {
+        this.$root.notify("Код не может быть пустым", "warning");
+        return;
+      }
 
       try {
+        const userInfo = await getUserInfo();
+
+        const payload = {
+          code,
+          taskId: this.taskData.id,
+          userId: userInfo.id,
+          contestVersionId: parseInt(this.$route.params.versionId),
+          submittedAt: new Date().toISOString(),
+        };
+
         const response = await fetch("http://localhost:8080/api/v1/submissions", {
           method: "POST",
           credentials: "include",
@@ -116,23 +144,39 @@ export default {
         });
 
         if (response.ok) {
-          const submission = await response.json();
-          if (submission?.id) {
-            this.$refs.outputResults.fetchResults(submission.id);
-          }
+          this.$root.notify("Код успешно отправлен", "success");
+            
+          this.$refs.outputResults.fetchResults();
+          
+          let count = 0;
+          const interval = setInterval(() => {
+            this.$refs.outputResults.fetchResults();
+            count++;
+            if (count >= 5) clearInterval(interval); 
+          }, 2000);
         } else {
-          console.error("Ошибка при отправке кода:", await response.text());
+          const errorText = await response.text();
+          if (response.status === 400) {
+            this.$root.notify("Контрольная завершена. Отправка запрещена.", "error");
+          } else {
+            this.$root.notify("Не удалось отправить код: " + errorText, "error");
+          }
+          console.error("Ошибка при отправке кода:", errorText);
         }
       } catch (e) {
-        console.error("Ошибка при отправке кода:", e);
+        console.error("Ошибка:", e);
+        this.$root.notify("Произошла ошибка при отправке кода", "error");
       }
     },
     goToPrevTask() {
       if (this.prevTask) {
         this.$router.push({
           name: 'StudentContest',
-          params: { taskId: this.prevTask.id },
-          query: { versionId: this.$route.query.versionId },
+          params: {
+            contestId: this.$route.params.contestId,
+            versionId: this.$route.params.versionId,
+            taskId: this.prevTask.id,
+          },
         });
       }
     },
@@ -140,8 +184,11 @@ export default {
       if (this.nextTask) {
         this.$router.push({
           name: 'StudentContest',
-          params: { taskId: this.nextTask.id },
-          query: { versionId: this.$route.query.versionId },
+          params: {
+            contestId: this.$route.params.contestId,
+            versionId: this.$route.params.versionId,
+            taskId: this.nextTask.id,
+          },
         });
       }
     },
@@ -155,7 +202,10 @@ export default {
   flex-direction: column;
   gap: 20px;
   border-radius: 8px;
-  background: linear-gradient(to right, #dfe9f3, #ffffff);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  justify-content: space-between;
 }
 
 button {

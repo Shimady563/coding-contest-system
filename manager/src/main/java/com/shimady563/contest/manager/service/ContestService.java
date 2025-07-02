@@ -24,10 +24,15 @@ public class ContestService {
     private final GroupService groupService;
     private final ContestRepository contestRepository;
 
-    protected Contest getContestById(Long id) {
+    protected Contest getContestByIdInternal(Long id) {
         log.info("Getting contest by id: {}", id);
         return contestRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contest with id: " + id + " not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public ContestResponseDto getContestById(Long id) {
+        return ContestConverter.domain2Response(getContestByIdInternal(id));
     }
 
     @Transactional(readOnly = true)
@@ -49,7 +54,7 @@ public class ContestService {
     @Transactional
     public void updateContestById(Long id, ContestRequestDto request) {
         log.info("Updating contest with id: {}, request: {}", id, request);
-        Contest oldContest = getContestById(id);
+        Contest oldContest = getContestByIdInternal(id);
 
         if (!request.getGroupId().equals(oldContest.getGroup().getId())) {
             Group group = groupService.getGroupById(request.getGroupId());

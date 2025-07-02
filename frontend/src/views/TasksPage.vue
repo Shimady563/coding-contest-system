@@ -25,10 +25,32 @@ export default {
     return {
       tasks: [],
       loading: true,
+      contest: null
     };
   },
   async mounted() {
-    const versionId = this.$route.params.id;
+    const versionId = this.$route.params.versionId;
+
+    const contestId = this.$route.params.contestId;
+
+    try {
+      const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+        credentials: "include"
+      });
+      if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
+      this.contest = await contestResponse.json();
+    } catch {
+      return;
+    }
+
+    const start = new Date(this?.contest.startTime);
+    const end =  new Date(this?.contest.endTime);
+    const now = new Date();
+
+    if (now < start || now > end) {
+      this.$router.replace('/access-denied-contest');
+       return;
+    }
 
     try {
       const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {

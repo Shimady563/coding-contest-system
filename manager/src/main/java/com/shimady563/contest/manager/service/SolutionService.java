@@ -4,6 +4,8 @@ import com.shimady563.contest.manager.converter.SolutionConverter;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Solution;
 import com.shimady563.contest.manager.model.Status;
+import com.shimady563.contest.manager.model.Task;
+import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.SolutionResponseDto;
 import com.shimady563.contest.manager.repository.SolutionRepository;
 import com.shimady563.contest.manager.specification.SolutionSpecification;
@@ -24,6 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SolutionService {
     private final SolutionRepository solutionRepository;
+    private final UserService userService;
+    private final TaskService taskService;
 
     @Transactional(readOnly = true)
     public Page<SolutionResponseDto> searchForSolutions(Status status, Long userId, Long contestId, LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageRequest) {
@@ -74,5 +78,15 @@ public class SolutionService {
         return solutionRepository.findById(id)
                 .map(SolutionConverter::domain2Response)
                 .orElseThrow(() -> new ResourceNotFoundException("Solution with id: " + id + " not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolutionResponseDto> getSolutionsByTaskId(Long taskId) {
+        log.info("Getting solutions for current user with task id: {}", taskId);
+        User user = userService.getCurrentUser();
+        Task task = taskService.getTaskById(taskId);
+        return solutionRepository.findByUserAndTask(user, task).stream()
+                .map(SolutionConverter::domain2Response)
+                .toList();
     }
 }
