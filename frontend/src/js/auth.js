@@ -2,15 +2,15 @@ export async function getUserInfo() {
   try {
     const res = await fetch("http://localhost:8081/api/v1/auth/me", {
       method: "GET",
-      credentials: "include", // ВАЖНО для отправки cookie
+      credentials: "include",
     });
 
     if (!res.ok) {
-      if (res.status === 401) return null;
-      throw new Error("Не удалось получить пользователя");
+      return null;
     }
 
     const data = await res.json();
+
     const role = data.groupName === "Teacher" ? "teacher" : "student";
 
     return {
@@ -23,7 +23,6 @@ export async function getUserInfo() {
       role: role,
     };
   } catch (err) {
-    console.error("Ошибка получения информации о пользователе:", err);
     return null;
   }
 }
@@ -68,7 +67,7 @@ export async function logoutUser() {
   try {
     const res = await fetch("http://localhost:8081/api/v1/auth/logout", {
       method: "POST",
-      credentials: "include", // важно для удаления cookie
+      credentials: "include",
     });
 
     if (!res.ok) {

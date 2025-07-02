@@ -15,12 +15,12 @@
 
       <div>
         <label>Email:</label>
-        <input type="email" v-model="email" required />
+        <input type="email" v-model="email" required autocomplete="email" />
       </div>
 
       <div>
         <label>Пароль:</label>
-        <input type="password" v-model="password" required />
+        <input type="password" v-model="password" required autocomplete="new-password" />
         <small v-if="password && !isPasswordValid" class="error-message">
           Пароль должен содержать минимум 8 символов, одну заглавную, одну строчную букву, цифру и спецсимвол
         </small>
@@ -28,7 +28,7 @@
 
       <div>
         <label>Повторите пароль:</label>
-        <input type="password" v-model="confirmPassword" required />
+        <input type="password" v-model="confirmPassword" required autocomplete="new-password" />
         <small v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
           Пароли не совпадают
         </small>
@@ -152,6 +152,7 @@ export default {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h2 {
@@ -173,9 +174,10 @@ label {
 input,
 select {
   width: 100%;
-  padding: 10px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  box-sizing: border-box;
 }
 
 button {
@@ -221,5 +223,22 @@ p {
   color: red;
   font-size: 14px;
   margin-top: 8px;
+}
+
+form > div {
+  margin-bottom: 1rem;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>
