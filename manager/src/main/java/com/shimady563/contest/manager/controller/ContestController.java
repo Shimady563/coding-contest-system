@@ -19,6 +19,12 @@ import java.util.List;
 public class ContestController {
     private final ContestService contestService;
 
+    @GetMapping("/{id}")
+    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
+    public ContestResponseDto getContestById(@PathVariable Long id) {
+        return contestService.getContestById(id);
+    }
+
     @GetMapping("")
     @Secured({"ROLE_TEACHER"})
     public Page<ContestResponseDto> getContestsByName(

@@ -92,7 +92,7 @@ class ContestVersionServiceTest {
         Task task2 = new Task();
         task1.setId(request.getTaskIds().get(1));
 
-        given(contestService.getContestById(contestId)).willReturn(contest);
+        given(contestService.getContestByIdInternal(contestId)).willReturn(contest);
         given(taskService.getTasksByIds(List.of(101L, 102L))).willReturn(List.of(task1, task2));
 
         contestVersionService.createContestVersion(request);
@@ -107,7 +107,7 @@ class ContestVersionServiceTest {
         ContestVersionResponseDto dto = new ContestVersionResponseDto();
         dto.setTaskIds(List.of());
 
-        given(contestService.getContestById(1L)).willReturn(contest);
+        given(contestService.getContestByIdInternal(1L)).willReturn(contest);
         given(contestVersionRepository.findByContest(contest)).willReturn(List.of(contestVersion));
 
         List<ContestVersionResponseDto> result = contestVersionService.getContestVersionsByContestId(1L);

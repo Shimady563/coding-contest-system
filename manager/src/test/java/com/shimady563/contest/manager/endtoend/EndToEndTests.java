@@ -241,11 +241,23 @@ public class EndToEndTests {
                 //contest controller
                 Arguments.of(
                         Named.of(
-                                "Getting contest by name",
+                                "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
                                         .method(Method.GET)
                                         .path("/contests")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestById")
+                                        .method(Method.GET)
+                                        .path("/contests")
+                                        .pathParams("/1")
                                         .statusCode(200)
                                         .build()
                         )
@@ -485,12 +497,24 @@ public class EndToEndTests {
                 //contest controller
                 Arguments.of(
                         Named.of(
-                                "Getting contest by name",
+                                "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
                                         .method(Method.GET)
                                         .path("/contests")
                                         .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting contest by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getContestById")
+                                        .method(Method.GET)
+                                        .path("/contests")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
                                         .build()
                         )
                 ),
