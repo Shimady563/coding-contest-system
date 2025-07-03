@@ -77,7 +77,7 @@ export default {
   align-items: center;
   min-height: 90vh;
   padding: 20px;
-  }
+}
 
 .header {
   text-align: center;
@@ -87,7 +87,7 @@ export default {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   max-width: 700px;
   width: 100%;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -189,8 +189,14 @@ h1 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
 @media (max-width: 600px) {

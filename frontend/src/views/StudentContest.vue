@@ -206,6 +206,7 @@ export default {
   margin: 0 auto;
   padding: 0 24px;
   justify-content: space-between;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 button {
@@ -248,4 +249,14 @@ button span {
   cursor: not-allowed;
 }
 
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
 </style>

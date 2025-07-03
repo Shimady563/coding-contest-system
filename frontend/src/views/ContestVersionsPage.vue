@@ -146,6 +146,7 @@ export default {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -200,4 +201,14 @@ h1 {
   text-decoration: underline;
 }
 
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
 </style>

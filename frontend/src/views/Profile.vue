@@ -69,6 +69,7 @@ export default {
   width: 100%;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .profile-card:hover {
@@ -127,5 +128,16 @@ h2 {
   text-align: center;
   font-size: 18px;
   color: #555;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

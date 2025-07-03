@@ -281,6 +281,7 @@ export default {
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .title {
@@ -394,5 +395,16 @@ textarea:focus {
 
 .btn-secondary:hover {
   background-color: #3b82f6;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

@@ -220,12 +220,14 @@ h1 {
 }
 
 .card {
+  max-width: 900px;
   background: #fff;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   overflow: hidden;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .form-group {
@@ -341,9 +343,21 @@ textarea {
 .fade-leave-active {
   transition: all 0.4s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

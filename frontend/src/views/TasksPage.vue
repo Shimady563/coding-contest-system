@@ -92,6 +92,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -144,5 +145,16 @@ h1 {
 .item-description {
   font-size: 14px;
   color: #888;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>
