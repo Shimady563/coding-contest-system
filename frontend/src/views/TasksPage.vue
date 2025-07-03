@@ -128,11 +128,17 @@ h1 {
   transition: background-color 0.2s ease;
   text-align: left;
   cursor: pointer;
+  transition: transform 0.25s ease, 
+  box-shadow 0.25s ease, 
+  background-color 0.25s ease, 
+  color 0.25s ease;
 }
 
 .task-link:hover {
   background-color: #e2e6ed;
   color: #1a73e8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .item-title {
