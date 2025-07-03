@@ -4,10 +4,16 @@
       <div class="container">
         <router-link to="/" class="logo">🧠 Coding Contest</router-link>
 
-        <div v-if="user" class="dropdown-wrapper">
-          <button class="dropdown-toggle" @mouseenter="openDropdown" @mouseleave="closeDropdown">
-            👤 {{ user.role === 'teacher' ? 'Преподаватель' : 'Студент' }} ▾
-          </button>
+        <div v-if="user" class="menu-wrapper">
+          <div class="hamburger-container">
+            <button class="hamburger-toggle" 
+                    :class="{ 'on': isDropdownOpen }"
+                    @click="toggleDropdown"
+                    @mouseenter="openDropdown"
+                    @mouseleave="closeDropdown">
+              <span></span>
+            </button>
+          </div>
           
           <transition name="fade">
             <ul class="dropdown-menu" v-show="isDropdownOpen" 
@@ -68,6 +74,9 @@ export default {
         this.user = null;
         this.$router.push("/login");
       }
+    },
+    toggleDropdown() {
+      this.isDropdownOpen = !this.isDropdownOpen;
     },
     openDropdown() {
       this.isDropdownOpen = true;
@@ -148,35 +157,75 @@ export default {
   background: #1e63c5;
 }
 
-.dropdown-wrapper {
+.menu-wrapper {
   position: relative;
-  display: inline-block;
+  display: flex;
+  justify-content: flex-end;
 }
 
-.dropdown-toggle {
-  cursor: pointer;
-  font-size: 14px;
-  padding: 6px 12px;
-  color: #333;
-  background: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 50px;
+.hamburger-container {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.2s;
+  justify-content: center;
+  width: 40px; 
+}
+
+.hamburger-toggle {
+  display: block;
+  width: 28px;
+  height: 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   position: relative;
   z-index: 101;
 }
 
-.dropdown-toggle:hover {
-  background: #eaeaea;
+.hamburger-toggle span:after,
+.hamburger-toggle span:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -9px;
+  width: 100%;
+  height: 3px;
+  background-color: #333;
+  transition: all 0.3s;
+  backface-visibility: hidden;
+  border-radius: 2px;
+}
+
+.hamburger-toggle span:after {
+  top: 9px;
+}
+
+.hamburger-toggle span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 3px;
+  background-color: #333; 
+  transition: all 0.3s;
+  backface-visibility: hidden;
+  border-radius: 2px;
+}
+
+.hamburger-toggle.on span {
+  background-color: transparent;
+}
+.hamburger-toggle.on span:before {
+  transform: rotate(45deg) translate(5px, 5px);
+  background-color: #2f80ed; 
+}
+.hamburger-toggle.on span:after {
+  transform: rotate(-45deg) translate(7px, -8px);
+  background-color: #2f80ed; 
 }
 
 .dropdown-menu {
   position: absolute;
-  right: 0;
-  top: calc(100% + 5px);
+  right: -10px; 
+  top: calc(100% + 12px);
   background: white;
   border: 1px solid #ddd;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -186,6 +235,29 @@ export default {
   z-index: 1000;
   list-style: none;
   margin: 0;
+}
+
+.dropdown-menu:before {
+  position: absolute;
+  top: -11px;
+  right: 18px;
+  content: "";
+  display: block;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 11px solid #ddd;
+  z-index: -1;
+}
+
+.dropdown-menu:after {
+  position: absolute;
+  top: -10px;
+  right: 19px;
+  content: "";
+  display: block;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
 }
 
 .dropdown-menu li {
