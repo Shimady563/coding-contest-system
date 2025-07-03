@@ -146,12 +146,12 @@ h1 {
 }
 
 .btn.primary {
-  background-color: #3498db;
+  background-color: #2f80ed;
   color: white;
 }
 
 .btn.primary:hover {
-  background-color: #2980b9;
+  background-color: #1e63c5;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(41, 128, 185, 0.3);
 }

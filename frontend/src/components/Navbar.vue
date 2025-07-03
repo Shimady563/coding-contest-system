@@ -38,10 +38,10 @@
 
         <ul class="nav-links" v-else>
           <li>
-            <router-link to="/login" class="btn btn-light">Войти</router-link>
+            <router-link to="/login" class="btn btn-dark">Войти</router-link>
           </li>
           <li>
-            <router-link to="/register" class="btn btn-dark">Регистрация</router-link>
+            <router-link to="/register" class="btn btn-light">Регистрация</router-link>
           </li>
         </ul>
       </div>
