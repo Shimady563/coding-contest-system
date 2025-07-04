@@ -32,7 +32,9 @@ const routes = [
   { path: '/contest/:contestId/contest-version/:versionId/task/:taskId', component: StudentContest, name: 'StudentContest' },
   { path: '/manage-students', component: ManageStudents, meta: { requiresAuth: true, requiresTeacher: true } },
   { path: '/access-denied', component: () => import('@/views/AccessDenied.vue') },
-  { path: '/access-denied-contest', name: 'AccessDenied', component: () => import('@/views/AccessDeniedPage.vue') }  
+  { path: '/access-denied-contest', name: 'AccessDenied', component: () => import('@/views/AccessDeniedPage.vue') },
+  { path: '/student-results', component: () => import('@/views/StudentSolutionsPage.vue'),
+  }  
 ];
 
 const router = createRouter({
