@@ -120,7 +120,6 @@ export default {
         console.error("Ошибка при загрузке групп:", error);
       }
     },
-
     async fetchTasks() {
       try {
         const response = await fetch('http://localhost:8080/api/v1/tasks', {
@@ -138,7 +137,6 @@ export default {
         console.error("Ошибка при получении заданий:", error.message);
       }
     },
-
     validateForm() {
       this.submitted = true;
       
@@ -180,7 +178,6 @@ export default {
 
       return true;
     },
-
     addVariant() {
       this.variants.push({
         name: `Вариант ${this.nextVariantNumber}`,
@@ -188,15 +185,12 @@ export default {
       });
       this.nextVariantNumber++;
     },
-
     updateVariant(index, updatedVariant) {
       this.variants.splice(index, 1, updatedVariant);
     },
-
     removeVariant(index) {
       this.variants.splice(index, 1);
     },
-
     async saveControlWork() {
       if (!this.validateForm()) return;
       
@@ -208,8 +202,8 @@ export default {
           name: this.controlWork.name,
           description: this.controlWork.description,
           groupId: Number(this.controlWork.group), 
-          startTime: new Date(this.controlWork.startTime).toISOString(),
-          endTime: new Date(this.controlWork.endTime).toISOString(),
+          startTime: this.controlWork.startTime,
+          endTime: this.controlWork.endTime,
         };
 
         const contestResponse = await fetch('http://localhost:8080/api/v1/contests', {
