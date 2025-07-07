@@ -95,7 +95,8 @@ public class UserService implements UserDetailsService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        if (!user.getGroup().getId().equals(request.getGroupId())) {
+        if (user.getGroup() != null
+                && !user.getGroup().getId().equals(request.getGroupId())) {
             Group newGroup = groupService.getGroupById(request.getGroupId());
             user.setGroup(newGroup);
         }
@@ -106,7 +107,7 @@ public class UserService implements UserDetailsService {
     public void deleteUserById(Long id) {
         log.info("Deleting user with id: {}", id);
         if (getCurrentUser().getId().equals(id)) {
-            throw new DataConflictException("User cannot delete itself");
+            throw new DataConflictException("User cannot delete himself");
         }
         userRepository.deleteById(id);
     }

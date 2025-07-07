@@ -1,0 +1,18 @@
+{
+  "content": [
+    {
+      "id": 2,
+      "firstName": "Анна",
+      "lastName": "Сидорова",
+      "email": "anna.sidorova@example.com",
+      "groupName": "15/1",
+      "groupId": "15/1"
+    }
+  ],
+  "page": {
+    "size": 3,
+    "number": 0,
+    "totalElements": 1,
+    "totalPages": 1
+  }
+}
