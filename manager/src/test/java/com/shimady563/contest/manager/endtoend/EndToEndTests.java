@@ -355,6 +355,29 @@ public class EndToEndTests {
                                         .build()
                         )
                 ),
+                Arguments.of(
+                        Named.of(
+                                "Creating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createGroup")
+                                        .method(Method.POST)
+                                        .path("/groups/new")
+                                        .statusCode(201)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateGroup")
+                                        .method(Method.PUT)
+                                        .path("/groups")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
+                ),
                 //test case controller
                 Arguments.of(
                         Named.of(
@@ -596,6 +619,31 @@ public class EndToEndTests {
                                         .path("/contest-versions")
                                         .pathParams("/-1")
                                         .statusCode(404)
+                                        .build()
+                        )
+                ),
+                //group controller
+                Arguments.of(
+                        Named.of(
+                                "Updating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateGroup")
+                                        .method(Method.PUT)
+                                        .path("/groups")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteGroupById")
+                                        .method(Method.DELETE)
+                                        .path("/groups")
+                                        .pathParams("/1")
+                                        .statusCode(409)
                                         .build()
                         )
                 ),
