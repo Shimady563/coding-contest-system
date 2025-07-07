@@ -47,8 +47,12 @@
       </div>
 
       <div class="filter-actions">
-        <button type="submit" class="apply-btn">Применить фильтры</button>
-        <button type="button" @click="resetFilters" class="reset-btn">Сбросить</button>
+        <button type="submit" class="apply-btn">
+          <i class="fas fa-filter"></i> Применить
+        </button>
+        <button type="button" @click="resetSearch" class="reset-btn">
+          <i class="fas fa-broom"></i> Сбросить
+        </button>
       </div>
     </form>
 
@@ -87,19 +91,9 @@
             </td>
             <td class="date-col">{{ formatDate(solution.submittedAt) }}</td>
             <td class="code-col">
-              <button @click="toggleCode(solution.id)" class="code-toggle">
-                {{ visibleCode === solution.id ? 'Скрыть код' : 'Показать код' }}
+              <button @click="showCodeModal(solution.code)" class="code-toggle">
+                Показать код
               </button>
-              <div v-if="visibleCode === solution.id" class="code-block">
-                <pre>{{ solution.code }}</pre>
-                <button @click="copyCode(solution.code)" class="copy-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                  Копировать
-                </button>
-              </div>
             </td>
           </tr>
         </tbody>
@@ -116,29 +110,48 @@
           :disabled="filters.pageNumber === 0" 
           class="pagination-btn"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-          Назад
+          <i class="fas fa-chevron-left"></i>
         </button>
+        <div class="page-indicator">
+          Страница {{ filters.pageNumber + 1 }} из {{ solutions.page.totalPages }}
+        </div>
         <button 
           @click="nextPage" 
           :disabled="filters.pageNumber >= solutions.page.totalPages - 1" 
           class="pagination-btn"
         >
-          Вперёд
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
+          <i class="fas fa-chevron-right"></i>
         </button>
       </div>
+    </div>
+  </div>
+
+  <div v-if="modalCode" class="modal-overlay" @click.self="closeModal">
+    <div class="modal-content code-modal">
+      <div class="modal-header">
+        <h3>Код решения</h3>
+        <div class="modal-actions">
+          <button @click="copyCode(modalCode)" class="icon-btn" title="Скопировать">
+            <i class="fas fa-copy"></i>
+          </button>
+          <button @click="closeModal" class="icon-btn" title="Закрыть">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <ReadOnlyCodeMirror :code="modalCode" language="text/x-java" />
     </div>
   </div>
 </template>
 
 <script>
+import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
+
 export default {
   name: "StudentSolutionsPage",
+  components: {
+    ReadOnlyCodeMirror,
+  },
   data() {
     return {
       solutions: {
@@ -164,6 +177,7 @@ export default {
       ],
       loading: false,
       visibleCode: null,
+      modalCode: null,
     };
   },
   methods: {
@@ -236,7 +250,13 @@ export default {
         'status-error': ['COMPILE_ERROR', 'RUNTIME_ERROR', 'INTERNAL_ERROR'].includes(status),
         'status-warning': ['TIMED_OUT', 'WRONG_ANSWER'].includes(status),
       };
-    }
+    },
+    showCodeModal(code) {
+      this.modalCode = code;
+    },
+    closeModal() {
+      this.modalCode = null;
+    },
   },
   mounted() {
     this.fetchSolutions();
@@ -545,30 +565,179 @@ export default {
 
 .pagination-controls {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .pagination-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #f8f9fa;
-  border-color: #ccc;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
 }
 
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+}
+
+.page-indicator {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+.modal-content pre {
+  max-height: 400px;
+  overflow: auto;
+  background: #f4f4f4;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  gap: 10px;
+}
+
+.copy-btn,
+.close-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.copy-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.copy-btn:hover {
+  background-color: #2980b9;
+}
+
+.close-btn {
+  background-color: #e0e0e0;
+}
+
+.close-btn:hover {
+  background-color: #ccc;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.code-modal {
+  background: #fefefe;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.icon-btn:hover {
+  color: #000;
+}
+
+pre {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -599,6 +768,16 @@ export default {
   .solutions-table th,
   .solutions-table td {
     padding: 8px 12px;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

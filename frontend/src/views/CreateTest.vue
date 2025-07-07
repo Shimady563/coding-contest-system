@@ -1,8 +1,7 @@
 <template>
   <div class="page">
-    <h1 class="title">Создание контрольной работы</h1>
-
     <div class="create-cr-container">
+      <h1 class="title">Создание контрольной работы</h1>
       <div class="form-group">
         <label for="name">Название <span class="required">*</span></label>
         <input 

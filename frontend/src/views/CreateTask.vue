@@ -1,8 +1,7 @@
 <template>
   <div class="page">
-    <h1>Создание задания</h1>
-
     <div class="card">
+      <h1>Создание задания</h1>
       <div class="form-group">
         <label>Название задания <span class="required">*</span></label>
         <input 
