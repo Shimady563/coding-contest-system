@@ -1,5 +1,9 @@
 {
-  "name": "Контрольная работа",
+  "status": "ACCEPTED",
+  "userId": 2,
+  "contestId": 1,
+  "startTime": "2025-03-01T11:00:00.00Z",
+  "endTime": "2025-04-01T11:00:00.00Z",
   "pageNumber": "0",
   "pageSize": "3"
 }
