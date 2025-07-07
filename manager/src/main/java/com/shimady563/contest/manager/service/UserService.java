@@ -84,7 +84,7 @@ public class UserService implements UserDetailsService {
         }
 
         log.info(logMessage.toString());
-        return userRepository.findAllFetchGroup(Specification.allOf(specifications), pageRequest)
+        return userRepository.findAll(Specification.allOf(specifications), pageRequest)
                 .map(UserConverter::domain2Response);
     }
 
