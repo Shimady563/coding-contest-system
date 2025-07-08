@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -240,7 +241,7 @@ class UserServiceTest {
         response.setId(user.getId());
         response.setEmail(user.getEmail());
 
-        given(userRepository.findAllFetchGroup(any(), eq(pageRequest))).willReturn(userPage);
+        given(userRepository.findAll(any(Specification.class), eq(pageRequest))).willReturn(userPage);
 
         Page<UserResponseDto> result = userService.searchForUsers(
                 "John", "Doe", "john@example.com", Role.ROLE_STUDENT, "Group A", pageRequest

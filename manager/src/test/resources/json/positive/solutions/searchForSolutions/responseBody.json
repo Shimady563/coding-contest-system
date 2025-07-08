@@ -1,34 +1,18 @@
 {
   "content": [
     {
-      "id": 1,
-      "status": "ACCEPTED",
-      "submittedAt": "2025-03-16T10:15:00",
-      "taskName": "Задание 1",
-      "username": "Анна Сидорова",
-      "code": "int main() { return 0; }"
-    },
-    {
       "id": 2,
       "status": "ACCEPTED",
       "submittedAt": "2025-03-16T11:00:00",
       "taskName": "Задание 2",
       "username": "Анна Сидорова",
       "code": "print(\"Hello, world!\")"
-    },
-    {
-      "id": 3,
-      "status": "TIMED_OUT",
-      "submittedAt": "2025-03-16T12:30:00",
-      "taskName": "Задание 1",
-      "username": "Дмитрий Иванов",
-      "code": "int a[1000000]; int main() { return 0; }"
     }
   ],
   "page": {
     "size": 3,
     "number": 0,
-    "totalElements": 11,
-    "totalPages": 4
+    "totalElements": 1,
+    "totalPages": 1
   }
 }

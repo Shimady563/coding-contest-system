@@ -1,0 +1,9 @@
+{
+  "firstName": "Анна",
+  "lastName": "Сидорова",
+  "email": "anna.sidorova@example.com",
+  "role": "ROLE_STUDENT",
+  "groupName": "15/1",
+  "pageNumber": "0",
+  "pageSize": "3"
+}

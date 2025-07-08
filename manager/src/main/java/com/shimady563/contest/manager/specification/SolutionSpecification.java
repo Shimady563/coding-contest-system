@@ -31,7 +31,7 @@ public class SolutionSpecification {
     public static Specification<Solution> hasContestId(Long contestId) {
         return ((root, query, builder) ->
                 builder.equal(root.join("task")
-                                .join("contestVersion")
+                                .join("contestVersions")
                                 .join("contest")
                                 .get("id"),
                         contestId));
