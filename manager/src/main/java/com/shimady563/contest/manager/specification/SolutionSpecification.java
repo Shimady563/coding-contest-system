@@ -24,16 +24,11 @@ public class SolutionSpecification {
 
     public static Specification<Solution> hasUserId(Long userId) {
         return ((root, query, builder) ->
-                builder.equal(root.join("user").get("id"),
-                        userId));
+                builder.equal(root.join("user").get("id"), userId));
     }
 
-    public static Specification<Solution> hasContestId(Long contestId) {
+    public static Specification<Solution> hasTaskId(Long taskId) {
         return ((root, query, builder) ->
-                builder.equal(root.join("task")
-                                .join("contestVersions")
-                                .join("contest")
-                                .get("id"),
-                        contestId));
+                builder.equal(root.join("task").get("id"), taskId));
     }
 }
