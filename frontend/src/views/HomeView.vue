@@ -60,9 +60,7 @@ export default {
       if (this.user) {
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
-    } catch (err) {
-      this.error = err.message;
-      console.error("Ошибка загрузки данных пользователя:", err);
+    } catch {
     } finally {
       this.isLoading = false;
     }

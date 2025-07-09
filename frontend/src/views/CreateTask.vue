@@ -193,8 +193,7 @@ export default {
         this.submitted = false;
         
       } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        this.$root.notify(error.message || 'Произошла ошибка при сохранении задания', 'error');
+        this.$root.notify('Произошла ошибка при сохранении задания', 'error');
       } finally {
         this.loading = false;
       }

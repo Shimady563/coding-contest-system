@@ -13,7 +13,7 @@
         <router-link
           :to="`/contest/${contest.id}`"
           class="contest-item"
-          @click.native="selectContest(contest)"
+          @click="selectContest(contest)"
         >
           <div class="contest-info">
             <div class="contest-title">{{ contest.name }}</div>
@@ -63,10 +63,9 @@ export default {
 
       const data = await response.json();
       this.contests = data || [];
-      console.log(data);
-    } catch (error) {
-      console.error("Ошибка при загрузке:", error.message);
-    } finally {
+    } catch {
+    } 
+    finally {
       this.loading = false;
     }
   },

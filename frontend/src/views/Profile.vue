@@ -45,7 +45,6 @@ export default {
       if (err.message === "UNAUTHORIZED") {
         this.$router.push("/login");
       } else {
-        console.error("Ошибка загрузки профиля:", err);
       }
     }
   },

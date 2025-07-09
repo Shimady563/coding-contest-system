@@ -73,8 +73,7 @@ export default {
         }
 
         this.versions = await response.json();
-      } catch (error) {
-        console.error("Ошибка:", error.message);
+      } catch {
       } finally {
         this.loading = false;
       }
@@ -130,7 +129,6 @@ export default {
           throw new Error("Не удалось получить доступ к задачам варианта");
         }
       } catch (err) {
-        console.error("Ошибка при обработке варианта:", err);
         alert("Произошла ошибка. Попробуйте позже.");
       }
     }

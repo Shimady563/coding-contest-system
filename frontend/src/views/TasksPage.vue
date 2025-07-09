@@ -64,8 +64,7 @@ export default {
 
       const result = await response.json();
       this.tasks = result ?? [];
-    } catch (e) {
-      console.error("Ошибка при загрузке заданий:", e.message);
+    } catch {
     } finally {
       this.loading = false;
     }

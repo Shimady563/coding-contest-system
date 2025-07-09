@@ -36,7 +36,7 @@ export default {
       tasksList: [],
       loadingTasks: false,
       contest: null,
-      timeLeft: null, // в миллисекундах
+      timeLeft: null, 
       timerInterval: null
     };
   },
@@ -102,7 +102,6 @@ export default {
       this.startTimer();
 
       if (!taskId || !versionId) {
-        console.error("Не удалось получить необходимые параметры.");
         return;
       }
 
@@ -123,8 +122,7 @@ export default {
           });
           this.taskData = await singleTaskResponse.json();
         }
-      } catch (e) {
-        console.error("Ошибка при загрузке задания:", e.message);
+      } catch {
       } finally {
         this.loadingTasks = false;
       }
@@ -142,12 +140,17 @@ export default {
       try {
         const userInfo = await getUserInfo();
 
+        const moscowTime = new Date().toLocaleString('sv-SE', { 
+          timeZone: 'Europe/Moscow',
+          hour12: false,
+        }).replace(' ', 'T');
+
         const payload = {
           code,
           taskId: this.taskData.id,
           userId: userInfo.id,
           contestVersionId: parseInt(this.$route.params.versionId),
-          submittedAt: new Date().toISOString(),
+          submittedAt: moscowTime,
         };
 
         const response = await fetch("http://localhost:8080/api/v1/submissions", {
@@ -175,13 +178,11 @@ export default {
           if (response.status === 400) {
             this.$root.notify("Контрольная завершена. Отправка запрещена.", "error");
           } else {
-            this.$root.notify("Не удалось отправить код: " + errorText, "error");
+            this.$root.notify("Не удалось отправить код.", "error");
           }
-          console.error("Ошибка при отправке кода:", errorText);
         }
       } catch (e) {
-        console.error("Ошибка:", e);
-        this.$root.notify("Произошла ошибка при отправке кода", "error");
+        this.$root.notify("Произошла ошибка при отправке кода.", "error");
       }
     },
     goToPrevTask() {

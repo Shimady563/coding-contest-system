@@ -116,13 +116,12 @@ export default {
     async loadGroups() {
       try {
         this.groups = await fetchGroups();
-      } catch (error) {
-        console.error("Ошибка при загрузке групп:", error);
+      } catch {
       }
     },
     async fetchTasks() {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/tasks', {
+        const response = await fetch('http://localhost:8080/api/v1/tasks?pageSize=10000', {
           credentials: 'include',
         });
 
@@ -133,8 +132,7 @@ export default {
 
         const data = await response.json();
         this.tasks = data.content || [];
-      } catch (error) {
-        console.error("Ошибка при получении заданий:", error.message);
+      } catch {
       }
     },
     validateForm() {
@@ -252,7 +250,6 @@ export default {
         this.$root.notify('Контрольная работа успешно создана!', 'success');
         this.$router.push('/manage-contests');
       } catch (error) {
-        console.error("Ошибка при сохранении контрольной:", error.message);
         this.$root.notify(`Ошибка: ${error.message}`, 'error');
       } finally {
         this.loading = false;

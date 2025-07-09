@@ -197,8 +197,7 @@ export default {
         this.students = data.content;
         this.totalPages = data.page.totalPages;
         this.totalElements = data.page.totalElements;
-      } catch (e) {
-        console.error(e);
+      } catch  {
         this.$toast?.error("Ошибка при загрузке студентов");
       } finally {
         this.loading = false;
@@ -215,8 +214,7 @@ export default {
 
         const data = await response.json();
         this.groups = data;
-      } catch (e) {
-        console.error(e);
+      } catch {
         this.$toast?.error("Ошибка при загрузке групп");
       }
     },
@@ -265,8 +263,7 @@ export default {
         this.$toast?.success("Данные обновлены");
         this.closeModal();
         this.fetchStudents();
-      } catch (e) {
-        console.error(e);
+      } catch{
         this.$toast?.error("Ошибка при обновлении");
       }
     },
@@ -281,8 +278,7 @@ export default {
 
         this.$toast?.success("Студент удален");
         this.fetchStudents();
-      } catch (e) {
-        console.error(e);
+      } catch {
         this.$toast?.error("Ошибка при удалении");
       }
     }
@@ -772,10 +768,6 @@ select.form-input {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-  
-  .avatar-placeholder {
-    display: none;
   }
 }
 </style>
