@@ -28,9 +28,9 @@ INSERT INTO test_case (id, input, output, task_id) VALUES
     (nextval('test_case_id_seq'), '10 2 8 4 6', '2 4 6 8 10', 9),
     (nextval('test_case_id_seq'), '9 7 5 3 1', '1 3 5 7 9', 9),
 
-    (nextval('test_case_id_seq'), '2 3', '5', 10),
-    (nextval('test_case_id_seq'), '10 20', '30', 10),
-    (nextval('test_case_id_seq'), '5 7', '12', 10),
+    (nextval('test_case_id_seq'), '2 3', '-1', 10),
+    (nextval('test_case_id_seq'), '10 20', '-10', 10),
+    (nextval('test_case_id_seq'), '5 7', '-2', 10),
 
     (nextval('test_case_id_seq'), '5 3 8 1 2', '1 2 3 5 8', 11),
     (nextval('test_case_id_seq'), '9 4 6 2 1', '1 2 4 6 9', 11);

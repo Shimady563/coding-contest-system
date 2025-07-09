@@ -2,7 +2,7 @@
   "id": 1,
   "status": "ACCEPTED",
   "submittedAt": "2025-03-16T10:15:00",
-  "taskName": "Задание 1",
+  "taskName": "Сумма чисел",
   "username": "Анна Сидорова",
   "code": "int main() { return 0; }"
 }

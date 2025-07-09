@@ -3,7 +3,7 @@
     "id": 2,
     "status": "ACCEPTED",
     "submittedAt": "2025-03-16T11:00:00",
-    "taskName": "Задание 2",
+    "taskName": "Сортировка пузырьком",
     "username": "Анна Сидорова",
     "code": "print(\"Hello, world!\")"
   }

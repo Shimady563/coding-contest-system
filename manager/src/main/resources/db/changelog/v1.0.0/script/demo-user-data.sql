@@ -1,4 +1,3 @@
--- password: 1234
 INSERT INTO contest_user (id, first_name, last_name, email, password, role, group_id) VALUES
     (nextval('contest_user_id_seq'), 'Иван', 'Петров', 'ivan.petrov@example.com', '$2a$12$3tt.OCJyy7Fup9XIQGLWmO9qjFcGd.xSdQ5qUcI6qKbdcfq9LCnve', 'ROLE_TEACHER', NULL),
     (nextval('contest_user_id_seq'), 'Анна', 'Сидорова', 'anna.sidorova@example.com', '$2a$12$3tt.OCJyy7Fup9XIQGLWmO9qjFcGd.xSdQ5qUcI6qKbdcfq9LCnve', 'ROLE_STUDENT', 1),
