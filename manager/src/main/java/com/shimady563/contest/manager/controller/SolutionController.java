@@ -24,13 +24,13 @@ public class SolutionController {
     public Page<SolutionResponseDto> searchForSolutions(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Long contestId,
+            @RequestParam(required = false) Long taskId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime,
             @RequestParam(defaultValue = "0") Integer pageNumber,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        return solutionService.searchForSolutions(status, userId, contestId, startTime, endTime, PageRequest.of(pageNumber, pageSize));
+        return solutionService.searchForSolutions(status, userId, taskId, startTime, endTime, PageRequest.of(pageNumber, pageSize));
     }
 
     @GetMapping("/{id}")

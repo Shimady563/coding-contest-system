@@ -1,12 +1,12 @@
 {
   "content": [
     {
-      "id": 2,
+      "id": 1,
       "status": "ACCEPTED",
-      "submittedAt": "2025-03-16T11:00:00",
-      "taskName": "Задание 2",
+      "submittedAt": "2025-03-16T10:15:00",
+      "taskName": "Задание 1",
       "username": "Анна Сидорова",
-      "code": "print(\"Hello, world!\")"
+      "code": "int main() { return 0; }"
     }
   ],
   "page": {
