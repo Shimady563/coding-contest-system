@@ -60,8 +60,7 @@ export default {
 
         this.$root.notify('Вход выполнен успешно!', 'success');
         this.$router.push("/").then(() => window.location.reload());
-      } catch (err) {
-        console.error("Ошибка при входе", err);
+      } catch {
         this.errorMessage = "Сервер недоступен или ошибка сети";
         this.$root.notify(this.errorMessage, 'error');
       }

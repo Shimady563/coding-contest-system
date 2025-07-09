@@ -73,8 +73,7 @@ export default {
         }
 
         this.versions = await response.json();
-      } catch (error) {
-        console.error("Ошибка:", error.message);
+      } catch {
       } finally {
         this.loading = false;
       }
@@ -130,7 +129,6 @@ export default {
           throw new Error("Не удалось получить доступ к задачам варианта");
         }
       } catch (err) {
-        console.error("Ошибка при обработке варианта:", err);
         alert("Произошла ошибка. Попробуйте позже.");
       }
     }
@@ -146,6 +144,7 @@ export default {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -177,6 +176,13 @@ h1 {
   margin-bottom: 15px;
   background: #f5f7fa;
   border-radius: 10px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.version-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  background-color: #eef2f7;
 }
 
 .version-info h3 {
@@ -194,10 +200,22 @@ h1 {
   color: #2f80ed;
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.25s ease;
 }
 
 .version-link:hover {
+  color: #1a73e8;
   text-decoration: underline;
 }
 
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
 </style>

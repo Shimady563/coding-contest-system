@@ -1,8 +1,7 @@
 <template>
   <div class="page">
-    <h1>Создание задания</h1>
-
     <div class="card">
+      <h1>Создание задания</h1>
       <div class="form-group">
         <label>Название задания <span class="required">*</span></label>
         <input 
@@ -194,8 +193,7 @@ export default {
         this.submitted = false;
         
       } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        this.$root.notify(error.message || 'Произошла ошибка при сохранении задания', 'error');
+        this.$root.notify('Произошла ошибка при сохранении задания', 'error');
       } finally {
         this.loading = false;
       }
@@ -220,12 +218,14 @@ h1 {
 }
 
 .card {
+  max-width: 900px;
   background: #fff;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   overflow: hidden;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .form-group {
@@ -341,9 +341,21 @@ textarea {
 .fade-leave-active {
   transition: all 0.4s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

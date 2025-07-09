@@ -355,6 +355,29 @@ public class EndToEndTests {
                                         .build()
                         )
                 ),
+                Arguments.of(
+                        Named.of(
+                                "Creating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/createGroup")
+                                        .method(Method.POST)
+                                        .path("/groups/new")
+                                        .statusCode(201)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateGroup")
+                                        .method(Method.PUT)
+                                        .path("/groups")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
+                ),
                 //test case controller
                 Arguments.of(
                         Named.of(
@@ -488,6 +511,53 @@ public class EndToEndTests {
                                         .statusCode(204)
                                         .build()
                         )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Searching for users",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/searchForUsers")
+                                        .method(Method.GET)
+                                        .path("/users")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating user",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateUser")
+                                        .method(Method.PUT)
+                                        .path("/users")
+                                        .pathParams("/1")
+                                        .statusCode(204)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting user by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getUserById")
+                                        .method(Method.GET)
+                                        .path("/users")
+                                        .pathParams("/1")
+                                        .statusCode(200)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting user",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteUserById")
+                                        .method(Method.DELETE)
+                                        .path("/users")
+                                        .pathParams("/2")
+                                        .statusCode(204)
+                                        .build()
+                        )
                 )
         );
     }
@@ -596,6 +666,31 @@ public class EndToEndTests {
                                         .path("/contest-versions")
                                         .pathParams("/-1")
                                         .statusCode(404)
+                                        .build()
+                        )
+                ),
+                //group controller
+                Arguments.of(
+                        Named.of(
+                                "Updating group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateGroup")
+                                        .method(Method.PUT)
+                                        .path("/groups")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting group",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteGroupById")
+                                        .method(Method.DELETE)
+                                        .path("/groups")
+                                        .pathParams("/1")
+                                        .statusCode(409)
                                         .build()
                         )
                 ),
@@ -719,6 +814,42 @@ public class EndToEndTests {
                                         .path("/users/start")
                                         .pathParams("/2")
                                         .statusCode(403)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Updating user",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/updateUser")
+                                        .method(Method.PUT)
+                                        .path("/users")
+                                        .pathParams("/2")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting user by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getUserById")
+                                        .method(Method.GET)
+                                        .path("/users")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Deleting user",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/deleteUserById")
+                                        .method(Method.DELETE)
+                                        .path("/users")
+                                        .pathParams("/1")
+                                        .statusCode(409)
                                         .build()
                         )
                 )

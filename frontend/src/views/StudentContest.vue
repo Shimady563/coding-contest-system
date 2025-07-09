@@ -1,5 +1,8 @@
 <template>
   <div v-if="taskData" class="task-container">
+    <div v-if="timeLeft" class="timer">
+      Времени осталось: {{ formattedTime }}
+    </div>
     <TaskDescription :description="taskData.description" />
     <TestCases :testCases="taskData.testCases" />
     <CodeEditor ref="codeEditor" />
@@ -32,7 +35,9 @@ export default {
       taskData: null,
       tasksList: [],
       loadingTasks: false,
-      contest: null
+      contest: null,
+      timeLeft: null, 
+      timerInterval: null
     };
   },
   computed: {
@@ -50,6 +55,14 @@ export default {
         return this.tasksList[this.currentIndex + 1];
       }
       return null;
+    },
+    formattedTime() {
+      if (this.timeLeft <= 0) return "00:00:00";
+      const totalSeconds = Math.floor(this.timeLeft / 1000);
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
     },
   },
   watch: {
@@ -85,8 +98,10 @@ export default {
         return;
       }
 
+      this.timeLeft = end - now;
+      this.startTimer();
+
       if (!taskId || !versionId) {
-        console.error("Не удалось получить необходимые параметры.");
         return;
       }
 
@@ -107,8 +122,7 @@ export default {
           });
           this.taskData = await singleTaskResponse.json();
         }
-      } catch (e) {
-        console.error("Ошибка при загрузке задания:", e.message);
+      } catch {
       } finally {
         this.loadingTasks = false;
       }
@@ -126,12 +140,17 @@ export default {
       try {
         const userInfo = await getUserInfo();
 
+        const moscowTime = new Date().toLocaleString('sv-SE', { 
+          timeZone: 'Europe/Moscow',
+          hour12: false,
+        }).replace(' ', 'T');
+
         const payload = {
           code,
           taskId: this.taskData.id,
           userId: userInfo.id,
           contestVersionId: parseInt(this.$route.params.versionId),
-          submittedAt: new Date().toISOString(),
+          submittedAt: moscowTime,
         };
 
         const response = await fetch("http://localhost:8080/api/v1/submissions", {
@@ -159,13 +178,11 @@ export default {
           if (response.status === 400) {
             this.$root.notify("Контрольная завершена. Отправка запрещена.", "error");
           } else {
-            this.$root.notify("Не удалось отправить код: " + errorText, "error");
+            this.$root.notify("Не удалось отправить код.", "error");
           }
-          console.error("Ошибка при отправке кода:", errorText);
         }
       } catch (e) {
-        console.error("Ошибка:", e);
-        this.$root.notify("Произошла ошибка при отправке кода", "error");
+        this.$root.notify("Произошла ошибка при отправке кода.", "error");
       }
     },
     goToPrevTask() {
@@ -192,6 +209,25 @@ export default {
         });
       }
     },
+    startTimer() {
+      if (this.timerInterval) clearInterval(this.timerInterval);
+      this.timerInterval = setInterval(() => {
+        this.timeLeft -= 1000;
+        if (this.timeLeft <= 0) {
+          clearInterval(this.timerInterval);
+          this.timeLeft = 0;
+          this.$root.notify("Время вышло. Страница будет перезагружена.", "error");
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        }
+      }, 1000);
+    },
+    beforeDestroy() {
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+      }
+    },
   },
 };
 </script>
@@ -206,6 +242,7 @@ export default {
   margin: 0 auto;
   padding: 0 24px;
   justify-content: space-between;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 button {
@@ -248,4 +285,26 @@ button span {
   cursor: not-allowed;
 }
 
+.timer {
+  font-size: 20px;
+  font-weight: bold;
+  color: #e53935;
+  background-color: #fce4ec;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: fit-content;
+  align-self: center;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
 </style>

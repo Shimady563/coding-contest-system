@@ -64,8 +64,7 @@ export default {
 
       const result = await response.json();
       this.tasks = result ?? [];
-    } catch (e) {
-      console.error("Ошибка при загрузке заданий:", e.message);
+    } catch {
     } finally {
       this.loading = false;
     }
@@ -92,6 +91,7 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -127,11 +127,17 @@ h1 {
   transition: background-color 0.2s ease;
   text-align: left;
   cursor: pointer;
+  transition: transform 0.25s ease, 
+  box-shadow 0.25s ease, 
+  background-color 0.25s ease, 
+  color 0.25s ease;
 }
 
 .task-link:hover {
   background-color: #e2e6ed;
   color: #1a73e8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .item-title {
@@ -144,5 +150,16 @@ h1 {
 .item-description {
   font-size: 14px;
   color: #888;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

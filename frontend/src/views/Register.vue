@@ -116,8 +116,7 @@ export default {
 
         this.$root.notify('Регистрация прошла успешно!', 'success');
         this.$router.push("/").then(() => window.location.reload());
-      } catch (err) {
-        console.error("Ошибка при регистрации:", err);
+      } catch {
         this.errorMessage = "Сервер недоступен или ошибка сети";
         this.$root.notify(this.errorMessage, 'error');
       }
@@ -126,8 +125,7 @@ export default {
     async fetchGroupsList() {
       try {
         this.groups = await fetchGroups();
-      } catch (error) {
-        console.error("Ошибка загрузки групп:", error);
+      } catch {
       }
     }
   },

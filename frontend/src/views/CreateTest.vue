@@ -1,8 +1,7 @@
 <template>
   <div class="page">
-    <h1 class="title">Создание контрольной работы</h1>
-
     <div class="create-cr-container">
+      <h1 class="title">Создание контрольной работы</h1>
       <div class="form-group">
         <label for="name">Название <span class="required">*</span></label>
         <input 
@@ -117,14 +116,12 @@ export default {
     async loadGroups() {
       try {
         this.groups = await fetchGroups();
-      } catch (error) {
-        console.error("Ошибка при загрузке групп:", error);
+      } catch {
       }
     },
-
     async fetchTasks() {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/tasks', {
+        const response = await fetch('http://localhost:8080/api/v1/tasks?pageSize=10000', {
           credentials: 'include',
         });
 
@@ -135,11 +132,9 @@ export default {
 
         const data = await response.json();
         this.tasks = data.content || [];
-      } catch (error) {
-        console.error("Ошибка при получении заданий:", error.message);
+      } catch {
       }
     },
-
     validateForm() {
       this.submitted = true;
       
@@ -181,7 +176,6 @@ export default {
 
       return true;
     },
-
     addVariant() {
       this.variants.push({
         name: `Вариант ${this.nextVariantNumber}`,
@@ -189,15 +183,12 @@ export default {
       });
       this.nextVariantNumber++;
     },
-
     updateVariant(index, updatedVariant) {
       this.variants.splice(index, 1, updatedVariant);
     },
-
     removeVariant(index) {
       this.variants.splice(index, 1);
     },
-
     async saveControlWork() {
       if (!this.validateForm()) return;
       
@@ -209,8 +200,8 @@ export default {
           name: this.controlWork.name,
           description: this.controlWork.description,
           groupId: Number(this.controlWork.group), 
-          startTime: new Date(this.controlWork.startTime).toISOString(),
-          endTime: new Date(this.controlWork.endTime).toISOString(),
+          startTime: this.controlWork.startTime,
+          endTime: this.controlWork.endTime,
         };
 
         const contestResponse = await fetch('http://localhost:8080/api/v1/contests', {
@@ -259,7 +250,6 @@ export default {
         this.$root.notify('Контрольная работа успешно создана!', 'success');
         this.$router.push('/manage-contests');
       } catch (error) {
-        console.error("Ошибка при сохранении контрольной:", error.message);
         this.$root.notify(`Ошибка: ${error.message}`, 'error');
       } finally {
         this.loading = false;
@@ -281,6 +271,7 @@ export default {
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .title {
@@ -394,5 +385,16 @@ textarea:focus {
 
 .btn-secondary:hover {
   background-color: #3b82f6;
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

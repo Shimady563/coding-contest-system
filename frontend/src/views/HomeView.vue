@@ -60,9 +60,7 @@ export default {
       if (this.user) {
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
-    } catch (err) {
-      this.error = err.message;
-      console.error("Ошибка загрузки данных пользователя:", err);
+    } catch {
     } finally {
       this.isLoading = false;
     }
@@ -77,7 +75,7 @@ export default {
   align-items: center;
   min-height: 90vh;
   padding: 20px;
-  }
+}
 
 .header {
   text-align: center;
@@ -87,7 +85,7 @@ export default {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   max-width: 700px;
   width: 100%;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -146,12 +144,12 @@ h1 {
 }
 
 .btn.primary {
-  background-color: #3498db;
+  background-color: #2f80ed;
   color: white;
 }
 
 .btn.primary:hover {
-  background-color: #2980b9;
+  background-color: #1e63c5;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(41, 128, 185, 0.3);
 }
@@ -189,8 +187,14 @@ h1 {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 
 @media (max-width: 600px) {

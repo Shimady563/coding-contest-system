@@ -1,0 +1,4 @@
+{
+  "message": "User cannot delete himself",
+  "code": 409
+}

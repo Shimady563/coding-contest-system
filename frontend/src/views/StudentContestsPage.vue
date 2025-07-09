@@ -9,26 +9,26 @@
     </div>
 
     <ul v-else class="contest-list">
-      <li v-for="contest in contests" :key="contest.id" class="contest-item">
-        <div class="contest-info">
-          <router-link
-            :to="`/contest/${contest.id}`"
-            class="contest-link"
-            @click.native="selectContest(contest)"
-          >
-            {{ contest.name }}
-          </router-link>
-          <p class="description">{{ contest.description }}</p>
-          <p class="time">
-            🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
-          </p>
-        </div>
-        <span
-          class="status"
-          :class="getStatusClass(getContestStatus(contest.startTime, contest.endTime))"
+      <li v-for="contest in contests" :key="contest.id">
+        <router-link
+          :to="`/contest/${contest.id}`"
+          class="contest-item"
+          @click="selectContest(contest)"
         >
-          Статус: {{ getContestStatus(contest.startTime, contest.endTime) }}
-        </span>
+          <div class="contest-info">
+            <div class="contest-title">{{ contest.name }}</div>
+            <p class="description">{{ contest.description }}</p>
+            <p class="time">
+              🕓 {{ formatDate(contest.startTime) }} – {{ formatDate(contest.endTime) }}
+            </p>
+          </div>
+          <span
+            class="status"
+            :class="getStatusClass(getContestStatus(contest.startTime, contest.endTime))"
+          >
+            Статус: {{ getContestStatus(contest.startTime, contest.endTime) }}
+          </span>
+        </router-link>
       </li>
     </ul>
   </div>
@@ -63,10 +63,9 @@ export default {
 
       const data = await response.json();
       this.contests = data || [];
-      console.log(data);
-    } catch (error) {
-      console.error("Ошибка при загрузке:", error.message);
-    } finally {
+    } catch {
+    } 
+    finally {
       this.loading = false;
     }
   },
@@ -114,6 +113,7 @@ export default {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 h1 {
@@ -140,44 +140,34 @@ h1 {
   padding: 0;
 }
 
-.contest-item {
-  padding: 15px;
+.contest-list li {
   margin-bottom: 15px;
-  background: #f5f7fa;
-  border-radius: 10px;
+}
+
+.contest-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.contest-link {
-  font-size: 18px;
-  color: #2f80ed;
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 15px;
   text-decoration: none;
+  transition: all 0.2s ease;
+  color: inherit;
+}
+
+.contest-item:hover {
+  background-color: #e2e6ed;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.contest-title {
+  font-size: 18px;
   font-weight: 600;
+  color: #2f80ed;
+  margin-bottom: 6px;
 }
-
-.contest-link:hover {
-  text-decoration: underline;
-}
-
-.status {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.status-upcoming {
-  color: #f39c12; /* оранжевый */
-}
-
-.status-active {
-  color: #27ae60; /* зелёный */
-}
-
-.status-finished {
-  color: #c0392b; /* красный */
-}
-
 
 .contest-info {
   flex: 1;
@@ -193,10 +183,31 @@ h1 {
   color: #999;
 }
 
-.contest-name-disabled {
-  font-size: 18px;
-  color: #aaa;
-  font-weight: 600;
-  cursor: not-allowed;
+.status {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-upcoming {
+  color: #f39c12; 
+}
+
+.status-active {
+  color: #27ae60; 
+}
+
+.status-finished {
+  color: #c0392b; 
+}
+
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>
