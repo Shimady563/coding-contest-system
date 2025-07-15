@@ -134,7 +134,7 @@ services:
 
   kafka:
     container_name: kafka
-    image: confluentinc/cp-kafka:6.2.0
+    image: confluentinc/cp-kafka:latest
     restart: always
     expose:
       - 9092
