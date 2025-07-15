@@ -38,7 +38,6 @@ textarea {
   margin-bottom: 10px;
   border-radius: 6px;
   padding: 6px;
-  font-family: inherit;
 }
 .add-case-btn {
   background: #17a2b8;

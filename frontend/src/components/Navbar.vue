@@ -19,18 +19,18 @@
             <ul class="dropdown-menu" v-show="isDropdownOpen" 
                 @mouseenter="openDropdown" @mouseleave="closeDropdown">
               <li v-if="user.role === 'student'">
-                <router-link to="/solve-contest" @click.native="closeDropdown">Контрольные</router-link>
+                <router-link to="/solve-contest" @click="closeDropdown">Контрольные</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-contests" @click.native="closeDropdown">Задания</router-link>
+                <router-link to="/manage-contests" @click="closeDropdown">Задания</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-students" @click.native="closeDropdown">Студенты</router-link>
+                <router-link to="/manage-students" @click="closeDropdown">Студенты</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
-                <router-link to="/student-results" @click.native="closeDropdown">Оценки</router-link>
+                <router-link to="/student-results" @click="closeDropdown">Оценки</router-link>
               </li>
-              <li><router-link to="/profile" @click.native="closeDropdown">Профиль</router-link></li>
+              <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
               <li><a @click.prevent="logout" style="cursor: pointer;">Выйти</a></li>
             </ul>
           </transition>

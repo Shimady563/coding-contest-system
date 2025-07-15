@@ -57,7 +57,6 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 90vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .profile-card {

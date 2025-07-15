@@ -50,7 +50,7 @@
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-family: monospace;
+    font-family: 'Courier New', Courier, monospace;
   }
   </style>
   

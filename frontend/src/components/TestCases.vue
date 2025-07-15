@@ -24,7 +24,7 @@ export default {
     testCases: {
       type: Array,
       default: () => [],
-      validator: value => value.length > 0  // Гарантируем, что массив не пустой
+      validator: value => value.length > 0  
     }
   },
   computed: {

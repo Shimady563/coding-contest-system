@@ -924,7 +924,6 @@ pre {
   border-color: #333 transparent transparent transparent;
 }
 
-/* Улучшенные стили для фокуса */
 .custom-multiselect >>> .multiselect--active .multiselect__select {
   background: rgba(0, 0, 0, 0.05);
 }

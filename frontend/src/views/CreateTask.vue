@@ -206,7 +206,6 @@ export default {
 .page {
   max-width: 800px;
   margin: auto;
-  font-family: Arial, sans-serif;
   padding: 1rem;
   box-sizing: border-box;
 }
