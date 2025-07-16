@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { MANAGER_URL } from "@/js/auth";
+
 export default {
   name: "OutputResults",
   props: {
@@ -39,7 +41,7 @@ export default {
     async fetchResults() {
       if (!this.taskId) return;
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/solutions/task?taskId=${this.taskId}`, {
+        const response = await fetch(`${MANAGER_URL}/solutions/task?taskId=${this.taskId}`, {
           credentials: "include"
         });
         if (!response.ok) throw new Error('Ошибка загрузки данных');

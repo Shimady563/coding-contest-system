@@ -85,6 +85,8 @@
 </template>
 
 <script>
+import { MANAGER_URL, AUTH_URL } from "../js/auth";
+
 export default {
   data() {
     return {
@@ -101,11 +103,9 @@ export default {
     addTestCase() {
       this.task.testCases.push({ input: '', output: '' });
     },
-    
     removeTestCase(index) {
       this.task.testCases.splice(index, 1);
     },
-    
     validateForm() {
       this.submitted = true;
       
@@ -133,7 +133,6 @@ export default {
       
       return true;
     },
-    
     async saveTask() {
       if (!this.validateForm()) return;
       
@@ -150,7 +149,7 @@ export default {
         };
 
         const makeRequest = async () => {
-          return await fetch('http://localhost:8080/api/v1/tasks', {
+          return await fetch(`${MANAGER_URL}/tasks`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -163,7 +162,7 @@ export default {
         let response = await makeRequest();
 
         if (response.status === 401) {
-          const refreshResponse = await fetch('http://localhost:8080/api/v1/auth/refresh', {
+          const refreshResponse = await fetch(`${AUTH_URL}/refresh`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

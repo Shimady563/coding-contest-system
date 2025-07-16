@@ -188,6 +188,7 @@
 import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
+import { MANAGER_URL } from "@/js/auth";
 
 export default {
   name: "StudentSolutionsPage",
@@ -239,7 +240,6 @@ export default {
           }
         }
 
-        // Добавляем выбранные статусы
         if (this.selectedStatuses.length > 0) {
           this.selectedStatuses.forEach(status => {
             queryParams.append('status', status.name);
@@ -253,7 +253,7 @@ export default {
           queryParams.append("taskId", this.selectedTask.id);
         }
 
-        const response = await fetch(`http://localhost:8080/api/v1/solutions?${queryParams.toString()}`, {
+        const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
           credentials: "include",
         });
 
@@ -273,7 +273,7 @@ export default {
           pageNumber: 0,
         });
 
-        const response = await fetch(`http://localhost:8080/api/v1/tasks?${params.toString()}`, {
+        const response = await fetch(`${MANAGER_URL}/tasks?${params.toString()}`, {
           credentials: "include",
         });
 
@@ -292,7 +292,7 @@ export default {
           pageNumber: 0,
         });
 
-        const response = await fetch(`http://localhost:8080/api/v1/users?${params.toString()}`, {
+        const response = await fetch(`${MANAGER_URL}/users?${params.toString()}`, {
           credentials: "include",
         });
 

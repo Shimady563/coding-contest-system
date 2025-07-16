@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { AUTH_URL } from "../js/auth";
+
 export default {
   data() {
     return {
@@ -44,7 +46,7 @@ export default {
       try {
         this.$root.notify('Попытка входа...', 'info');
 
-        const response = await fetch("http://localhost:8081/api/v1/auth/login", {
+        const response = await fetch(`${AUTH_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

@@ -87,7 +87,7 @@
 
 <script>
 import VariantForm from '../components/VariantForm.vue';
-import { fetchGroups } from '../js/auth.js';
+import { fetchGroups, MANAGER_URL } from '../js/auth.js';
 
 export default {
   components: { VariantForm },
@@ -114,14 +114,11 @@ export default {
   },
   methods: {
     async loadGroups() {
-      try {
-        this.groups = await fetchGroups();
-      } catch {
-      }
+      this.groups = await fetchGroups();
     },
     async fetchTasks() {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/tasks?pageSize=10000', {
+        const response = await fetch(`${MANAGER_URL}/tasks?pageSize=10000`, {
           credentials: 'include',
         });
 
@@ -204,7 +201,7 @@ export default {
           endTime: this.controlWork.endTime,
         };
 
-        const contestResponse = await fetch('http://localhost:8080/api/v1/contests', {
+        const contestResponse = await fetch(`${MANAGER_URL}/contests`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -230,7 +227,7 @@ export default {
             taskIds: variant.tasks.map(task => Number(task.id))
           };
 
-          const variantResponse = await fetch('http://localhost:8080/api/v1/contest-versions', {
+          const variantResponse = await fetch(`${MANAGER_URL}/contest-versions`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

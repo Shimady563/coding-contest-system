@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { getGroupIdForCurrentUser } from "@/js/auth";
+import { getGroupIdForCurrentUser, MANAGER_URL } from "@/js/auth";
 
 export default {
   name: "StudentContestsPage",
@@ -53,7 +53,7 @@ export default {
         throw new Error("groupId is null");
       }
 
-      const response = await fetch(`http://localhost:8080/api/v1/contests/group?groupId=${groupId}`, {
+      const response = await fetch(`${MANAGER_URL}/contests/group?groupId=${groupId}`, {
         credentials: 'include',
       });
 

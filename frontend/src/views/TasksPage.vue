@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { MANAGER_URL } from "@/js/auth";
+
 export default {
   name: "TasksPage",
   data() {
@@ -34,7 +36,7 @@ export default {
     const contestId = this.$route.params.contestId;
 
     try {
-      const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+      const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
         credentials: "include"
       });
       if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
@@ -53,7 +55,7 @@ export default {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
+      const response = await fetch(`${MANAGER_URL}/tasks/contest-version?contestVersionId=${versionId}`, {
         credentials: "include"
       });
 
