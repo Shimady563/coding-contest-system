@@ -73,6 +73,9 @@ services:
     image: shimady563/coding-contest-frontend
     ports:
       - '5173:5173'
+    environment:
+      - VUE_APP_MANAGER_URL=http://localhost:8080/api/v1
+      - VUE_APP_AUTH_URL=http://localhost:8081/api/v1/auth
     depends_on:
       manager:
         condition: service_healthy

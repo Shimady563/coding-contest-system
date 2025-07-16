@@ -1,4 +1,4 @@
 {
-  "message": "could not execute statement [ERROR: update or delete on table \"student_group\" violates foreign key constraint \"contest_group_fkey\" on table \"contest\"\n  Подробности: Key (id)=(1) is still referenced from table \"contest\".] [delete from student_group where id=?]; SQL [delete from student_group where id=?]; constraint [contest_group_fkey]",
+  "message": "Key (id)=(1) is still referenced from table \"contest\".",
   "code": 409
 }
