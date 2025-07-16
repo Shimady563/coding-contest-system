@@ -1,6 +1,11 @@
+import { config } from '../config';
+
+const AUTH_URL = config.VITE_APP_AUTH_URL;
+const MANAGER_URL = config.VITE_APP_MANAGER_URL;
+
 export async function getUserInfo() {
   try {
-    const res = await fetch("http://localhost:8081/api/v1/auth/me", {
+    const res = await fetch(`${AUTH_URL}/me`, {
       method: "GET",
       credentials: "include",
     });
@@ -29,7 +34,7 @@ export async function getUserInfo() {
 
 export async function fetchGroups() {
   try {
-    const response = await fetch("http://localhost:8080/api/v1/groups");
+    const response = await fetch(`${MANAGER_URL}/groups`);
 
     if (!response.ok) {
       throw new Error("Ошибка при загрузке групп");
@@ -65,7 +70,7 @@ export async function getGroupIdForCurrentUser() {
 
 export async function logoutUser() {
   try {
-    const res = await fetch("http://localhost:8081/api/v1/auth/logout", {
+    const res = await fetch(`${AUTH_URL}/logout`, {
       method: "POST",
       credentials: "include",
     });
