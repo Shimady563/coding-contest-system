@@ -21,7 +21,7 @@ import TaskDescription from "../components/TaskDescription.vue";
 import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
-import { getUserInfo } from "../js/auth";
+import { getUserInfo, MANAGER_URL } from "../js/auth";
 
 export default {
   components: {
@@ -80,7 +80,7 @@ export default {
       const contestId = this.$route.params.contestId;
 
       try {
-        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+        const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
           credentials: "include"
         });
         if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
@@ -107,7 +107,7 @@ export default {
 
       try {
         this.loadingTasks = true;
-        const response = await fetch(`http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${versionId}`, {
+        const response = await fetch(`${MANAGER_URL}/tasks/contest-version?contestVersionId=${versionId}`, {
           credentials: "include",
         });
         const result = await response.json();
@@ -117,7 +117,7 @@ export default {
         if (task) {
           this.taskData = task;
         } else {
-          const singleTaskResponse = await fetch(`http://localhost:8080/api/tasks/${taskId}`, {
+          const singleTaskResponse = await fetch(`${MANAGER_URL}/tasks/${taskId}`, {
             credentials: "include",
           });
           this.taskData = await singleTaskResponse.json();
@@ -153,7 +153,7 @@ export default {
           submittedAt: moscowTime,
         };
 
-        const response = await fetch("http://localhost:8080/api/v1/submissions", {
+        const response = await fetch(`${MANAGER_URL}/submissions`, {
           method: "POST",
           credentials: "include",
           headers: {

@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { fetchGroups } from "@/js/auth";
+import { fetchGroups, AUTH_URL } from "@/js/auth";
 
 export default {
   data() {
@@ -94,7 +94,7 @@ export default {
       this.$root.notify('Начата регистрация...', 'info');
 
       try {
-        const response = await fetch("http://localhost:8081/api/v1/auth/signup", {
+        const response = await fetch(`${AUTH_URL}/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include", 
@@ -121,12 +121,8 @@ export default {
         this.$root.notify(this.errorMessage, 'error');
       }
     },
-
     async fetchGroupsList() {
-      try {
-        this.groups = await fetchGroups();
-      } catch {
-      }
+      this.groups = await fetchGroups();
     }
   },
   mounted() {

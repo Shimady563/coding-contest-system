@@ -151,6 +151,8 @@
 </template>
 
 <script>
+import { MANAGER_URL, fetchGroups } from "../js/auth";
+
 export default {
   data() {
     return {
@@ -186,7 +188,7 @@ export default {
         if (this.searchParams.lastName) params.lastName = this.searchParams.lastName;
 
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(`http://localhost:8080/api/v1/users?${query}`, {
+        const response = await fetch(`${MANAGER_URL}/users?${query}`, {
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'
         });
@@ -204,19 +206,7 @@ export default {
       }
     },
     async fetchGroups() {
-      try {
-        const response = await fetch("http://localhost:8080/api/v1/groups", {
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
-
-        if (!response.ok) throw new Error(await response.text());
-
-        const data = await response.json();
-        this.groups = data;
-      } catch {
-        this.$toast?.error("Ошибка при загрузке групп");
-      }
+      this.groups = await fetchGroups();
     },
     onSearch() {
       this.currentPage = 0;
@@ -252,7 +242,7 @@ export default {
     async saveStudent() {
       try {
         const { id, firstName, lastName, email, groupId } = this.editingStudent;
-        const response = await fetch(`http://localhost:8080/api/v1/users/${id}`, {
+        const response = await fetch(`${MANAGER_URL}/users/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -270,7 +260,7 @@ export default {
     async deleteStudent(id) {
       if (!confirm("Вы уверены, что хотите удалить этого студента?")) return;
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/users/${id}`, {
+        const response = await fetch(`${MANAGER_URL}/users/${id}`, {
           method: 'DELETE',
           credentials: 'include'
         });

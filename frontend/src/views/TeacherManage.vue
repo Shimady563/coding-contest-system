@@ -165,6 +165,8 @@
 </template>
 
 <script>
+import { MANAGER_URL } from "@/js/auth";
+
 export default {
   data() {
     return {
@@ -205,7 +207,7 @@ export default {
         };
         const query = new URLSearchParams(params).toString();
 
-        const response = await fetch(`http://localhost:8080/api/v1/contests?${query}`, {
+        const response = await fetch(`${MANAGER_URL}/contests?${query}`, {
           credentials: "include"
         });
         if (!response.ok) throw new Error('Не удалось загрузить контрольные');
@@ -232,7 +234,7 @@ export default {
         };
         const query = new URLSearchParams(params).toString();
 
-        const response = await fetch(`http://localhost:8080/api/v1/tasks?${query}`, {
+        const response = await fetch(`${MANAGER_URL}/tasks?${query}`, {
           credentials: "include"
         });
         if (!response.ok) throw new Error('Не удалось загрузить задания');

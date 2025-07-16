@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
+import { getUserInfo, MANAGER_URL } from "../js/auth";
 
 export default {
   name: "ContestVersionsPage",
@@ -39,7 +39,7 @@ export default {
       const contestId = this.$route.params.contestId;
 
       try {
-        const contestResponse = await fetch(`http://localhost:8080/api/v1/contests/${contestId}`, {
+        const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
           credentials: "include"
         });
         if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
@@ -59,7 +59,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/api/v1/contest-versions?contestId=${contestId}`,
+          `${MANAGER_URL}/contest-versions?contestId=${contestId}`,
           { credentials: "include" }
         );
 
@@ -81,25 +81,22 @@ export default {
     async confirmStart(version) {
       const userInfo = await getUserInfo();
       try {
-        // Сначала проверяем доступ к задачам варианта
         const tasksResponse = await fetch(
-          `http://localhost:8080/api/v1/tasks/contest-version?contestVersionId=${version.id}`,
+          `${MANAGER_URL}/tasks/contest-version?contestVersionId=${version.id}`,
           {
             credentials: "include"
           }
         );
 
         if (tasksResponse.status === 403) {
-          // Нет доступа — надо регистрироваться
           const confirmed = confirm(
             `Вы точно уверены, что хотите начать с вариантом "${version.name}"?\nПосле выбора смена будет невозможна.`
           );
 
           if (!confirmed) return;
 
-          // Отправляем PATCH-запрос на регистрацию
           const patchResponse = await fetch(
-            `http://localhost:8080/api/v1/users/start/${userInfo.id}`,
+            `${MANAGER_URL}/users/start/${userInfo.id}`,
             {
               method: "PATCH",
               headers: {
@@ -123,7 +120,6 @@ export default {
           }
           this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
         } else if (tasksResponse.ok) {
-          // Есть доступ — просто переходим к задачам
           this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
         } else {
           throw new Error("Не удалось получить доступ к задачам варианта");

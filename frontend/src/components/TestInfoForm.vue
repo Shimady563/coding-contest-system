@@ -31,6 +31,8 @@
 </template>
 
 <script>
+import { MANAGER_URL } from "@/js/auth";
+
 export default {
   props: ['modelValue'],
   data() {
@@ -54,7 +56,7 @@ export default {
   methods: {
     async fetchGroups() {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/groups');
+        const response = await fetch(`${MANAGER_URL}/groups`);
         if (!response.ok) {
           throw new Error('Не удалось загрузить список групп');
         }
