@@ -479,7 +479,6 @@ export default {
 
 .id-col {
   min-width: 80px;
-  font-family: 'Courier New', Courier, monospace;
   color: #7f8c8d;
 }
 

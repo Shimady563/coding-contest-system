@@ -26,11 +26,9 @@ export default {
 </script>
 
 <style scoped>
-
 .page-content {
   min-height: 100vh;
   background: linear-gradient(to right, #dfe9f3, #ffffff);
   padding: 2rem;
 }
-
 </style>

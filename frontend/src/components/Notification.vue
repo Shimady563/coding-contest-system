@@ -37,7 +37,7 @@
   
   <style>
   .notification {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
     padding: 15px 20px;
