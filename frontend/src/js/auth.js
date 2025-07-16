@@ -1,7 +1,7 @@
 import { config } from '../config';
 
-export const AUTH_URL = config.AUTH_URL;
-export const MANAGER_URL = config.MANAGER_URL;
+export const AUTH_URL = config.VITE_APP_AUTH_URL;
+export const MANAGER_URL = config.VITE_APP_MANAGER_URL;
 
 export async function getUserInfo() {
   try {
