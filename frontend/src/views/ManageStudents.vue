@@ -22,6 +22,24 @@
         </label>
       </div>
 
+      <div class="filter-group">
+        <label>
+          <span>Группа:</span>
+          <multiselect
+            v-model="searchParams.selectedGroup"
+            :options="groupOptions"
+            :multiple="false"
+            :searchable="true"
+            :close-on-select="true"
+            :show-labels="false"
+            placeholder="Выберите группу"
+            label="name"
+            track-by="name"
+            class="custom-multiselect"
+          ></multiselect>
+        </label>
+      </div>
+
       <div class="filter-actions">
         <button type="submit" class="apply-btn">
           <i class="fas fa-filter"></i> Применить
@@ -128,17 +146,18 @@
           </div>
           <div class="form-group">
             <label>Группа</label>
-            <select v-model="editingStudent.groupId" class="form-input">
-              <option disabled value="">Выберите группу</option>
-              <option 
-                v-for="group in groups" 
-                :key="group.id" 
-                :value="group.id"
-                :selected="editingStudent.groupId === group.id"
-              >
-                {{ group.name }}
-              </option>
-            </select>
+            <multiselect
+              v-model="editingStudent.selectedGroup"
+              :options="groups"
+              :multiple="false"
+              :searchable="true"
+              :close-on-select="true"
+              :show-labels="false"
+              placeholder="Выберите группу"
+              label="name"
+              track-by="id"
+              class="custom-multiselect"
+            ></multiselect>
           </div>
         </div>
         <div class="modal-footer">
@@ -152,8 +171,13 @@
 
 <script>
 import { MANAGER_URL, fetchGroups } from "../js/auth";
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.min.css";
 
 export default {
+  components: {
+    Multiselect
+  },
   data() {
     return {
       students: [],
@@ -167,9 +191,15 @@ export default {
       searchParams: {
         firstName: '',
         lastName: '',
-        role: 'ROLE_STUDENT'
+        role: 'ROLE_STUDENT',
+        groupNames: null
       }
     };
+  },
+  computed: {
+    groupOptions() {
+      return this.groups.map(group => ({ name: group.name }));
+    }
   },
   async created() {
     await this.fetchStudents();
@@ -187,6 +217,10 @@ export default {
         if (this.searchParams.firstName) params.firstName = this.searchParams.firstName;
         if (this.searchParams.lastName) params.lastName = this.searchParams.lastName;
 
+        if (this.searchParams.selectedGroup) {
+          params.groupName = this.searchParams.selectedGroup.name;
+        }
+        
         const query = new URLSearchParams(params).toString();
         const response = await fetch(`${MANAGER_URL}/users?${query}`, {
           headers: { 'Content-Type': 'application/json' },
@@ -215,6 +249,7 @@ export default {
     resetSearch() {
       this.searchParams.firstName = '';
       this.searchParams.lastName = '';
+      this.searchParams.selectedGroup = null;
       this.currentPage = 0;
       this.fetchStudents();
     },
@@ -233,7 +268,7 @@ export default {
     openEditModal(student) {
       this.editingStudent = { 
         ...student,
-        groupId: this.groups.find(g => g.name === student.groupName)?.id || null
+        selectedGroup: this.groups.find(g => g.id === student.groupId) || null
       };
     },
     closeModal() {
@@ -241,7 +276,9 @@ export default {
     },
     async saveStudent() {
       try {
-        const { id, firstName, lastName, email, groupId } = this.editingStudent;
+        const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
+        const groupId = selectedGroup ? selectedGroup.id : null;
+        
         const response = await fetch(`${MANAGER_URL}/users/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -333,7 +370,7 @@ export default {
 }
 
 .text-input {
-  padding: 8px 10px;
+  padding: 10px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
@@ -705,6 +742,159 @@ select.form-input {
 
 .btn-save:hover {
   background-color: #27ae60;
+}
+
+.custom-multiselect >>> .multiselect {
+  min-height: 38px;
+  margin-top: 6px;
+}
+
+.custom-multiselect >>> .multiselect__tags {
+  min-height: 38px;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+.custom-multiselect >>> .multiselect__tags:focus-within {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+  outline: none;
+}
+
+.custom-multiselect >>> .multiselect__input,
+.custom-multiselect >>> .multiselect__single {
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+.custom-multiselect >>> .multiselect__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.custom-multiselect >>> .multiselect__placeholder {
+  color: #999;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.custom-multiselect >>> .multiselect__select {
+  height: 36px;
+  right: 1px;
+  top: 1px;
+  width: 30px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0 6px 6px 0;
+}
+
+.custom-multiselect >>> .multiselect__select:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 5px 0 5px;
+  border-color: #666 transparent transparent transparent;
+  transition: transform 0.2s ease;
+}
+
+.custom-multiselect >>> .multiselect--active .multiselect__select:before {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.custom-multiselect >>> .multiselect__select:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect >>> .multiselect__select:hover:before {
+  border-color: #333 transparent transparent transparent;
+}
+
+.custom-multiselect >>> .multiselect--active .multiselect__select {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect >>> .multiselect__content-wrapper {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  z-index: 10;
+}
+
+.custom-multiselect >>> .multiselect__option {
+  padding: 8px 12px;
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.custom-multiselect >>> .multiselect__option--selected {
+  background-color: #d0ebff;
+  color: #333;
+  font-weight: normal;
+}
+
+.custom-multiselect >>> .multiselect__option--highlight {
+  background: #3498db;
+  color: white;
+}
+
+.custom-multiselect >>> .multiselect__option--selected.multiselect__option--highlight {
+  background: #2980b9;
+  color: white;
+}
+
+.custom-multiselect >>> .multiselect__tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.custom-multiselect >>> .multiselect__tag {
+  background: #3498db;
+  color: white;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.custom-multiselect >>> .multiselect__tag-icon {
+  margin-left: 6px;
+  line-height: 1;
+}
+
+.custom-multiselect >>> .multiselect__tag-icon:after {
+  color: white;
+  font-size: 12px;
+}
+
+.custom-multiselect >>> .multiselect__tag-icon:hover {
+  background: transparent;
+}
+
+.custom-multiselect >>> .multiselect__spinner {
+  background: transparent;
+}
+
+.custom-multiselect >>> .multiselect__spinner:before,
+.custom-multiselect >>> .multiselect__spinner:after {
+  border-color: #3498db transparent transparent;
 }
 
 @media (max-width: 768px) {
