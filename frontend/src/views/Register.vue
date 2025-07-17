@@ -36,12 +36,22 @@
 
       <div>
         <label>Группа:</label>
-        <select v-model="groupId" required>
-          <option disabled value="">Выберите группу</option>
-          <option v-for="group in groups" :key="group.id" :value="group.id">
-            {{ group.name }}
-          </option>
-        </select>
+        <multiselect
+          v-model="groupId"
+          :options="groups"
+          :searchable="true"
+          :allow-empty="false"
+          :multiple="false"
+          :select-label="''"
+          :selected-label="''"
+          :deselect-label="''"
+          placeholder="Выберите группу"
+          label="name"
+          track-by="id"
+          class="custom-multiselect"
+          required
+        >
+        </multiselect>
       </div>
 
       <button type="submit" class="btn primary" :disabled="isSubmitDisabled">Зарегистрироваться</button>
@@ -57,8 +67,13 @@
 
 <script>
 import { fetchGroups, AUTH_URL } from "@/js/auth";
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.min.css";
 
 export default {
+  components: {
+    Multiselect
+  },
   data() {
     return {
       firstName: "",
@@ -66,7 +81,7 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
-      groupId: "",
+      groupId: null,
       groups: [],
       errorMessage: "",
     };
@@ -103,7 +118,7 @@ export default {
             lastName: this.lastName,
             email: this.email,
             password: this.password,
-            groupId: this.groupId,
+            groupId: this.groupId.id,
           }),
         });
 
@@ -165,8 +180,7 @@ label {
   font-weight: 500;
 }
 
-input,
-select {
+input {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ccc;
@@ -234,5 +248,117 @@ form > div {
       opacity: 1;
       transform: translateY(0);
   }
+}
+
+/* Стили для мультиселекта */
+.custom-multiselect >>> .multiselect {
+  min-height: 38px;
+  margin-top: 6px;
+}
+
+.custom-multiselect >>> .multiselect__tags {
+  min-height: 38px;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font-size: 16px;
+}
+
+.custom-multiselect >>> .multiselect__tags:focus-within {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
+  outline: none;
+}
+
+.custom-multiselect >>> .multiselect__input,
+.custom-multiselect >>> .multiselect__single {
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+.custom-multiselect >>> .multiselect__input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.custom-multiselect >>> .multiselect__placeholder {
+  color: #999;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.custom-multiselect >>> .multiselect__select {
+  height: 36px;
+  right: 1px;
+  top: 1px;
+  width: 30px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0 8px 8px 0;
+}
+
+.custom-multiselect >>> .multiselect__select:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 5px 0 5px;
+  border-color: #666 transparent transparent transparent;
+  transition: transform 0.2s ease;
+}
+
+.custom-multiselect >>> .multiselect--active .multiselect__select:before {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.custom-multiselect >>> .multiselect__select:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect >>> .multiselect__select:hover:before {
+  border-color: #333 transparent transparent transparent;
+}
+
+.custom-multiselect >>> .multiselect--active .multiselect__select {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect >>> .multiselect__content-wrapper {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  z-index: 10;
+}
+
+.custom-multiselect >>> .multiselect__option {
+  padding: 8px 12px;
+  font-size: 16px;
+  min-height: 36px;
+}
+
+.custom-multiselect >>> .multiselect__option--selected {
+  background-color: #d0ebff;
+  color: #333;
+  font-weight: normal;
+}
+
+.custom-multiselect >>> .multiselect__option--highlight {
+  background: #2f80ed;
+  color: white;
+}
+
+.custom-multiselect >>> .multiselect__option--selected.multiselect__option--highlight {
+  background: #1366d6;
+  color: white;
 }
 </style>
