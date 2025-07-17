@@ -219,12 +219,12 @@ export default {
         { name: "ACCEPTED" },
         { name: "INTERNAL_ERROR" },
       ],
-      selectedStatuses: [],
+      tasks: [],
+      users: [],
+      selectedStatuses: null,
       loading: false,
       visibleCode: null,
       modalCode: null,
-      tasks: [],
-      users: [],
       selectedUser: null,
       selectedTask: null,
     };
@@ -240,10 +240,8 @@ export default {
           }
         }
 
-        if (this.selectedStatuses.length > 0) {
-          this.selectedStatuses.forEach(status => {
-            queryParams.append('status', status.name);
-          });
+        if (this.selectedStatuses && this.selectedStatuses.name) {
+          queryParams.append('status', this.selectedStatuses.name);
         }
 
         if (this.selectedUser) {
@@ -943,7 +941,7 @@ pre {
 }
 
 .custom-multiselect >>> .multiselect__option--selected {
-  background: #f8f9fa;
+  background-color: #d0ebff;
   color: #333;
   font-weight: normal;
 }
