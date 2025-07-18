@@ -20,23 +20,79 @@
       <!-- Студент -->
       <header class="header" v-else-if="user.role === 'student'">
         <h1>Привет, {{ user.firstName }} {{ user.lastName }} 🎓</h1>
-        <p class="subtitle">Ты можешь:</p>
-        <ul class="features">
-          <li><i class="icon">📝</i> Решать контрольные работы и задания</li>
-          <li><i class="icon">📃</i> Просматривать список доступных контрольных</li>
-          <li><i class="icon">📊</i> Следить за своими результатами</li>
-        </ul>
+        <p class="subtitle">Доступные функции:</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,7V9H17V7H7M7,11V13H17V11H7M7,15V17H14V15H7Z" />
+              </svg>
+            </div>
+            <h3>Контрольные</h3>
+            <p>Просматривай доступные контрольные и задания.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+              </svg>
+            </div>
+            <h3>Результаты</h3>
+            <p>Решай контрольные и получай мгновенную обратную связь.</p>
+          </div>
+        </div>
       </header>
 
       <!-- Преподаватель -->
       <header class="header" v-else-if="user.role === 'teacher'">
         <h1>Здравствуйте, {{ user.firstName }} {{ user.lastName }} 👨‍🏫</h1>
-        <p class="subtitle">Вам доступны следующие функции:</p>
-        <ul class="features">
-          <li><i class="icon">➕</i> Создание контрольных работ и заданий</li>
-          <li><i class="icon">🛠</i> Управление содержанием заданий</li>
-          <li><i class="icon">📈</i> Просмотр результатов студентов</li>
-        </ul>
+        <p class="subtitle">Вот что вы можете делать:</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+              </svg>
+            </div>
+            <h3>Контрольные</h3>
+            <p>Формируйте новые задания и контрольные работы для студентов.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
+              </svg>
+            </div>
+            <h3>Задания</h3>
+            <p>Редактируйте, удаляйте и обновляйте контрольные работы.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+              </svg>
+            </div>
+            <h3>Студенты</h3>
+            <p>Просматривайте список студентов, редактируйте и удаляйте их профили.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
+              </svg>
+            </div>
+            <h3>Результаты</h3>
+            <p>Анализируйте успеваемость студентов по различным метрикам.</p>
+          </div>
+        </div>
       </header>
     </template>
   </div>
@@ -60,7 +116,6 @@ export default {
       if (this.user) {
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
-    } catch {
     } finally {
       this.isLoading = false;
     }
@@ -83,7 +138,7 @@ export default {
   padding: 40px;
   border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  max-width: 700px;
+  max-width: 900px;
   width: 100%;
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -95,34 +150,74 @@ h1 {
   font-weight: 600;
 }
 
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 2rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.card-top-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2f80ed, #56ccf2);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(47, 128, 237, 0.1);
+}
+
+.icon-container {
+  width: 50px;
+  height: 50px;
+  margin: 1rem auto;
+  background: linear-gradient(135deg, #2f80ed, #56ccf2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.card p {
+  font-size: 0.875rem;
+  color: #6b7b8c;
+  line-height: 1.4;
+  margin: 0;
+}
+
 .subtitle {
   font-size: 1.1rem;
   color: #7f8c8d;
   margin-bottom: 2rem;
   line-height: 1.5;
-}
-
-.features {
-  list-style: none;
-  padding: 0;
-  font-size: 1rem;
-  text-align: left;
-  color: #34495e;
-  margin: 0 auto;
-  max-width: 80%;
-}
-
-.features li {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
-  position: relative;
-  line-height: 1.6;
-}
-
-.icon {
-  position: absolute;
-  left: -1.5rem;
-  top: 0.1rem;
 }
 
 .actions {
@@ -194,6 +289,17 @@ h1 {
     to {
       opacity: 1;
       transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .card {
+    padding: 20px;
   }
 }
 
