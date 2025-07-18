@@ -11,12 +11,12 @@
       </div>
 
       <div class="profile-info">
-        <div class="info-item">
-          <span>📧 Email:</span>
+        <div class="info-item" data-icon="📧">
+          <span>Email:</span>
           <span>{{ user.email }}</span>
         </div>
-        <div class="info-item">
-          <span>👥 Группа:</span>
+        <div class="info-item" data-icon="👥">
+          <span>Группа:</span>
           <span>{{ user.groupName }}</span>
         </div>
       </div>
@@ -44,8 +44,7 @@ export default {
     } catch (err) {
       if (err.message === "UNAUTHORIZED") {
         this.$router.push("/login");
-      } else {
-      }
+      } 
     }
   },
 };
@@ -57,42 +56,30 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 90vh;
+  padding: 20px;
 }
 
 .profile-card {
   background: #fff;
   padding: 2rem;
   border-radius: 20px;
-  max-width: 500px;
+  max-width: 520px;
   width: 100%;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   animation: fadeIn 0.4s ease-in-out;
 }
 
 .profile-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
-.profile-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin-right: 1rem;
-  border: 3px solid #ccc;
-}
-
-h1{
+h1 {
   text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
 }
 
 h2 {
@@ -101,25 +88,56 @@ h2 {
   color: #333;
 }
 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 4px solid #2f80ed33;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2f80ed;
+}
+
 .user-role {
-  font-size: 14px;
-  color: #777;
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  margin-top: 4px;
 }
 
 .profile-info {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .info-item {
   display: flex;
-  justify-content: space-between;
-  font-size: 16px;
-  background: #f7f9fc;
+  align-items: center;
+  gap: 0.8rem;
+  background: #f9fafc;
   padding: 0.75rem 1rem;
-  border-radius: 10px;
-  color: #333;
+  border-radius: 12px;
+  font-size: 0.97rem;
+  color: #34495e;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.info-item::before {
+  content: attr(data-icon);
+  font-size: 1.2rem;
+  color: #2f80ed;
 }
 
 .loading {
