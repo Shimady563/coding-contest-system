@@ -10,7 +10,7 @@ if you don't have it installed, you can do it here: https://docs.docker.com/get-
 Next, clone repository to your local machine:
 
 ```bash
-    git clone https://github.com/Shimady563/coding-contest-system.git
+git clone https://github.com/Shimady563/coding-contest-system.git
 ```
 
 To build all services before running the application (requires java installed), you can use the following command:
@@ -18,19 +18,19 @@ To build all services before running the application (requires java installed), 
 Linux:
 
 ```bash
-    ./build.sh
+./build.sh
 ```
 
 Windows:
 
 ```bash
-    .\build.sh
+.\build.sh
 ```
 
 If you want to run the application using prebuild images, you can use the following command:
 
 ```bash
-    docker compose up -d
+docker compose up -d
 ```
 
 The application will be available at http://localhost:5173
@@ -41,5 +41,5 @@ and http://localhost:8081/api/v1/auth/swagger-ui.html
 To stop the application run:
 
 ```bash
-    docker compose down
+docker compose down
 ```
