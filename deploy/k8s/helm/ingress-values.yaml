@@ -1,0 +1,12 @@
+controller:
+  service:
+    ports:
+      # -- Port the external HTTP listener is published with.
+      http: 5173
+      # -- Port the external HTTPS listener is published with.
+      https: 443
+    targetPorts:
+      # -- Port of the ingress controller the external HTTP listener is mapped to.
+      http: 80
+      # -- Port of the ingress controller the external HTTPS listener is mapped to.
+      https: https

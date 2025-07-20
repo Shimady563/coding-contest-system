@@ -1,0 +1,8 @@
+replicaCount: 1
+controller:
+  replicaCount: 1
+listeners:
+  client:
+    name: CLIENT
+    containerPort: 9092
+    protocol: PLAINTEXT

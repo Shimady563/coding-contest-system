@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager
+  namespace: contest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manager
+  template:
+    metadata:
+      labels:
+        app: manager
+    spec:
+      containers:
+        - name: manager
+          image: shimady563/coding-contest-manager:latest
+          ports:
+            - protocol: TCP
+              containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/contest"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka:9092"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: JWT_TOKEN_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-secret
+            - name: JWT_TOKEN_ACCESS_EXPIRATION
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-expiration
+            - name: JWT_TOKEN_ACCESS_COOKIE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-cookie-name
+          readinessProbe:
+            httpGet:
+              path: /api/v1/actuator/health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: manager
+  namespace: contest
+spec:
+  selector:
+    app: manager
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

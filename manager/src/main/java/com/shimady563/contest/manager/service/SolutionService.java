@@ -46,7 +46,7 @@ public class SolutionService {
 
         if (taskId != null) {
             specifications.add(SolutionSpecification.hasTaskId(taskId));
-            logMessage.append("task id: ").append(true).append(", ");
+            logMessage.append("task id: ").append(taskId).append(", ");
         }
 
         if (startDateTime != null) {

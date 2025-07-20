@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: contest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: shimady563/coding-contest-auth:latest
+          ports:
+            - protocol: TCP
+              containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/contest"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: SPRING_DATA_REDIS_HOST
+              value: "redis"
+            - name: SPRING_DATA_REDIS_PORT
+              value: "6379"
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: password
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: JWT_TOKEN_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-secret
+            - name: JWT_TOKEN_ACCESS_EXPIRATION
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-expiration
+            - name: JWT_TOKEN_ACCESS_COOKIE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: access-cookie-name
+            - name: JWT_TOKEN_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: refresh-secret
+            - name: JWT_TOKEN_REFRESH_EXPIRATION
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: refresh-expiration
+            - name: JWT_TOKEN_REFRESH_COOKIE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: auth-secret
+                  key: refresh-cookie-name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: contest
+spec:
+  selector:
+    app: auth
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8080
