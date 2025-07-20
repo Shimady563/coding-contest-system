@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: contest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: shimady563/coding-contest-frontend:latest
+          ports:
+            - protocol: TCP
+              containerPort: 5173
+          env:
+            - name: VITE_APP_MANAGER_URL
+              value: /api/v1
+            - name: VITE_APP_AUTH_URL
+              value: /api/v1/auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: contest
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 5173
+      targetPort: 5173

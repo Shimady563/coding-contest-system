@@ -28,3 +28,9 @@ build
 auth/build
 manager/build
 compiler/build
+deploy/k8s/namespace*
+deploy/k8s/secret*
+deploy/k8s/pvc*
+deploy/k8s/storage*
+deploy/k8s/ingress*
+deploy/k8s/deploy.sh
