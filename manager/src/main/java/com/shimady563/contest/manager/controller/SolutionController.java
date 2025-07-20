@@ -20,7 +20,7 @@ public class SolutionController {
     private final SolutionService solutionService;
 
     @GetMapping("")
-    @Secured({"ROLE_TEACHER"})
+    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     public Page<SolutionResponseDto> searchForSolutions(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) Long userId,
