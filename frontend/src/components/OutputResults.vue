@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { MANAGER_URL, getUserInfo } from "@/js/auth";
 
 export default {
   name: "OutputResults",
@@ -40,14 +40,25 @@ export default {
   methods: {
     async fetchResults() {
       if (!this.taskId) return;
+      const user = await getUserInfo();
       try {
-        const response = await fetch(`${MANAGER_URL}/solutions/task?taskId=${this.taskId}`, {
-          credentials: "include"
+        const user = await getUserInfo();
+        if (!user?.id) throw new Error("User ID не получен");
+
+        const queryParams = new URLSearchParams();
+        queryParams.append("userId", user.id);
+        queryParams.append("taskId", this.taskId);
+
+        const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
+          credentials: "include",
         });
+
         if (!response.ok) throw new Error('Ошибка загрузки данных');
-        this.results = await response.json();
+        const data = await response.json();
+        this.results = data.content || [];
+        console.log(this.results)
       } catch (error) {
-        console.error('Error fetching results:', error);
+        console.log(this.results)
         this.results = [];
       }
     },
