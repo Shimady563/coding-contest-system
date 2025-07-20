@@ -1,6 +1,5 @@
 package com.shimady.contest.compiler.listener;
 
-import com.shimady.contest.compiler.config.KafkaTestConfig;
 import com.shimady.contest.compiler.config.TestcontainersConfiguration;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.after;
 
 @SpringBootTest
 @Testcontainers
-@Import({KafkaTestConfig.class, TestcontainersConfiguration.class})
+@Import({TestcontainersConfiguration.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SubmissionKafkaMessageListenerIntegrationTest {
 
