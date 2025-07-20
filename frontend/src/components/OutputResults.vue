@@ -46,8 +46,11 @@ export default {
         if (!user?.id) throw new Error("User ID не получен");
 
         const queryParams = new URLSearchParams();
+        
         queryParams.append("userId", user.id);
         queryParams.append("taskId", this.taskId);
+        queryParams.append("pageNumber", 0);
+        queryParams.append("pageSize", 1000);
 
         const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
           credentials: "include",
