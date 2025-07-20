@@ -139,8 +139,12 @@ export default {
 
       try {
         const userInfo = await getUserInfo();
+        const outputComponent = this.$refs.outputResults;
 
-        const moscowTime = new Date().toLocaleString('sv-SE', { 
+        await outputComponent.fetchResults();
+        const initialLength = outputComponent.results.length;
+
+        const moscowTime = new Date().toLocaleString('sv-SE', {
           timeZone: 'Europe/Moscow',
           hour12: false,
         }).replace(' ', 'T');
@@ -164,15 +168,30 @@ export default {
 
         if (response.ok) {
           this.$root.notify("Код успешно отправлен", "success");
-            
-          this.$refs.outputResults.fetchResults();
-          
-          let count = 0;
-          const interval = setInterval(() => {
-            this.$refs.outputResults.fetchResults();
-            count++;
-            if (count >= 5) clearInterval(interval); 
-          }, 2000);
+
+          const waitForNewResult = async () => {
+            const MAX_RETRIES = 30;
+            const DELAY = 2000;
+            let retries = 0;
+
+            while (retries < MAX_RETRIES) {
+              await outputComponent.fetchResults();
+              const currentLength = outputComponent.results.length;
+
+              if (currentLength > initialLength) {
+                this.$root.notify("Результат получен", "success");
+                return;
+              }
+
+              retries++;
+              await new Promise(resolve => setTimeout(resolve, DELAY));
+            }
+
+            this.$root.notify("Истекло время ожидания результата", "warning");
+          };
+
+          waitForNewResult();
+
         } else {
           const errorText = await response.text();
           if (response.status === 400) {
