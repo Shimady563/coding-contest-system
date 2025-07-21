@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: shimady563/coding-contest-frontend:latest
+          image: REPLACE_REPOSITORY_NAME/coding-contest-frontend:latest
           ports:
             - protocol: TCP
               containerPort: 5173

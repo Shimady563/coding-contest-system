@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: manager
-          image: shimady563/coding-contest-manager:latest
+          image: REPLACE_REPOSITORY_NAME/coding-contest-manager:latest
           ports:
             - protocol: TCP
               containerPort: 8080

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: compiler
-          image: shimady563/coding-contest-compiler:latest
+          image: REPLACE_REPOSITORY_NAME/coding-contest-compiler:latest
           env:
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://postgres:5432/contest"
