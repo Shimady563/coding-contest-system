@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: auth
-          image: shimady563/coding-contest-auth:latest
+          image: REPLACE_REPOSITORY_NAME/coding-contest-auth:latest
           ports:
             - protocol: TCP
               containerPort: 8081

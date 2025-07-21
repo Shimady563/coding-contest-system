@@ -24,6 +24,7 @@ jwt:
       cookie.name: coding_contest_system_access_token
 auth:
   whitelist: /groups, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**, /actuator, /actuator/**
+  allowed-origins: http://localhost:5173
 server:
   servlet:
     context-path: /api/v1/
