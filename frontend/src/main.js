@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import './assets/main.css';
-import { MANAGER_URL } from './js/auth';
+import { AUTH_URL } from './js/auth';
 
 function setupFetchInterceptor() {
     const _fetch = window.fetch.bind(window);
@@ -21,7 +21,7 @@ function setupFetchInterceptor() {
   
       if (response.status === 401) {
         try {
-          const refreshRes = await _fetch(`${MANAGER_URL}/refresh`, {
+          const refreshRes = await _fetch(`${AUTH_URL}/refresh`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
