@@ -1,0 +1,41 @@
+name: Deploy
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ./deploy/k8s
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Replace image placeholders
+        run: |
+          find . -type f -name '*.yaml' -exec \
+            sed -i "s|REPLACE_REPOSITORY_NAME|${{ secrets.DOCKERHUB_USERNAME }}|" {} \;
+
+      - name: Upload configs via ssh
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: deploy/k8s/main
+          target: ~/k8s/main
+          overwrite: true
+          strip_components: 3
+
+      - name: Apply configs via ssh
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            kubectl delete -R -f ./k8s/main
+            sleep 5
+            kubectl apply -R -f ./k8s/main
