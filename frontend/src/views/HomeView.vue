@@ -226,6 +226,7 @@ h1 {
   gap: 20px;
   flex-wrap: wrap;
   margin-top: 2rem;
+  max-width: 100%;
 }
 
 .btn {
@@ -236,6 +237,10 @@ h1 {
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box; /* Добавлено */
+  flex: 1; /* Добавлено */
+  min-width: 120px; /* Добавлено */
+  text-align: center; /* Добавлено */
 }
 
 .btn.primary {
@@ -305,7 +310,7 @@ h1 {
 
 @media (max-width: 600px) {
   .header {
-    padding: 25px;
+    padding: 20px 15px; 
   }
 
   h1 {
@@ -313,10 +318,22 @@ h1 {
   }
 
   .actions {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row; 
+    gap: 10px; 
+    padding: 0 10px; 
   }
 
+  .btn {
+    padding: 0.7rem 1rem; 
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .actions {
+    flex-direction: column;
+  }
+  
   .btn {
     width: 100%;
   }

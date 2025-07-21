@@ -898,24 +898,36 @@ select.form-input {
 }
 
 @media (max-width: 768px) {
+  .manage-students-container {
+    padding: 15px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats {
+    text-align: left;
+    width: 100%;
+    font-size: 13px;
+  }
+  
   .filters {
+    grid-template-columns: 1fr;
+    padding: 15px;
     gap: 12px;
   }
-  
-  .filter-group {
-    width: 100%;
-    min-width: auto;
-  }
-  
+
   .filter-actions {
-    width: 100%;
     flex-direction: column;
+    gap: 8px;
   }
   
   .apply-btn,
   .reset-btn {
     width: 100%;
-    margin-left: 0;
   }
   
   .students-table {
@@ -940,13 +952,25 @@ select.form-input {
 
 @media (max-width: 480px) {
   .manage-students-container {
-    padding: 1rem;
+    padding: 10px;
   }
   
   .name-col {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .stats {
+    font-size: 12px;
+  }
+
+  .filters {
+    padding: 12px 10px;
   }
 }
 </style>

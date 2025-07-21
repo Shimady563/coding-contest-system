@@ -585,24 +585,113 @@ h1 {
 }
 
 @media (max-width: 768px) {
+  .manage-container {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    padding: 0 10px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    padding: 0 10px;
+  }
+
+  .tabs button {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
   .filters {
     grid-template-columns: 1fr;
     gap: 12px;
+    padding: 15px;
+    margin: 0 10px 20px 10px;
   }
-  
+
+  .filter-group label span {
+    font-size: 12px;
+  }
+
+  .text-input {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+
   .filter-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .apply-btn,
+  .reset-btn {
     width: 100%;
     justify-content: center;
+    height: 36px;
   }
-  
+
+  .items-list {
+    padding: 0 10px;
+  }
+
+  .item-link {
+    padding: 12px;
+  }
+
+  .item-title {
+    font-size: 16px;
+  }
+
+  .item-description {
+    font-size: 13px;
+  }
+
   .pagination-container {
+    padding: 0 10px;
     flex-direction: column;
-    gap: 1rem;
+    gap: 10px;
   }
 
   .pagination-controls {
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
+  }
+
+  .page-indicator {
+    display: none; 
+  }
+
+  .empty-state {
+    padding: 20px 10px;
+  }
+
+  .empty-state i {
+    font-size: 2rem;
+  }
+
+  .empty-state h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .manage-container {
+    padding: 5px;
+  }
+
+  .tabs button {
+    min-width: 100px;
+    font-size: 13px;
+  }
+
+  .item-title {
+    font-size: 15px;
   }
 }
 </style>

@@ -120,6 +120,7 @@ h2 {
   display: grid;
   gap: 1rem;
   margin-top: 1.5rem;
+  word-break: break-word;
 }
 
 .info-item {
@@ -132,6 +133,7 @@ h2 {
   font-size: 0.97rem;
   color: #34495e;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  flex-wrap: wrap;
 }
 
 .info-item::before {

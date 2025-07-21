@@ -703,16 +703,16 @@ export default {
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
+ position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-content {
@@ -774,28 +774,17 @@ export default {
   background-color: #ccc;
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
 .code-modal {
   background: #fefefe;
   border-radius: 12px;
-  max-width: 800px;
+  max-width: min(800px, 90vw);
   width: 100%;
-  padding: 16px 20px;
+  padding: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.3s ease-out;
-  max-height: 90vh;
+  max-height: 80vh; 
   overflow-y: auto;
+  margin: 0 10px; 
 }
 
 .modal-header {
@@ -999,43 +988,64 @@ pre {
 }
 
 @media (max-width: 768px) {
+  .solutions-container {
+    padding: 15px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats {
+    text-align: left;
+    width: 100%;
+    font-size: 13px;
+  }
+
   .filters {
+    grid-template-columns: 1fr;
+    padding: 15px;
     gap: 12px;
   }
-  
-  .filter-group {
-    width: 100%;
-    min-width: auto;
-  }
-  
+
   .filter-actions {
-    width: 100%;
     flex-direction: column;
+    gap: 8px;
   }
-  
+
   .apply-btn,
   .reset-btn {
     width: 100%;
-    margin-left: 0;
-  }
-  
-  .solutions-table {
-    font-size: 13px;
-  }
-  
-  .solutions-table th,
-  .solutions-table td {
-    padding: 8px 12px;
   }
 
-  .pagination-container {
-    flex-direction: column;
-    gap: 1rem;
+  .code-modal {
+    max-height: 90vh;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .solutions-container {
+    padding: 10px;
   }
 
-  .pagination-controls {
-    width: 100%;
-    justify-content: center;
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .stats {
+    font-size: 12px;
+  }
+
+  .filters {
+    padding: 12px 10px;
+  }
+
+  .code-modal {
+    max-width: 95vw;
+    padding: 10px;
   }
 }
 </style>
