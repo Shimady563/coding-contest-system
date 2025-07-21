@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -27,6 +28,10 @@ import java.util.List;
 public class SecurityConfig {
     @Value("${auth.whitelist}")
     private final String[] whitelist;
+
+    @Value("${auth.allowed-origins}")
+    private final String[] allowedOrigins;
+
     private final JwtFilter jwtFilter;
 
     @Bean
@@ -38,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource customCorsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins).toList());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);

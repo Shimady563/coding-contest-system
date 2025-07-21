@@ -27,6 +27,7 @@ jwt:
       cookie.name: coding_contest_system_refresh_token
 auth:
   whitelist: /signup, /login, /refresh, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**
+  allowed-origins: http://localhost:5173
 server:
   servlet:
     context-path: /api/v1/auth

@@ -11,6 +11,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 auth:
   whitelist: /groups, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**, /actuator, /actuator/**
+  allowed-origins: http://localhost:5173
 server:
   servlet:
     context-path: /api/v1/
