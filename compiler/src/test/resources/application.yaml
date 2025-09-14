@@ -33,3 +33,5 @@ kafka:
 logging:
   level:
     root: info
+compiler:
+  timeoutSeconds: 15
