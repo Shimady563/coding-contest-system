@@ -8,6 +8,8 @@ import com.shimady563.contest.manager.model.dto.GroupResponseDto;
 import com.shimady563.contest.manager.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +41,7 @@ public class GroupService {
     }
 
     @Transactional
-    public void updateUserById(Long id, GroupRequestDto request) {
+    public void updateGroupById(Long id, GroupRequestDto request) {
         log.info("Updating group with id: {}", id);
         Group existing = getGroupById(id);
         existing.setName(request.getName());
@@ -50,5 +52,13 @@ public class GroupService {
     public void deleteGroupById(Long id) {
         log.info("Deleting group with id: {}", id);
         groupRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<GroupResponseDto> getGroupsByName(String name, PageRequest pageRequest) {
+        String query = name == null ? "" : name;
+        log.info("Getting group by name: {}", query);
+        return groupRepository.findByNameContainingIgnoreCase(query, pageRequest)
+                .map(GroupConverter::domain2Response);
     }
 }
