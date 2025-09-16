@@ -11,10 +11,12 @@ import CreateTest from '../views/CreateTest.vue';
 import CreateTask from '@/views/CreateTask.vue';
 import StudentContestsPage from '@/views/StudentContestsPage.vue';
 import EditContest from '@/views/EditContest.vue';
+import EditTask from '@/views/EditTask.vue';
 import ContestVersionsPage from '@/views/ContestVersionsPage.vue';
 import TasksPage from '@/views/TasksPage.vue';
 import StudentContest from '../views/StudentContest.vue';
 import ManageStudents from '@/views/ManageStudents.vue';
+import ManageGroups from '@/views/ManageGroups.vue';
 
 const routes = [
   { path: "/", component: HomeView },
@@ -27,10 +29,12 @@ const routes = [
   { path: '/create-task', component: CreateTask, meta: { requiresAuth: true, requiresTeacher: true }},
   { path: '/solve-contest', component: StudentContestsPage},
   { path: '/edit-contest/:id', component: EditContest, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/edit-task/:id', component: EditTask, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
   { path: '/contest/:contestId', component: ContestVersionsPage, meta: { requiresAuth: true }  },
   { path: '/contest/:contestId/contest-version/:versionId', component: TasksPage },
   { path: '/contest/:contestId/contest-version/:versionId/task/:taskId', component: StudentContest, name: 'StudentContest' },
   { path: '/manage-students', component: ManageStudents, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/manage-groups', component: ManageGroups, meta: { requiresAuth: true, requiresTeacher: true } },
   { path: '/access-denied', component: () => import('@/views/AccessDenied.vue') },
   { path: '/access-denied-contest', name: 'AccessDenied', component: () => import('@/views/AccessDeniedPage.vue') },
   { path: '/student-results', component: () => import('@/views/StudentSolutionsPage.vue'),
