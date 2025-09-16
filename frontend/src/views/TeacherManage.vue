@@ -52,9 +52,27 @@
         </div>
         <ul class="items-list">
           <li v-for="contest in contests" :key="contest.id" class="item">
-            <div class="item-link">
-              <div class="item-title">{{ contest.name }}</div>
-              <div class="item-description">{{ contest.description }}</div>
+            <div class="item-content">
+              <div class="item-info">
+                <div class="item-title">{{ contest.name }}</div>
+                <div class="item-description">{{ contest.description }}</div>
+              </div>
+              <div class="item-actions">
+                <button 
+                  class="edit-btn" 
+                  @click="editContest(contest)"
+                  title="Редактировать контрольную"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button 
+                  class="delete-btn" 
+                  @click="confirmDeleteContest(contest)"
+                  title="Удалить контрольную"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
           </li>
         </ul>
@@ -129,10 +147,28 @@
         </div>
         <ul class="items-list">
           <li v-for="task in tasks" :key="task.id" class="item">
-            <router-link :to="`/edit-task/${task.id}`" class="item-link">
-              <div class="item-title">{{ task.name }}</div>
-              <div class="item-description">{{ task.description }}</div>
-            </router-link>
+            <div class="item-content">
+              <div class="item-info">
+                <div class="item-title">{{ task.name }}</div>
+                <div class="item-description">{{ task.description }}</div>
+              </div>
+              <div class="item-actions">
+                <button 
+                  class="edit-btn" 
+                  @click="editTask(task)"
+                  title="Редактировать задание"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button 
+                  class="delete-btn" 
+                  @click="confirmDeleteTask(task)"
+                  title="Удалить задание"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
           </li>
         </ul>
         <div class="pagination-container" v-if="taskPage.totalPages > 1">
@@ -161,13 +197,31 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirmation Dialog -->
+    <ConfirmDialog
+      v-if="showConfirmDialog"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      @confirm="executeDelete"
+      @cancel="cancelDelete"
+    />
+
+    <!-- Notification -->
+    <Notification ref="notification" />
   </div>
 </template>
 
 <script>
 import { MANAGER_URL } from "@/js/auth";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import Notification from "@/components/Notification.vue";
 
 export default {
+  components: {
+    ConfirmDialog,
+    Notification
+  },
   data() {
     return {
       isContestsActive: true,
@@ -189,7 +243,14 @@ export default {
         number: 0,
         totalPages: 1,
         totalElements: 0
-      }
+      },
+      showConfirmDialog: false,
+      confirmDialog: {
+        title: '',
+        message: ''
+      },
+      itemToDelete: null,
+      deleteType: null // 'contest' or 'task'
     };
   },
   mounted() {
@@ -276,6 +337,78 @@ export default {
     },
     goToCreateTask() {
       this.$router.push("/create-task");
+    },
+    editContest(contest) {
+      this.$router.push(`/edit-contest/${contest.id}`);
+    },
+    editTask(task) {
+      this.$router.push(`/edit-task/${task.id}`);
+    },
+    confirmDeleteContest(contest) {
+      this.itemToDelete = contest;
+      this.deleteType = 'contest';
+      this.confirmDialog = {
+        title: 'Удаление контрольной',
+        message: `Вы уверены, что хотите удалить контрольную "${contest.name}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    confirmDeleteTask(task) {
+      this.itemToDelete = task;
+      this.deleteType = 'task';
+      this.confirmDialog = {
+        title: 'Удаление задания',
+        message: `Вы уверены, что хотите удалить задание "${task.name}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    async executeDelete() {
+      try {
+        if (this.deleteType === 'contest') {
+          await this.deleteContest(this.itemToDelete.id);
+        } else if (this.deleteType === 'task') {
+          await this.deleteTask(this.itemToDelete.id);
+        }
+        this.showConfirmDialog = false;
+        this.itemToDelete = null;
+        this.deleteType = null;
+      } catch (error) {
+        console.error('Error deleting item:', error);
+        this.$refs.notification.show('Ошибка при удалении', 'error');
+      }
+    },
+    cancelDelete() {
+      this.showConfirmDialog = false;
+      this.itemToDelete = null;
+      this.deleteType = null;
+    },
+    async deleteContest(contestId) {
+      const response = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
+        method: 'DELETE',
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error('Не удалось удалить контрольную');
+      }
+      
+      this.$refs.notification.show('Контрольная успешно удалена', 'success');
+      // Refresh the contests list
+      this.fetchContests(this.contestPage.number);
+    },
+    async deleteTask(taskId) {
+      const response = await fetch(`${MANAGER_URL}/tasks/${taskId}`, {
+        method: 'DELETE',
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error('Не удалось удалить задание');
+      }
+      
+      this.$refs.notification.show('Задание успешно удалено', 'success');
+      // Refresh the tasks list
+      this.fetchTasks(this.taskPage.number);
     }
   }
 };
@@ -495,22 +628,75 @@ h1 {
   margin-bottom: 15px;
 }
 
-.item-link {
-  display: block;
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px;
   background-color: #f5f7fa;
-  color: #2d2d2d;
-  text-decoration: none;
-  font-weight: 500;
   border-radius: 8px;
   transition: all 0.2s ease;
   text-align: left;
 }
 
-.item-link:hover {
+.item-content:hover {
   background-color: #e2e6ed;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.edit-btn,
+.delete-btn {
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.edit-btn {
+  background-color: #3498db;
+}
+
+.edit-btn:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background-color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+.edit-btn:active,
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+.edit-btn i,
+.delete-btn i {
+  font-size: 14px;
 }
 
 .item-title {
@@ -640,8 +826,9 @@ h1 {
     padding: 0 10px;
   }
 
-  .item-link {
+  .item-content {
     padding: 12px;
+    gap: 8px;
   }
 
   .item-title {
@@ -650,6 +837,22 @@ h1 {
 
   .item-description {
     font-size: 13px;
+  }
+
+  .item-actions {
+    gap: 6px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 6px 10px;
+  }
+
+  .edit-btn i,
+  .delete-btn i {
+    font-size: 12px;
   }
 
   .pagination-container {
@@ -692,6 +895,27 @@ h1 {
 
   .item-title {
     font-size: 15px;
+  }
+
+  .item-content {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .item-actions {
+    gap: 4px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+  }
+
+  .edit-btn i,
+  .delete-btn i {
+    font-size: 11px;
   }
 }
 </style>
