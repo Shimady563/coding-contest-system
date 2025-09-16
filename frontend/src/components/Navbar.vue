@@ -28,6 +28,9 @@
                 <router-link to="/manage-students" @click="closeDropdown">Студенты</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
+                <router-link to="/manage-groups" @click="closeDropdown">Группы</router-link>
+              </li>
+              <li v-if="user.role === 'teacher'">
                 <router-link to="/student-results" @click="closeDropdown">Оценки</router-link>
               </li>
               <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
