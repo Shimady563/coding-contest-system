@@ -91,7 +91,7 @@
                 <button @click="openEditModal(student)" class="btn-icon edit-btn" title="Редактировать">
                   <i class="fas fa-pencil-alt"></i>
                 </button>
-                <button @click="deleteStudent(student.id)" class="btn-icon delete-btn" title="Удалить">
+                <button @click="confirmDeleteStudent(student)" class="btn-icon delete-btn" title="Удалить">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
@@ -166,17 +166,27 @@
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-if="showConfirmDialog"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      @confirm="executeDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script>
 import { MANAGER_URL, fetchGroups } from "../js/auth";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 
 export default {
   components: {
-    Multiselect
+    Multiselect,
+    ConfirmDialog
   },
   data() {
     return {
@@ -188,6 +198,12 @@ export default {
       totalElements: 0,
       loading: false,
       editingStudent: null,
+      showConfirmDialog: false,
+      confirmDialog: {
+        title: '',
+        message: ''
+      },
+      studentToDelete: null,
       searchParams: {
         firstName: '',
         lastName: '',
@@ -295,7 +311,6 @@ export default {
       }
     },
     async deleteStudent(id) {
-      if (!confirm("Вы уверены, что хотите удалить этого студента?")) return;
       try {
         const response = await fetch(`${MANAGER_URL}/users/${id}`, {
           method: 'DELETE',
@@ -308,6 +323,24 @@ export default {
       } catch {
         this.$toast?.error("Ошибка при удалении");
       }
+    },
+    confirmDeleteStudent(student) {
+      this.studentToDelete = student;
+      this.confirmDialog = {
+        title: 'Удаление студента',
+        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    async executeDelete() {
+      if (!this.studentToDelete) return;
+      await this.deleteStudent(this.studentToDelete.id);
+      this.showConfirmDialog = false;
+      this.studentToDelete = null;
+    },
+    cancelDelete() {
+      this.showConfirmDialog = false;
+      this.studentToDelete = null;
     }
   }
 };
