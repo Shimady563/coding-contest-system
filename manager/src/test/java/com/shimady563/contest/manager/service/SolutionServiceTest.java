@@ -95,7 +95,7 @@ class SolutionServiceTest {
         dto.setSubmittedAt(solution.getSubmittedAt());
 
         willReturn(user).given(userService).getCurrentUser();
-        given(taskService.getTaskById(taskId)).willReturn(task);
+        given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
         given(solutionRepository.findByUserAndTask(user, task)).willReturn(List.of(solution));
 
         List<SolutionResponseDto> result = solutionService.getSolutionsByTaskId(taskId);

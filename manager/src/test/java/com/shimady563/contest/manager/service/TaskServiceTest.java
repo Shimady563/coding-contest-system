@@ -27,7 +27,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -97,9 +96,10 @@ class TaskServiceTest {
     void shouldReturnTaskById() {
         given(taskRepository.findById(1L)).willReturn(Optional.of(task));
 
-        Task result = taskService.getTaskById(1L);
+        TaskResponseDto result = taskService.getTaskById(1L);
 
-        assertEquals(task, result);
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("Sample Task");
     }
 
     @Test
@@ -107,7 +107,7 @@ class TaskServiceTest {
         given(taskRepository.findById(1L)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> taskService.updateTaskById(1L, requestDto));
+                () -> taskService.getTaskById(1L));
     }
 
     @Test

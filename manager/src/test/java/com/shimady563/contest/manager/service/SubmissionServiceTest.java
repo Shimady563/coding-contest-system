@@ -85,7 +85,7 @@ class SubmissionServiceTest {
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
-        given(taskService.getTaskById(taskId)).willReturn(task);
+        given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
 
         submissionService.submitSolution(dto);
 
@@ -175,7 +175,7 @@ class SubmissionServiceTest {
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
-        given(taskService.getTaskById(taskId)).willReturn(task);
+        given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
@@ -214,7 +214,7 @@ class SubmissionServiceTest {
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
-        given(taskService.getTaskById(taskId)).willReturn(task);
+        given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
