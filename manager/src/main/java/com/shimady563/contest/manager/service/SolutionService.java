@@ -84,7 +84,7 @@ public class SolutionService {
     public List<SolutionResponseDto> getSolutionsByTaskId(Long taskId) {
         log.info("Getting solutions for current user with task id: {}", taskId);
         User user = userService.getCurrentUser();
-        Task task = taskService.getTaskById(taskId);
+        Task task = taskService.getTaskByIdInternal(taskId);
         return solutionRepository.findByUserAndTask(user, task).stream()
                 .map(SolutionConverter::domain2Response)
                 .toList();

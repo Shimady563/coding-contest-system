@@ -24,6 +24,7 @@ public class AuthConverter {
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "role", ignore = true)
         @Mapping(target = "group", ignore = true)
+        @Mapping(target = "authorities", ignore = true)
         User signUpRequest2Domain(SignUpJwtRequest signUpJwtRequest);
 
         @Mapping(source = "group", target = "groupName")

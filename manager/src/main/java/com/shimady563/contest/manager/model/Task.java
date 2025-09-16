@@ -30,7 +30,7 @@ public class Task {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "task")
     private List<Solution> solutions = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "task")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "task", orphanRemoval = true)
     private Set<TestCase> testCases = new HashSet<>();
 
     public void addSolution(Solution solution) {
