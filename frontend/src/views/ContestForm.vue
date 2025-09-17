@@ -51,23 +51,42 @@
               <label>Название варианта <span class="required">*</span></label>
               <input v-model="variant.name" type="text" />
             </div>
+
             <div class="form-group">
               <label>Задания <span class="required">*</span></label>
               <TaskSelector :allTasks="tasks" @add-task="task => addTaskToVariant(index, task)" />
-              <ul>
-                <li v-for="t in variant.tasks" :key="t.id">{{ t.name }}</li>
-              </ul>
+              
+              <div class="selected-tasks">
+                <span v-for="t in variant.tasks" :key="t.id" class="task-chip">
+                  {{ t.name }}
+                  <button type="button" class="remove-task" @click="removeTaskFromVariant(index, t.id)">×</button>
+                </span>
+              </div>
             </div>
-            <button class="btn btn-danger" type="button" @click="removeVariant(index)">Удалить вариант</button>
-          </div>
 
-          <button class="btn btn-secondary" type="button" @click="addVariant">➕ Добавить вариант</button>
+            <button class="btn btn-danger" type="button" @click="removeVariant(index)">
+              <i class="fas fa-trash"></i> 
+              Удалить вариант
+            </button>
+          </div>
         </div>
 
-        <button class="btn btn-primary" :disabled="saving" @click="onSubmit">
-          <span v-if="saving">⏳ Сохранение...</span>
-          <span v-else>{{ isEdit ? '💾 Сохранить изменения' : '💾 Сохранить контрольную' }}</span>
-        </button>
+        <div class="form-actions">
+          <button class="btn btn-secondary" type="button" @click="addVariant">
+            <i class="fas fa-plus"></i> 
+            Добавить вариант
+          </button>
+          <button class="btn btn-primary" :disabled="saving" @click="onSubmit">
+            <span v-if="saving">
+              <i class="fas fa-spinner fa-spin"></i> 
+              Сохранение...
+            </span>
+            <span v-else>
+              <i class="fas fa-save"></i>
+              {{ isEdit ? ' Сохранить изменения' : ' Сохранить контрольную' }}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -123,6 +142,10 @@ export default {
     addVariant() { this.variants.push({ name: `Вариант ${this.nextVariantNumber++}`, tasks: [] }); },
     removeVariant(index) { this.variants.splice(index, 1); },
     addTaskToVariant(index, task) { const v = this.variants[index]; if (!v.tasks.find(t => t.id === task.id)) v.tasks.push(task); },
+    removeTaskFromVariant(variantIndex, taskId) {
+      const variant = this.variants[variantIndex];
+      variant.tasks = variant.tasks.filter(t => t.id !== taskId);
+    },
     validate() {
       this.submitted = true;
       if (!this.contest.name.trim()) { this.$root.notify('Введите название контрольной', 'error'); return false; }
@@ -158,7 +181,7 @@ export default {
           this.$root.notify('Контрольная работа успешно создана!', 'success');
           this.$router.push('/manage-contests');
         }
-      } catch (e) {
+      } catch {
         this.$root.notify('Не удалось сохранить изменения', 'error');
       } finally { this.saving = false; }
     }
@@ -167,5 +190,35 @@ export default {
 </script>
 
 <style scoped>
-/* Minimal component-specific overrides as needed */
+.selected-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.task-chip {
+  display: flex;
+  align-items: center;
+  background-color: #60a5fa;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.task-chip .remove-task {
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: bold;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.task-chip .remove-task:hover {
+  color: red;
+}
 </style>

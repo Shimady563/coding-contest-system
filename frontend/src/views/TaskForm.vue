@@ -36,17 +36,30 @@
                 <textarea v-model="testCase.output" placeholder="Ожидаемый результат" :class="{ 'invalid': !testCase.output && submitted }"></textarea>
                 <span v-if="!testCase.output && submitted" class="error-message">Заполните поле вывода</span>
               </div>
-              <button class="btn btn-danger" @click="removeTestCase(index)" type="button">🗑 Удалить</button>
+              <button class="btn btn-danger" @click="removeTestCase(index)" type="button">
+                <i class="fas fa-trash"></i> 
+                Удалить
+              </button>
             </div>
           </transition-group>
-
-          <button @click="addTestCase" class="btn btn-secondary" type="button">➕ Добавить тест-кейс</button>
         </div>
 
-        <button @click="onSubmit" class="btn btn-primary" :disabled="saving">
-          <span v-if="saving">⏳ Сохранение...</span>
-          <span v-else>{{ isEdit ? '💾 Сохранить изменения' : '💾 Сохранить задание' }}</span>
-        </button>
+        <div class="form-actions">
+          <button @click="addTestCase" class="btn btn-secondary" type="button">
+            <i class="fas fa-plus"></i> 
+            Добавить тест-кейс
+          </button>
+          <button @click="onSubmit" class="btn btn-primary" :disabled="saving">
+            <span v-if="saving">
+              <i class="fas fa-spinner fa-spin"></i>  
+              Сохранение...
+            </span>
+            <span v-else>
+              <i class="fas fa-save"></i>
+              {{ isEdit ? ' Сохранить изменения' : ' Сохранить задание' }}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -127,7 +140,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-/* Minimal component-specific overrides as needed */
-</style>

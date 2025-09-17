@@ -22,7 +22,8 @@
       :disabled="!selectedTaskId"
       @click="addSelectedTask"
     >
-      ➕ Добавить
+    <i class="fas fa-plus"></i> 
+    Добавить
     </button>
 
     <transition name="fade">

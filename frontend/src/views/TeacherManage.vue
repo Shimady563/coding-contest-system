@@ -250,7 +250,7 @@ export default {
         message: ''
       },
       itemToDelete: null,
-      deleteType: null // 'contest' or 'task'
+      deleteType: null 
     };
   },
   mounted() {
@@ -393,7 +393,6 @@ export default {
       }
       
       this.$refs.notification.show('Контрольная успешно удалена', 'success');
-      // Refresh the contests list
       this.fetchContests(this.contestPage.number);
     },
     async deleteTask(taskId) {
@@ -407,7 +406,6 @@ export default {
       }
       
       this.$refs.notification.show('Задание успешно удалено', 'success');
-      // Refresh the tasks list
       this.fetchTasks(this.taskPage.number);
     }
   }

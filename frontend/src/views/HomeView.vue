@@ -121,13 +121,23 @@ export default {
     return {
       user: null,
       isLoading: true,
-      error: null
+      error: null,
+      showWelcome: false,
     };
   },
   async created() {
     try {
       this.user = await getUserInfo();
-      if (this.user) {
+
+      const hasSeenWelcome = localStorage.getItem("seenWelcome");
+
+      if (!hasSeenWelcome) {
+        this.showWelcome = true;
+
+        localStorage.setItem("seenWelcome", "true");
+      }
+
+      if (this.user && this.showWelcome) {
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
     } finally {

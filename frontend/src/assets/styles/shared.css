@@ -115,6 +115,18 @@ select {
   background-color: #c82333; 
 }
 
+.form-actions {
+  display: flex;
+  gap: 12px; 
+  margin-top: 1.5rem;
+  flex-wrap: wrap; 
+}
+
+.form-actions .btn {
+  flex: 1; 
+  min-width: 140px; 
+}
+
 /* Blocks */
 .testcase-section { 
   margin-top: 2rem; 

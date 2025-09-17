@@ -76,6 +76,8 @@ export async function logoutUser() {
       throw new Error("Не удалось выйти из аккаунта");
     }
 
+    localStorage.removeItem("seenWelcome");
+
     return true;
   } catch (err) {
     console.error("Ошибка при выходе из аккаунта:", err);
