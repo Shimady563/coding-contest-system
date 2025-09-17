@@ -2,7 +2,10 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import './assets/main.css';
-import { AUTH_URL } from './js/auth';
+import './assets/styles/shared.css';
+import './assets/styles/filters-pagination.css';
+import './assets/styles/manage.css';
+import { AUTH_URL } from './js/api';
 
 function setupFetchInterceptor() {
     const _fetch = window.fetch.bind(window);
@@ -33,7 +36,7 @@ function setupFetchInterceptor() {
             await router.push({ name: 'Login' });
             return Promise.reject(new Error('Сессия истекла. Перенаправление на вход.'));
           }
-        } catch (e) {
+        } catch {
             return new Response(null, { status: 500, statusText: 'Fetch error suppressed' });}
       }
   

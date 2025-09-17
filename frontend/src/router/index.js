@@ -7,11 +7,9 @@ import Register from "../views/Register.vue";
 import Profile from "../views/Profile.vue";
 import Tests from "../views/StudentContest.vue";
 import TeacherManage from '../views/TeacherManage.vue';
-import CreateTest from '../views/CreateTest.vue';
-import CreateTask from '@/views/CreateTask.vue';
+import ContestForm from '../views/ContestForm.vue';
+import TaskForm from '@/views/TaskForm.vue';
 import StudentContestsPage from '@/views/StudentContestsPage.vue';
-import EditContest from '@/views/EditContest.vue';
-import EditTask from '@/views/EditTask.vue';
 import ContestVersionsPage from '@/views/ContestVersionsPage.vue';
 import TasksPage from '@/views/TasksPage.vue';
 import StudentContest from '../views/StudentContest.vue';
@@ -25,11 +23,11 @@ const routes = [
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },
   { path: "/contest", component: Tests },
   { path: '/manage-contests', component: TeacherManage, meta: { requiresAuth: true, requiresTeacher: true } },
-  { path: '/create-contest', component: CreateTest, meta: { requiresAuth: true, requiresTeacher: true } },
-  { path: '/create-task', component: CreateTask, meta: { requiresAuth: true, requiresTeacher: true }},
+  { path: '/create-contest', component: ContestForm, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/create-task', component: TaskForm, meta: { requiresAuth: true, requiresTeacher: true }},
   { path: '/solve-contest', component: StudentContestsPage},
-  { path: '/edit-contest/:id', component: EditContest, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
-  { path: '/edit-task/:id', component: EditTask, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/edit-contest/:id', component: ContestForm, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
+  { path: '/edit-task/:id', component: TaskForm, props: true, meta: { requiresAuth: true, requiresTeacher: true } },
   { path: '/contest/:contestId', component: ContestVersionsPage, meta: { requiresAuth: true }  },
   { path: '/contest/:contestId/contest-version/:versionId', component: TasksPage },
   { path: '/contest/:contestId/contest-version/:versionId/task/:taskId', component: StudentContest, name: 'StudentContest' },

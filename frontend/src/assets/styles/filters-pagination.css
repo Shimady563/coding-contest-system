@@ -1,0 +1,125 @@
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+}
+
+.filter-group { display: flex; 
+  flex-direction: column; 
+}
+
+.filter-group label span { 
+  font-size: 13px; 
+  font-weight: 500; 
+  color: #333; 
+  margin-bottom: 6px; 
+  display: block; 
+}
+
+.filter-actions { 
+  grid-column: 1 / -1; 
+  display: flex; 
+  justify-content: flex-end; 
+  gap: 10px; 
+  margin-top: 10px; 
+}
+
+.apply-btn, .reset-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-end;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.apply-btn { 
+  background-color: #3498db; 
+  color: #fff; 
+  border: none; }
+
+.apply-btn:hover { 
+  background-color: #2980b9; 
+}
+
+.reset-btn { 
+  background-color: transparent; 
+  color: #7f8c8d; 
+  border: 1px solid #ddd; 
+}
+
+.reset-btn:hover { 
+  background-color: #f1f1f1; 
+}
+
+.pagination-container { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-top: 24px; 
+  padding-top: 16px; 
+  border-top: 1px solid #eee; 
+}
+  
+.pagination-info { 
+  font-size: 14px; 
+  color: #7f8c8d; 
+}
+
+.pagination-controls { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.75rem; 
+}
+
+.pagination-btn { 
+  width: 36px; 
+  height: 36px; 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+  transition: all 0.2s ease; 
+  border: 1px solid #ddd; 
+  background: #fff; 
+  color: #333; 
+}
+
+.pagination-btn:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+}
+
+.pagination-btn:hover:not(:disabled) { 
+  background: #f8f9fa; 
+}
+
+.page-indicator { 
+  font-size: 0.9rem; 
+  color: #555; 
+}
+
+@media (max-width: 768px) {
+  .filters { 
+    grid-template-columns: 1fr; 
+    padding: 15px; gap: 12px; 
+  }
+
+  .filter-actions { 
+    flex-direction: column; 
+    gap: 8px; 
+  }
+}
+
+
