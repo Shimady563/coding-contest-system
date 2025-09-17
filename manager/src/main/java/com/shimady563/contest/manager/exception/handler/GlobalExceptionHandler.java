@@ -3,6 +3,7 @@ package com.shimady563.contest.manager.exception.handler;
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.AppError;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
+import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,7 +32,7 @@ public class GlobalExceptionHandler {
                 .body(new AppError(e.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler({DataIntegrityViolationException.class, PersistenceException.class})
     public ResponseEntity<AppError> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         log.error(e.getMessage());
         return ResponseEntity
@@ -48,8 +49,22 @@ public class GlobalExceptionHandler {
     }
 
     private String parseDataAccessExceptionMessage(String message) {
+        if (message == null) {
+            return "";
+        }
         if (message.contains("Detail:")) {
-            return message.split("Detail:")[1].split("]")[0].trim();
+            String[] afterDetail = message.split("Detail:", 2);
+            if (afterDetail.length > 1) {
+                String trimmed = afterDetail[1];
+                int end = trimmed.indexOf(']');
+                return (end > 0 ? trimmed.substring(0, end) : trimmed).trim();
+            }
+        }
+        int keyIdx = message.indexOf("Key (id)=");
+        if (keyIdx >= 0) {
+            String tail = message.substring(keyIdx);
+            int bracket = tail.indexOf(']');
+            return (bracket > 0 ? tail.substring(0, bracket) : tail).trim();
         }
         return message;
     }

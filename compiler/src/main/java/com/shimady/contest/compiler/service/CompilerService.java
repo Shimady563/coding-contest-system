@@ -30,20 +30,22 @@ public class CompilerService {
     private final Duration timeout;
     private final TestCaseService testCaseService;
 
-    public CompilerService(@Value("${compiler.timeoutSeconds}") long timeoutSeconds,
-                           @Value("${compiler.maxOutputBytes}") int maxOutputBytes,
-                           @Value("${compiler.maxOutputBytes}") String workDir,
-                           TestCaseService testCaseService) {
+    public CompilerService(
+            @Value("${compiler.timeoutSeconds}") long timeoutSeconds,
+            @Value("${compiler.maxOutputBytes}") int maxOutputBytes,
+            @Value("${compiler.maxOutputBytes}") String workDir,
+            TestCaseService testCaseService
+    ) {
         this.timeout = Duration.ofSeconds(timeoutSeconds);
         this.maxBytesOutput = maxOutputBytes;
-        this.workDir = System.getProperty("user.home") + workDir + "/";
+        this.workDir = System.getProperty("user.home") + workDir;
         this.testCaseService = testCaseService;
     }
 
     public CompilationResult compileAndRun(String code, Task task) {
         log.info("Compiling and running code for task with id: {}", task.getId());
         String fileId = UUID.randomUUID().toString();
-        Path runDir = Path.of(workDir, fileId);
+        Path runDir = Path.of(workDir);
         Path sourcePath = runDir.resolve(fileId + ".cpp");
         Path executablePath = runDir.resolve(fileId);
 
