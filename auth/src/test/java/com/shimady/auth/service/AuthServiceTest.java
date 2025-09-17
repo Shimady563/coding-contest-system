@@ -139,4 +139,13 @@ class AuthServiceTest {
         assertEquals("newToken", response.getAccessToken());
         assertEquals("newRefreshToken", response.getRefreshToken());
     }
+
+    @Test
+    void shouldLogout() {
+        var email = "test@example.com";
+
+        jwtService.deleteTokenByEmail(email);
+
+        then(jwtService).should().deleteTokenByEmail(email);
+    }
 }

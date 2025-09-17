@@ -11,7 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
@@ -54,6 +55,7 @@ class JwtServiceTest {
         user.setEmail("test@example.com");
         user.setPassword("password");
         var refreshToken = "refreshToken";
+        var newRefreshToken = "newRefreshToken";
         var newAccessToken = "newAccessToken";
 
         given(provider.validateRefreshToken(refreshToken)).willReturn(true);
@@ -61,12 +63,14 @@ class JwtServiceTest {
         given(userService.getUserByEmail(user.getEmail())).willReturn(user);
         given(tokenRepository.findByEmail(user.getEmail())).willReturn(refreshToken);
         given(provider.generateAccessToken(user)).willReturn(newAccessToken);
+        given(provider.generateRefreshToken(user)).willReturn(newRefreshToken);
 
         var response = jwtService.refreshToken(refreshToken);
 
         assertNotNull(response);
         assertEquals(newAccessToken, response.getAccessToken());
-        assertEquals(refreshToken, response.getRefreshToken());
+        assertEquals(newRefreshToken, response.getRefreshToken());
+        then(tokenRepository).should().save(newRefreshToken, user.getEmail());
     }
 
     @Test
@@ -94,5 +98,13 @@ class JwtServiceTest {
         assertThrows(JwtException.class,
                 () -> jwtService.refreshToken(refreshToken));
     }
-}
 
+    @Test
+    void shouldDeleteTokenByEmail() {
+        var email = "test@example.com";
+
+        jwtService.deleteTokenByEmail(email);
+
+        then(tokenRepository).should().deleteByEmail(email);
+    }
+}

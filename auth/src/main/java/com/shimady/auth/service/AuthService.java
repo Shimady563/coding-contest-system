@@ -56,6 +56,13 @@ public class AuthService {
         return jwtService.refreshToken(token);
     }
 
+    @Transactional
+    public void logout() {
+        String email = getUserEmail();
+        log.info("Logging out user with email: {}", email);
+        jwtService.deleteTokenByEmail(email);
+    }
+
     protected String getUserEmail() {
         return (String) SecurityContextHolder
                 .getContext()

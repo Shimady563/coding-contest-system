@@ -1,35 +1,26 @@
 package com.shimady.auth.repository;
 
+import com.shimady.auth.TestcontainersConfiguration;
 import com.shimady.auth.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Testcontainers
+@Import(TestcontainersConfiguration.class)
+@Testcontainers(disabledWithoutDocker = true)
 public class RefreshTokenRepositoryTest {
-    @Container
-    @ServiceConnection(name = "redis")
-    private static final GenericContainer<?> REDIS_CONTAINER =
-            new GenericContainer<>(DockerImageName.parse("redis:alpine")).withExposedPorts(6379);
-    @Container
-    @ServiceConnection(name = "redis")
-    private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:alpine")).withDatabaseName("auth");
-
     private final static String PREFIX = "refresh-token-";
 
     @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
@@ -41,7 +32,7 @@ public class RefreshTokenRepositoryTest {
 
         refreshTokenRepository.save(newToken, email);
 
-        String foundToken = refreshTokenRepository.findByEmail(email);
+        String foundToken = redisTemplate.opsForValue().get(PREFIX + email);
 
         assertNotNull(foundToken);
         assertEquals(newToken, foundToken);
@@ -51,5 +42,18 @@ public class RefreshTokenRepositoryTest {
     public void testFindByEmailFailure() {
         assertThrows(ResourceNotFoundException.class,
                 () -> refreshTokenRepository.findByEmail("non existing"));
+    }
+
+    @Test
+    void testDeleteByEmail() {
+        var token = "token";
+        var email = "email";
+
+        redisTemplate.opsForValue().set(PREFIX + email, token, 1, TimeUnit.DAYS);
+
+        refreshTokenRepository.deleteByEmail(email);
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> refreshTokenRepository.findByEmail(token));
     }
 }
