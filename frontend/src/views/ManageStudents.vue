@@ -1,6 +1,6 @@
 <template>
-  <div class="manage-students-container">
-    <div class="header">
+  <div class="page-container">
+    <div class="page-header">
       <h1><i class="fas fa-user-graduate"></i> Управление студентами</h1>
       <div class="stats" v-if="students.length">
         Показано {{ students.length }} из {{ totalElements }} студентов
@@ -178,7 +178,8 @@
 </template>
 
 <script>
-import { MANAGER_URL, fetchGroups } from "../js/auth";
+import { fetchGroups } from "../js/auth";
+import { MANAGER_URL } from "../js/api";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
@@ -347,141 +348,9 @@ export default {
 </script>
 
 <style scoped>
-.manage-students-container {
-  max-width: 1152px;
-  margin: 20px auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .stats {
   font-size: 14px;
   color: #7f8c8d;
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-group label span {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.text-input {
-  padding: 10px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.filter-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.apply-btn,
-.reset-btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  align-self: flex-end;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.apply-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-}
-
-.apply-btn:hover {
-  background-color: #2980b9;
-}
-
-.reset-btn {
-  background-color: transparent;
-  color: #7f8c8d;
-  border: 1px solid #ddd;
-}
-
-.reset-btn:hover {
-  background-color: #f1f1f1;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .empty-state {
@@ -670,17 +539,6 @@ export default {
   overflow-y: auto;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   animation: modalFadeIn 0.3s ease;
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .modal-header {

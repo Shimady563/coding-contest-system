@@ -35,7 +35,8 @@
 </template>
 
 <script>
-import { getGroupIdForCurrentUser, MANAGER_URL } from "@/js/auth";
+import { getGroupIdForCurrentUser } from "@/js/auth";
+import { MANAGER_URL } from "@/js/api";
 
 export default {
   name: "StudentContestsPage",
@@ -64,7 +65,7 @@ export default {
       const data = await response.json();
       this.contests = data || [];
     } catch {
-    } 
+    }
     finally {
       this.loading = false;
     }
@@ -189,25 +190,14 @@ h1 {
 }
 
 .status-upcoming {
-  color: #f39c12; 
+  color: #f39c12;
 }
 
 .status-active {
-  color: #27ae60; 
+  color: #27ae60;
 }
 
 .status-finished {
-  color: #c0392b; 
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
+  color: #c0392b;
 }
 </style>

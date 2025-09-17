@@ -213,7 +213,7 @@
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { MANAGER_URL } from "@/js/api";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Notification from "@/components/Notification.vue";
 
@@ -545,29 +545,6 @@ h1 {
   background-color: #f1f1f1;
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -757,17 +734,6 @@ h1 {
 .page-indicator {
   font-size: 0.9rem;
   color: #555;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @media (max-width: 768px) {

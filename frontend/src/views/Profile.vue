@@ -44,7 +44,7 @@ export default {
     } catch (err) {
       if (err.message === "UNAUTHORIZED") {
         this.$router.push("/login");
-      } 
+      }
     }
   },
 };
@@ -146,16 +146,5 @@ h2 {
   text-align: center;
   font-size: 18px;
   color: #555;
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 </style>

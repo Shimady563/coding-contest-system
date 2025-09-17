@@ -24,7 +24,8 @@
 </template>
 
 <script>
-import { MANAGER_URL, getUserInfo } from "@/js/auth";
+import { getUserInfo } from "@/js/auth";
+import { MANAGER_URL } from "@/js/api";
 
 export default {
   name: "OutputResults",
@@ -42,7 +43,6 @@ export default {
   methods: {
     async fetchResults() {
       if (!this.taskId) return;
-      const user = await getUserInfo();
       try {
         const user = await getUserInfo();
         if (!user?.id) throw new Error("User ID не получен");
@@ -62,7 +62,7 @@ export default {
         const data = await response.json();
         this.results = data.content || [];
         console.log(this.results)
-      } catch (error) {
+      } catch {
         console.log(this.results)
         this.results = [];
       }

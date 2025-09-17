@@ -2,7 +2,10 @@
   <div class="navbar-container">
     <nav class="navbar">
       <div class="container">
-        <router-link to="/" class="logo">🧠 Coding Contest</router-link>
+        <router-link to="/" class="logo">
+          <img src="../../public/paw.svg" alt="Paw" class="logo-icon"/>
+          Coding Contest
+        </router-link>
 
         <div v-if="user" class="menu-wrapper">
           <div class="hamburger-container">
@@ -66,7 +69,7 @@ export default {
     try {
       const userInfo = await getUserInfo();
       this.user = userInfo;
-    } catch (e) {
+    } catch {
       this.user = null;
     }
   },
@@ -117,10 +120,24 @@ export default {
 }
 
 .logo {
+  display: flex;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #222;
   text-decoration: none;
+  gap: 8px; 
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.2s, color 0.2s;
+  color: #222; 
+}
+
+.logo:hover .logo-icon {
+  transform: scale(1.2) rotate(-10deg);
 }
 
 .nav-links {

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { AUTH_URL } from "../js/auth";
+import { AUTH_URL } from "../js/api";
 
 export default {
   data() {
@@ -164,16 +164,5 @@ form > div {
   margin-bottom: 1rem;
   padding-left: 12px;
   padding-right: 12px;
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 </style>

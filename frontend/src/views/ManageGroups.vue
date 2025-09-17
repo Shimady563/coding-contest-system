@@ -69,9 +69,9 @@
         Страница {{ currentPage + 1 }} из {{ totalPages }}
       </div>
       <div class="pagination-controls">
-        <button 
-          @click="prevPage" 
-          :disabled="currentPage === 0" 
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 0"
           class="pagination-btn"
         >
           <i class="fas fa-chevron-left"></i>
@@ -79,9 +79,9 @@
         <div class="page-indicator">
           Страница {{ currentPage + 1 }} из {{ totalPages }}
         </div>
-        <button 
-          @click="nextPage" 
-          :disabled="currentPage >= totalPages - 1" 
+        <button
+          @click="nextPage"
+          :disabled="currentPage >= totalPages - 1"
           class="pagination-btn"
         >
           <i class="fas fa-chevron-right"></i>
@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { MANAGER_URL } from "@/js/api";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default {
@@ -392,29 +392,6 @@ export default {
   background-color: #10b981;
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -580,17 +557,6 @@ export default {
   animation: modalFadeIn 0.3s ease;
 }
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .modal-header {
   padding: 1.5rem;
   border-bottom: 1px solid #eee;
@@ -692,7 +658,7 @@ export default {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .apply-btn,
   .reset-btn,
   .create-btn {
@@ -700,5 +666,3 @@ export default {
   }
 }
 </style>
-
-

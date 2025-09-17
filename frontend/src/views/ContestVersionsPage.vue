@@ -17,18 +17,36 @@
         </div>
       </li>
     </ul>
+    <Modal v-if="showConfirm" @close="showConfirm = false">
+      <template #header>
+        <h2>Подтверждение</h2>
+      </template>
+      <template #body>
+        <p>Вы уверены, что хотите выбрать вариант "{{ selectedVersion?.name }}"? После выбора изменить его будет нельзя.</p>
+      </template>
+      <template #footer>
+        <button class="btn" @click="showConfirm = false">Отмена</button>
+        <button class="btn btn-primary" @click="proceedStart">Подтвердить</button>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script>
-import { getUserInfo, MANAGER_URL } from "../js/auth";
+import { getUserInfo } from "../js/auth";
+import { getContest, getContestVersionsByContest, getTasksByContestVersion, startContestForUser } from "../js/api";
+import Modal from "@/components/Modal.vue";
 
 export default {
   name: "ContestVersionsPage",
+  components: { Modal },
   data() {
     return {
       versions: [],
       loading: true,
+      contest: null,
+      showConfirm: false,
+      selectedVersion: null,
     };
   },
   async mounted() {
@@ -39,11 +57,7 @@ export default {
       const contestId = this.$route.params.contestId;
 
       try {
-        const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
-          credentials: "include"
-        });
-        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
-        this.contest = await contestResponse.json();
+        this.contest = await getContest(contestId);
       } catch {
         return;
       }
@@ -58,74 +72,33 @@ export default {
       }
 
       try {
-        const response = await fetch(
-          `${MANAGER_URL}/contest-versions?contestId=${contestId}`,
-          { credentials: "include" }
-        );
-
-        if (response.status === 403) {
-          alert("Вы уже зарегистрированы на вариант.");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Ошибка загрузки вариантов");
-        }
-
-        this.versions = await response.json();
-      } catch {
+        this.versions = await getContestVersionsByContest(contestId);
       } finally {
         this.loading = false;
       }
     },
     async confirmStart(version) {
+      this.selectedVersion = version;
+      this.showConfirm = true;
+    },
+    async proceedStart() {
+      const version = this.selectedVersion;
+      this.showConfirm = false;
       const userInfo = await getUserInfo();
       try {
-        const tasksResponse = await fetch(
-          `${MANAGER_URL}/tasks/contest-version?contestVersionId=${version.id}`,
-          {
-            credentials: "include"
-          }
-        );
-
-        if (tasksResponse.status === 403) {
-          const confirmed = confirm(
-            `Вы точно уверены, что хотите начать с вариантом "${version.name}"?\nПосле выбора смена будет невозможна.`
-          );
-
-          if (!confirmed) return;
-
-          const patchResponse = await fetch(
-            `${MANAGER_URL}/users/start/${userInfo.id}`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                contestVersionId: version.id,
-                contestId: this.$route.params.contestId
-              })
-            }
-          );
-
-          if (patchResponse.status === 403) {
-            alert("Вы уже выбрали вариант и не можете сменить его.");
-            return;
-          }
-
-          if (!patchResponse.ok) {
-            throw new Error("Ошибка регистрации на вариант");
-          }
+        const tasks = await getTasksByContestVersion(version.id);
+        if (tasks && tasks.length >= 0) {
           this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
-        } else if (tasksResponse.ok) {
-          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
-        } else {
-          throw new Error("Не удалось получить доступ к задачам варианта");
+          return;
         }
-      } catch (err) {
-        alert("Произошла ошибка. Попробуйте позже.");
+      } catch {
+        try {
+          await startContestForUser(userInfo.id, { contestVersionId: version.id, contestId: this.$route.params.contestId });
+          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
+        } catch {
+          alert("Вы уже выбрали вариант и не можете сменить его.");
+          return;
+        }
       }
     }
   }
@@ -202,16 +175,5 @@ h1 {
 .version-link:hover {
   color: #1a73e8;
   text-decoration: underline;
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 </style>

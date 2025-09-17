@@ -62,6 +62,7 @@
             <h3>Контрольные</h3>
             <p>Формируйте новые задания и контрольные работы для студентов.</p>
           </div>
+          
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -72,6 +73,7 @@
             <h3>Задания</h3>
             <p>Редактируйте, удаляйте и обновляйте контрольные работы.</p>
           </div>
+
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -82,6 +84,18 @@
             <h3>Студенты</h3>
             <p>Просматривайте список студентов, редактируйте и удаляйте их профили.</p>
           </div>
+
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12,5A3.5,3.5 0 0,1 15.5,8.5A3.5,3.5 0 0,1 12,12A3.5,3.5 0 0,1 8.5,8.5A3.5,3.5 0 0,1 12,5M4,8.5A2.5,2.5 0 0,1 6.5,11A2.5,2.5 0 0,1 4,13.5A2.5,2.5 0 0,1 1.5,11A2.5,2.5 0 0,1 4,8.5M20,8.5A2.5,2.5 0 0,1 22.5,11A2.5,2.5 0 0,1 20,13.5A2.5,2.5 0 0,1 17.5,11A2.5,2.5 0 0,1 20,8.5M12,14C14.67,14 20,15.34 20,18V20H4V18C4,15.34 9.33,14 12,14Z" />
+              </svg>
+            </div>
+            <h3>Группы</h3>
+            <p>Просматривайте, создавайте и удаляйте учебные группы.</p>
+          </div>
+
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -279,22 +293,6 @@ h1 {
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 
 @media (max-width: 768px) {

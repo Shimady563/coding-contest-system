@@ -21,7 +21,8 @@ import TaskDescription from "../components/TaskDescription.vue";
 import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
-import { getUserInfo, MANAGER_URL } from "../js/auth";
+import { getUserInfo } from "../js/auth";
+import { MANAGER_URL } from "../js/api";
 
 export default {
   components: {
@@ -36,7 +37,7 @@ export default {
       tasksList: [],
       loadingTasks: false,
       contest: null,
-      timeLeft: null, 
+      timeLeft: null,
       timerInterval: null
     };
   },
@@ -314,16 +315,5 @@ button span {
   text-align: center;
   width: fit-content;
   align-self: center;
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 </style>

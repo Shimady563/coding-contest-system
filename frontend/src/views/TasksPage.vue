@@ -15,33 +15,44 @@
         </div>
       </li>
     </ul>
+
+    <Modal v-if="errorModal" @close="errorModal = false">
+      <template #header>
+        <h2>Ошибка</h2>
+      </template>
+      <template #body>
+        <p>{{ errorMessage }}</p>
+      </template>
+      <template #footer>
+        <button class="btn" @click="errorModal = false">Ок</button>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { getContest, getTasksByContestVersion } from "@/js/api";
+import Modal from "@/components/Modal.vue";
 
 export default {
   name: "TasksPage",
+  components: { Modal },
   data() {
     return {
       tasks: [],
       loading: true,
-      contest: null
+      contest: null,
+      errorModal: false,
+      errorMessage: ''
     };
   },
   async mounted() {
     const versionId = this.$route.params.versionId;
-
     const contestId = this.$route.params.contestId;
-
     try {
-      const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
-        credentials: "include"
-      });
-      if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
-      this.contest = await contestResponse.json();
-    } catch {
+      this.contest = await getContest(contestId);
+    } catch (e) {
+      this.showError(e?.message || 'Не удалось загрузить данные контеста');
       return;
     }
 
@@ -55,18 +66,10 @@ export default {
     }
 
     try {
-      const response = await fetch(`${MANAGER_URL}/tasks/contest-version?contestVersionId=${versionId}`, {
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        throw new Error(errorBody?.message || "Ошибка загрузки заданий");
-      }
-
-      const result = await response.json();
+      const result = await getTasksByContestVersion(versionId);
       this.tasks = result ?? [];
-    } catch {
+    } catch (e) {
+      this.showError(e?.message || 'Ошибка загрузки заданий');
     } finally {
       this.loading = false;
     }
@@ -79,6 +82,10 @@ export default {
         query: { versionId: this.$route.params.id },  
       });
     },
+    showError(message) {
+      this.errorMessage = message;
+      this.errorModal = true;
+    }
   },
 };
 </script>
@@ -152,16 +159,5 @@ h1 {
 .item-description {
   font-size: 14px;
   color: #888;
-}
-
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
 }
 </style>

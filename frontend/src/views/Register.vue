@@ -66,7 +66,8 @@
 </template>
 
 <script>
-import { fetchGroups, AUTH_URL } from "@/js/auth";
+import { fetchGroups } from "@/js/auth";
+import { AUTH_URL } from "@/js/api";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 
@@ -239,18 +240,6 @@ form > div {
   padding-right: 12px;
 }
 
-@keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(15px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-  }
-}
-
-/* Стили для мультиселекта */
 .custom-multiselect >>> .multiselect {
   min-height: 38px;
   margin-top: 6px;
