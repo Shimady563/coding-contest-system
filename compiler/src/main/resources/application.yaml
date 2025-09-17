@@ -23,3 +23,5 @@ logging:
     root: info
 compiler:
   timeoutSeconds: 15
+  maxOutputBytes: 1_000_000
+  workDir: /cpp
