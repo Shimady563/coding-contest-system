@@ -128,16 +128,12 @@ export default {
   async created() {
     try {
       this.user = await getUserInfo();
+    
+      const hasSeenWelcome = localStorage.getItem("seenWelcome") === "true";
 
-      const hasSeenWelcome = localStorage.getItem("seenWelcome");
-
-      if (!hasSeenWelcome) {
+      if (!hasSeenWelcome && this.user) {
         this.showWelcome = true;
-
         localStorage.setItem("seenWelcome", "true");
-      }
-
-      if (this.user && this.showWelcome) {
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
     } finally {
@@ -247,7 +243,9 @@ h1 {
 .actions {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  flex-direction: row; 
+  gap: 10px; 
+  padding: 0 10px; 
   flex-wrap: wrap;
   margin-top: 2rem;
   max-width: 100%;
@@ -261,10 +259,10 @@ h1 {
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; /* Добавлено */
-  flex: 1; /* Добавлено */
-  min-width: 120px; /* Добавлено */
-  text-align: center; /* Добавлено */
+  box-sizing: border-box; 
+  flex: 1; 
+  min-width: 120px; 
+  text-align: center;
 }
 
 .btn.primary {
@@ -323,12 +321,6 @@ h1 {
 
   h1 {
     font-size: 1.8rem;
-  }
-
-  .actions {
-    flex-direction: row; 
-    gap: 10px; 
-    padding: 0 10px; 
   }
 
   .btn {

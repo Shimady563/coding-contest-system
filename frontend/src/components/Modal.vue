@@ -1,9 +1,9 @@
 <template>
-  <div class="modal-overlay" @click.self="close" role="dialog" aria-modal="true">
+  <div class="modal-overlay" @click.self="close">
     <div class="modal-container" ref="container">
       <div class="modal-header">
         <slot name="header"></slot>
-        <button class="close-btn" type="button" aria-label="Закрыть" @click="close">&times;</button>
+        <button class="close-btn" @click="close">&times;</button>
       </div>
       <div class="modal-body">
         <slot name="body"></slot>
@@ -13,26 +13,16 @@
       </div>
     </div>
   </div>
- </template>
+</template>
 
 <script>
 export default {
   name: 'Modal',
-  mounted() {
-    document.addEventListener('keydown', this.onKeydown);
-  },
-  beforeUnmount() {
-    document.removeEventListener('keydown', this.onKeydown);
-  },
+  mounted() { document.addEventListener('keydown', this.onKeydown); },
+  beforeUnmount() { document.removeEventListener('keydown', this.onKeydown); },
   methods: {
-    close() {
-      this.$emit('close');
-    },
-    onKeydown(e) {
-      if (e.key === 'Escape') {
-        this.close();
-      }
-    }
+    close() { this.$emit('close'); },
+    onKeydown(e) { if (e.key === 'Escape') this.close(); }
   }
 };
 </script>
@@ -40,11 +30,8 @@ export default {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,61 +40,58 @@ export default {
 
 .modal-container {
   background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  width: 92%;
-  max-width: 640px;
-  max-height: 90vh;
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modalIn 0.18s ease-out;
+  animation: fadeInUp 0.2s ease-out;
 }
 
 .modal-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #eef1f4;
+  padding: 18px 24px;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(180deg, #ffffff, #fafbfc);
+  background: #f9fafb;
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
-  color: #333;
+  color: #111827;
 }
 
 .close-btn {
   background: none;
   border: none;
   font-size: 24px;
+  color: #9ca3af;
   cursor: pointer;
-  color: #94a3b8;
-  padding: 0;
-  line-height: 1;
 }
 
-.close-btn:hover {
-  color: #475569;
-}
+.close-btn:hover { color: #6b7280; }
 
 .modal-body {
-  padding: 20px;
+  padding: 20px 24px;
   overflow-y: auto;
   flex-grow: 1;
+  color: #4b5563;
 }
 
 .modal-footer {
-  padding: 16px 20px;
-  border-top: 1px solid #eef1f4;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
-@keyframes modalIn {
+@keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
@@ -116,9 +100,6 @@ export default {
   .modal-container {
     width: 95%;
   }
-
-  .modal-header, .modal-body, .modal-footer {
-    padding: 12px 15px;
-  }
+  .modal-header, .modal-body, .modal-footer { padding: 12px 16px; }
 }
 </style>

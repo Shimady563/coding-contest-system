@@ -78,6 +78,14 @@ export default {
       }
     },
     async confirmStart(version) {
+      try {
+        const tasks = await getTasksByContestVersion(version.id);
+        if (tasks && tasks.length > 0) {
+          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
+          return;
+        }
+      } catch (err) {}
+
       this.selectedVersion = version;
       this.showConfirm = true;
     },
@@ -86,19 +94,13 @@ export default {
       this.showConfirm = false;
       const userInfo = await getUserInfo();
       try {
-        const tasks = await getTasksByContestVersion(version.id);
-        if (tasks && tasks.length >= 0) {
-          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
-          return;
-        }
+        await startContestForUser(userInfo.id, { 
+          contestVersionId: version.id, 
+          contestId: this.$route.params.contestId 
+        });
+        this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
       } catch {
-        try {
-          await startContestForUser(userInfo.id, { contestVersionId: version.id, contestId: this.$route.params.contestId });
-          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
-        } catch {
-          alert("Вы уже выбрали вариант и не можете сменить его.");
-          return;
-        }
+        this.$root.notify('Вы уже выбрали вариант и не можете сменить его.', 'error');
       }
     }
   }
