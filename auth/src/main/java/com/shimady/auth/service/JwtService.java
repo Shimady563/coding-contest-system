@@ -43,9 +43,18 @@ public class JwtService {
             throw new JwtException("Invalid refresh token for user with email: " + user.getEmail());
         }
 
+        String newRefreshToken = provider.generateRefreshToken(user);
+        tokenRepository.save(newRefreshToken, user.getEmail());
+
         return new JwtResponse(
                 provider.generateAccessToken(user),
-                refreshToken
+                newRefreshToken
         );
+    }
+
+    @Transactional
+    public void deleteTokenByEmail(String email) {
+        log.info("Deleting refresh token for user with email: {}", email);
+        tokenRepository.deleteByEmail(email);
     }
 }

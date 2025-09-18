@@ -57,6 +57,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
+        authService.logout();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(accessTokenCookieName))
                 .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(refreshTokenCookieName))

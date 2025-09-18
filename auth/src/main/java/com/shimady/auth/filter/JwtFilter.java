@@ -43,6 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = JwtUtils.getTokenFromCookies(request.getCookies(), accessTokenCookieName);
 
         if (!provider.validateAccessToken(token)) {
+            SecurityContextHolder.clearContext();
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("Jwt token is invalid or expired"));

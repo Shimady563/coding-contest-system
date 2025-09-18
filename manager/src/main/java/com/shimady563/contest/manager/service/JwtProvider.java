@@ -35,15 +35,15 @@ public class JwtProvider {
                     .parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            log.error("Jwt token expired: {}", e.getMessage());
+            log.warn("Jwt token expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            log.error("Jwt token unsupported: {}", e.getMessage());
+            log.warn("Jwt token unsupported: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            log.error("Jwt token malformed: {}", e.getMessage());
+            log.warn("Jwt token malformed: {}", e.getMessage());
         } catch (SignatureException e) {
-            log.error("Jwt token has wrong signature: {}", e.getMessage());
+            log.warn("Jwt token has wrong signature: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            log.error("Invalid jwt token: {}", e.getMessage());
+            log.warn("Invalid jwt token: {}", e.getMessage());
         }
         return false;
     }
