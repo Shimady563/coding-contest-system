@@ -1,5 +1,5 @@
 <template>
-  <Modal>
+  <Modal @close="cancel">
     <template #header>
       <h2>{{ title }}</h2>
     </template>
@@ -20,26 +20,14 @@ import Modal from './Modal.vue';
 
 export default {
   name: 'ConfirmDialog',
-  components: {
-    Modal
-  },
+  components: { Modal },
   props: {
-    title: {
-      type: String,
-      default: 'Подтверждение'
-    },
-    message: {
-      type: String,
-      required: true
-    }
+    title: { type: String, default: 'Подтверждение' },
+    message: { type: String, required: true }
   },
   methods: {
-    confirm() {
-      this.$emit('confirm');
-    },
-    cancel() {
-      this.$emit('cancel');
-    }
+    confirm() { this.$emit('confirm'); },
+    cancel() { this.$emit('cancel'); }
   }
 };
 </script>
@@ -48,34 +36,39 @@ export default {
 p {
   margin: 0;
   font-size: 16px;
-  color: #555;
+  color: #4b5563;
+  line-height: 1.5;
 }
 
 .btn {
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 100px;
 }
 
 .btn.cancel {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  color: #333;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
 }
 
 .btn.cancel:hover {
-  background-color: #e0e0e0;
+  background-color: #e5e7eb;
 }
 
 .btn.confirm {
-  background-color: #e74c3c;
+  background-color: #ef4444;
   color: white;
   border: none;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
 .btn.confirm:hover {
-  background-color: #c0392b;
+  background-color: #dc2626;
+  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.35);
 }
 </style>

@@ -27,7 +27,7 @@
     user-select: none;
   }
   
-  h1 {
+  .access-denied-container h1 {
     color: #e53935;
     font-size: 28px;
     margin-bottom: 16px;

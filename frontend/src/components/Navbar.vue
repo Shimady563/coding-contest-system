@@ -37,7 +37,7 @@
                 <router-link to="/manage-solutions" @click="closeDropdown">Оценки</router-link>
               </li>
               <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
-              <li><a @click.prevent="logout" style="cursor: pointer;">Выйти</a></li>
+              <li><a @click.prevent="confirmLogout" style="cursor: pointer;">Выйти</a></li>
             </ul>
           </transition>
         </div>
@@ -53,16 +53,27 @@
       </div>
     </nav>
   </div>
+
+  <ConfirmDialog
+    v-if="showLogoutConfirm"
+    title="Выход из аккаунта"
+    message="Вы точно хотите выйти?"
+    @confirm="handleLogoutConfirm"
+    @cancel="handleLogoutCancel"
+  />
 </template>
 
 <script>
 import { getUserInfo, logoutUser } from "../js/auth";
+import ConfirmDialog from './ConfirmDialog.vue';
 
 export default {
+  components: { ConfirmDialog },
   data() {
     return {
       user: null,
-      isDropdownOpen: false
+      isDropdownOpen: false,
+      showLogoutConfirm: false,
     };
   },
   async created() {
@@ -80,6 +91,16 @@ export default {
         this.user = null;
         this.$router.push("/login");
       }
+    },
+    confirmLogout() {
+      this.showLogoutConfirm = true; 
+    },
+    handleLogoutConfirm() {
+      this.showLogoutConfirm = false;
+      this.logout(); 
+    },
+    handleLogoutCancel() {
+      this.showLogoutConfirm = false; 
     },
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
