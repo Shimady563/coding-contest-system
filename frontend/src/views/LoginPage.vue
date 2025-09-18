@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { AUTH_URL } from "../js/api";
+import { login } from "@/js/auth";
 
 export default {
   data() {
@@ -44,27 +44,14 @@ export default {
   methods: {
     async login() {
       try {
-        this.$root.notify('Попытка входа...', 'info');
+        this.$root.notify("Попытка входа...", "info");
+        await login({ email: this.email, password: this.password });
 
-        const response = await fetch(`${AUTH_URL}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email: this.email, password: this.password }),
-        });
-
-        if (!response.ok) {
-          const err = await response.json();
-          this.errorMessage = err.message || "Ошибка входа";
-          this.$root.notify(this.errorMessage, 'error');
-          return;
-        }
-
-        this.$root.notify('Вход выполнен успешно!', 'success');
+        this.$root.notify("Вход выполнен успешно!", "success");
         this.$router.push("/").then(() => window.location.reload());
-      } catch {
-        this.errorMessage = "Сервер недоступен или ошибка сети";
-        this.$root.notify(this.errorMessage, 'error');
+      } catch (err) {
+        this.errorMessage = err.message || "Ошибка входа";
+        this.$root.notify(this.errorMessage, "error");
       }
     },
   },

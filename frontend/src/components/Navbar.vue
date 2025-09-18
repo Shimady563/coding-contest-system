@@ -22,7 +22,7 @@
             <ul class="dropdown-menu" v-show="isDropdownOpen" 
                 @mouseenter="openDropdown" @mouseleave="closeDropdown">
               <li v-if="user.role === 'student'">
-                <router-link to="/solve-contest" @click="closeDropdown">Контрольные</router-link>
+                <router-link to="/contests" @click="closeDropdown">Контрольные</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
                 <router-link to="/manage-contests" @click="closeDropdown">Задания</router-link>
@@ -34,7 +34,7 @@
                 <router-link to="/manage-groups" @click="closeDropdown">Группы</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
-                <router-link to="/student-results" @click="closeDropdown">Оценки</router-link>
+                <router-link to="/manage-solutions" @click="closeDropdown">Оценки</router-link>
               </li>
               <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
               <li><a @click.prevent="logout" style="cursor: pointer;">Выйти</a></li>

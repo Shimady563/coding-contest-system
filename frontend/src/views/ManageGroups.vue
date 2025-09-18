@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/api";
+import { getGroupsPage, createGroup, deleteGroup } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default {
@@ -136,14 +136,9 @@ export default {
       creating: false,
       showCreateModal: false,
       newGroupName: '',
-      searchParams: {
-        name: ''
-      },
+      searchParams: { name: '' },
       showConfirmDialog: false,
-      confirmDialog: {
-        title: '',
-        message: ''
-      },
+      confirmDialog: { title: '', message: '' },
       groupToDelete: null
     };
   },
@@ -157,21 +152,14 @@ export default {
         const params = {
           pageNumber: this.currentPage,
           pageSize: this.pageSize,
+          ...(this.searchParams.name ? { name: this.searchParams.name } : {})
         };
-        if (this.searchParams.name) params.name = this.searchParams.name;
 
-        const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${MANAGER_URL}/groups/page?${query}`, {
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
+        const data = await getGroupsPage(params);
 
-        if (!response.ok) throw new Error(await response.text());
-
-        const data = await response.json();
-        this.groups = data.content;
-        this.totalPages = data.page.totalPages;
-        this.totalElements = data.page.totalElements;
+        this.groups = data.content || [];
+        this.totalPages = data.totalPages ?? (data.page?.totalPages ?? 1);
+        this.totalElements = data.totalElements ?? (data.page?.totalElements ?? this.groups.length);
       } catch {
         this.$toast?.error("Ошибка при загрузке групп");
       } finally {
@@ -213,14 +201,7 @@ export default {
       }
       this.creating = true;
       try {
-        const response = await fetch(`${MANAGER_URL}/groups/new`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ name: this.newGroupName.trim() })
-        });
-        if (!response.ok) throw new Error(await response.text());
-
+        await createGroup({ name: this.newGroupName.trim() });
         this.$toast?.success('Группа создана');
         this.closeCreateModal();
         this.fetchGroups();
@@ -232,12 +213,7 @@ export default {
     },
     async deleteGroup(id) {
       try {
-        const response = await fetch(`${MANAGER_URL}/groups/${id}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
-
+        await deleteGroup(id);
         this.$toast?.success('Группа удалена');
         this.fetchGroups();
       } catch {

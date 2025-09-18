@@ -190,7 +190,7 @@
 import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
-import { MANAGER_URL } from "@/js/api";
+import { listSolutions, listTasksWithParams, listUsers } from "@/js/manager";
 
 export default {
   name: "StudentSolutionsPage",
@@ -235,31 +235,19 @@ export default {
     async fetchSolutions() {
       this.loading = true;
       try {
-        const queryParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(this.filters)) {
-          if (value !== "" && value !== null) {
-            queryParams.append(key, value);
-          }
-        }
+        const params = { ...this.filters };
 
-        if (this.selectedStatuses && this.selectedStatuses.name) {
-          queryParams.append('status', this.selectedStatuses.name);
+        if (this.selectedStatuses?.name) {
+          params.status = this.selectedStatuses.name;
         }
-
         if (this.selectedUser) {
-          queryParams.append("userId", this.selectedUser.id);
+          params.userId = this.selectedUser.id;
         }
         if (this.selectedTask) {
-          queryParams.append("taskId", this.selectedTask.id);
+          params.taskId = this.selectedTask.id;
         }
 
-        const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки решений");
-
-        this.solutions = await response.json();
+        this.solutions = await listSolutions(params);
       } catch {
         this.$toast.error("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
       } finally {
@@ -268,17 +256,10 @@ export default {
     },
     async fetchTasks() {
       try {
-        const params = new URLSearchParams({
+        const data = await listTasksWithParams({
           pageSize: 1000,
           pageNumber: 0,
         });
-
-        const response = await fetch(`${MANAGER_URL}/tasks?${params.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки задач");
-        const data = await response.json();
         this.tasks = data.content || [];
       } catch {
         this.$toast.error("Не удалось загрузить список задач");
@@ -286,19 +267,11 @@ export default {
     },
     async fetchUsers() {
       try {
-        const params = new URLSearchParams({
+        const data = await listUsers({
           role: "ROLE_STUDENT",
           pageSize: 1000,
           pageNumber: 0,
         });
-
-        const response = await fetch(`${MANAGER_URL}/users?${params.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки пользователей");
-
-        const data = await response.json();
         this.users = data.content || [];
       } catch {
         this.$toast.error("Не удалось загрузить список пользователей");

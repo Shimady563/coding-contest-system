@@ -66,8 +66,8 @@
 </template>
 
 <script>
-import { fetchGroups } from "@/js/auth";
-import { AUTH_URL } from "@/js/api";
+import { signup } from "@/js/auth"
+import { fetchGroups } from "@/js/manager";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 
@@ -106,35 +106,22 @@ export default {
   },
   methods: {
     async register() {
-      this.errorMessage = "";
-      this.$root.notify('Начата регистрация...', 'info');
-
       try {
-        const response = await fetch(`${AUTH_URL}/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include", 
-          body: JSON.stringify({
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            password: this.password,
-            groupId: this.groupId.id,
-          }),
+        this.$root.notify("Начата регистрация...", "info");
+
+        await signup({
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          password: this.password,
+          groupId: this.groupId.id,
         });
 
-        if (!response.ok) {
-          const err = await response.json();
-          this.errorMessage = err.message || "Ошибка регистрации";
-          this.$root.notify(this.errorMessage, 'error');
-          return;
-        }
-
-        this.$root.notify('Регистрация прошла успешно!', 'success');
+        this.$root.notify("Регистрация прошла успешно!", "success");
         this.$router.push("/").then(() => window.location.reload());
-      } catch {
-        this.errorMessage = "Сервер недоступен или ошибка сети";
-        this.$root.notify(this.errorMessage, 'error');
+      } catch (err) {
+        this.errorMessage = err.message || "Ошибка регистрации";
+        this.$root.notify(this.errorMessage, "error");
       }
     },
     async fetchGroupsList() {

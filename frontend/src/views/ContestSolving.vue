@@ -22,7 +22,12 @@ import TestCases from "../components/TestCases.vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import OutputResults from "../components/OutputResults.vue";
 import { getUserInfo } from "../js/auth";
-import { MANAGER_URL } from "../js/api";
+import { 
+  getContest, 
+  getTasksByContestVersion, 
+  getTask, 
+  submitSolution 
+} from "../js/manager";
 
 export default {
   components: {
@@ -81,11 +86,7 @@ export default {
       const contestId = this.$route.params.contestId;
 
       try {
-        const contestResponse = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
-          credentials: "include"
-        });
-        if (!contestResponse.ok) throw new Error("Не удалось загрузить данные контеста");
-        this.contest = await contestResponse.json();
+        this.contest = await getContest(contestId);
       } catch {
         return;
       }
@@ -95,7 +96,7 @@ export default {
       const now = new Date();
 
       if (now < start || now > end) {
-        this.$router.replace('/access-denied-contest');
+        this.$router.replace('/access-denied-time');
         return;
       }
 
@@ -108,23 +109,17 @@ export default {
 
       try {
         this.loadingTasks = true;
-        const response = await fetch(`${MANAGER_URL}/tasks/contest-version?contestVersionId=${versionId}`, {
-          credentials: "include",
-        });
-        const result = await response.json();
-        this.tasksList = result ?? [];
+
+        this.tasksList = await getTasksByContestVersion(versionId) ?? [];
 
         const task = this.tasksList.find(t => t.id === parseInt(taskId));
         if (task) {
           this.taskData = task;
         } else {
-          const singleTaskResponse = await fetch(`${MANAGER_URL}/tasks/${taskId}`, {
-            credentials: "include",
-          });
-          this.taskData = await singleTaskResponse.json();
+          this.taskData = await getTask(taskId);
         }
-      } catch {
-      } finally {
+      } catch {} 
+      finally {
         this.loadingTasks = false;
       }
     },
@@ -141,7 +136,6 @@ export default {
       try {
         const userInfo = await getUserInfo();
         const outputComponent = this.$refs.outputResults;
-
         await outputComponent.fetchResults();
         const initialLength = outputComponent.results.length;
 
@@ -158,51 +152,25 @@ export default {
           submittedAt: moscowTime,
         };
 
-        const response = await fetch(`${MANAGER_URL}/submissions`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+        await submitSolution(payload);
+        this.$root.notify("Код успешно отправлен", "success");
 
-        if (response.ok) {
-          this.$root.notify("Код успешно отправлен", "success");
-
-          const waitForNewResult = async () => {
-            const MAX_RETRIES = 30;
-            const DELAY = 2000;
-            let retries = 0;
-
-            while (retries < MAX_RETRIES) {
-              await outputComponent.fetchResults();
-              const currentLength = outputComponent.results.length;
-
-              if (currentLength > initialLength) {
-                this.$root.notify("Результат получен", "success");
-                return;
-              }
-
-              retries++;
-              await new Promise(resolve => setTimeout(resolve, DELAY));
-            }
-
-            this.$root.notify("Истекло время ожидания результата", "warning");
-          };
-
-          waitForNewResult();
-
-        } else {
-          const errorText = await response.text();
-          if (response.status === 400) {
-            this.$root.notify("Контрольная завершена. Отправка запрещена.", "error");
-          } else {
-            this.$root.notify("Не удалось отправить код.", "error");
+        const MAX_RETRIES = 30;
+        const DELAY = 2000;
+        let retries = 0;
+        while (retries < MAX_RETRIES) {
+          await outputComponent.fetchResults();
+          if (outputComponent.results.length > initialLength) {
+            this.$root.notify("Результат получен", "success");
+            return;
           }
+          retries++;
+          await new Promise(resolve => setTimeout(resolve, DELAY));
         }
+        this.$root.notify("Истекло время ожидания результата", "warning");
+
       } catch (e) {
-        this.$root.notify("Произошла ошибка при отправке кода.", "error");
+        this.$root.notify("Не удалось отправить код", "error");
       }
     },
     goToPrevTask() {

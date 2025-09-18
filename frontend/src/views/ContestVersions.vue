@@ -34,7 +34,7 @@
 
 <script>
 import { getUserInfo } from "../js/auth";
-import { getContest, getContestVersionsByContest, getTasksByContestVersion, startContestForUser } from "../js/api";
+import { getContest, getContestVersionsByContest, getTasksByContestVersion, startContestForUser } from "../js/manager";
 import Modal from "@/components/Modal.vue";
 
 export default {
@@ -67,7 +67,7 @@ export default {
       const now = new Date();
 
       if (now < start || now > end) {
-        this.$router.replace('/access-denied-contest');
+        this.$router.replace('/access-denied-time');
         return;
       }
 
@@ -88,13 +88,13 @@ export default {
       try {
         const tasks = await getTasksByContestVersion(version.id);
         if (tasks && tasks.length >= 0) {
-          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
+          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
           return;
         }
       } catch {
         try {
           await startContestForUser(userInfo.id, { contestVersionId: version.id, contestId: this.$route.params.contestId });
-          this.$router.push(`/contest/${this.$route.params.contestId}/contest-version/${version.id}`);
+          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
         } catch {
           alert("Вы уже выбрали вариант и не можете сменить его.");
           return;

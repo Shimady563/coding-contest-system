@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { getTask, createTask, updateTask } from '@/js/api';
+import { getTask, createTask, updateTask } from '@/js/manager';
 
 export default {
   props: { id: { type: String, required: false } },

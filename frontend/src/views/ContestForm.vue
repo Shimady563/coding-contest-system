@@ -94,8 +94,8 @@
 
 <script>
 import TaskSelector from '@/components/TaskSelector.vue';
-import { fetchGroups } from '@/js/auth';
-import { getContest, updateContest, createContest, listTasks, createContestVersion } from '@/js/api';
+import { fetchGroups } from '@/js/manager';
+import { getContest, updateContest, createContest, listTasks, createContestVersion } from '@/js/manager';
 
 export default {
   components: { TaskSelector },

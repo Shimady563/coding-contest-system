@@ -11,7 +11,7 @@
     <ul v-else class="contest-list">
       <li v-for="contest in contests" :key="contest.id">
         <router-link
-          :to="`/contest/${contest.id}`"
+          :to="`/contests/${contest.id}`"
           class="contest-item"
           @click="selectContest(contest)"
         >
@@ -35,8 +35,7 @@
 </template>
 
 <script>
-import { getGroupIdForCurrentUser } from "@/js/auth";
-import { MANAGER_URL } from "@/js/api";
+import { getGroupIdForCurrentUser, getContestsByGroup } from "@/js/manager";
 
 export default {
   name: "StudentContestsPage",
@@ -54,19 +53,10 @@ export default {
         throw new Error("groupId is null");
       }
 
-      const response = await fetch(`${MANAGER_URL}/contests/group?groupId=${groupId}`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error("Не удалось загрузить контрольные");
-      }
-
-      const data = await response.json();
-      this.contests = data || [];
+      this.contests = await getContestsByGroup(groupId) || [];
     } catch {
-    }
-    finally {
+      this.contests = [];
+    } finally {
       this.loading = false;
     }
   },

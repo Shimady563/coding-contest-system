@@ -7,7 +7,7 @@
           Контрольная работа ещё не началась или уже завершена. Пожалуйста, вернитесь позже.
         </p>
         <div class="actions">
-          <router-link to="/solve-contest" class="btn primary-btn">К контрольным</router-link>
+          <router-link to="/contests" class="btn primary-btn">К контрольным</router-link>
         </div>
       </div>
     </div>

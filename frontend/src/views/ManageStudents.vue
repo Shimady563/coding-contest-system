@@ -178,8 +178,7 @@
 </template>
 
 <script>
-import { fetchGroups } from "../js/auth";
-import { MANAGER_URL } from "../js/api";
+import { listUsers, updateUser, deleteUser, fetchGroups } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
@@ -238,18 +237,10 @@ export default {
           params.groupName = this.searchParams.selectedGroup.name;
         }
         
-        const query = new URLSearchParams(params).toString();
-        const response = await fetch(`${MANAGER_URL}/users?${query}`, {
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include'
-        });
-
-        if (!response.ok) throw new Error(await response.text());
-
-        const data = await response.json();
-        this.students = data.content;
-        this.totalPages = data.page.totalPages;
-        this.totalElements = data.page.totalElements;
+        const data = await listUsers(params);
+        this.students = data.content || [];
+        this.totalPages = data.page?.totalPages || 1;
+        this.totalElements = data.page?.totalElements || 0;
       } catch  {
         this.$toast?.error("Ошибка при загрузке студентов");
       } finally {
@@ -296,13 +287,7 @@ export default {
         const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
         const groupId = selectedGroup ? selectedGroup.id : null;
         
-        const response = await fetch(`${MANAGER_URL}/users/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ firstName, lastName, email, groupId })
-        });
-        if (!response.ok) throw new Error(await response.text());
+        await updateUser(id, { firstName, lastName, email, groupId });
 
         this.$toast?.success("Данные обновлены");
         this.closeModal();
@@ -313,11 +298,7 @@ export default {
     },
     async deleteStudent(id) {
       try {
-        const response = await fetch(`${MANAGER_URL}/users/${id}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
+        await deleteUser(id);
 
         this.$toast?.success("Студент удален");
         this.fetchStudents();

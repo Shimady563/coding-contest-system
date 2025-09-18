@@ -31,11 +31,11 @@
 </template>
 
 <script>
-import { getContest, getTasksByContestVersion } from "@/js/api";
+import { getContest, getTasksByContestVersion } from "@/js/manager";
 import Modal from "@/components/Modal.vue";
 
 export default {
-  name: "TasksPage",
+  name: "ContestTasks",
   components: { Modal },
   data() {
     return {
@@ -61,7 +61,7 @@ export default {
     const now = new Date();
 
     if (now < start || now > end) {
-      this.$router.replace('/access-denied-contest');
+      this.$router.replace('/access-denied-time');
        return;
     }
 
@@ -77,7 +77,7 @@ export default {
   methods: {
     goToTask(task) {
       this.$router.push({
-        name: 'StudentContest',
+        name: 'ContestSolving',
         params: { taskId: task.id },
         query: { versionId: this.$route.params.id },  
       });

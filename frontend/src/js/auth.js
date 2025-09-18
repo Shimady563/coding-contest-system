@@ -1,4 +1,30 @@
-import { AUTH_URL, MANAGER_URL } from './api';
+import { AUTH_URL } from "./base";
+
+export async function login(payload) {
+  const res = await fetch(`${AUTH_URL}/login`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('Ошибка авторизации');
+  return true;
+}
+
+export async function signup(payload) {
+  const res = await fetch(`${AUTH_URL}/signup`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    let message = 'Ошибка регистрации';
+    try { const d = await res.json(); message = d?.message || d?.error || message; } catch { /* ignore parse errors */ }
+    throw new Error(message);
+  }
+  return true;
+}
 
 export async function getUserInfo() {
   try {
@@ -29,42 +55,6 @@ export async function getUserInfo() {
   }
 }
 
-export async function fetchGroups() {
-  try {
-    const response = await fetch(`${MANAGER_URL}/groups`);
-
-    if (!response.ok) {
-      throw new Error("Ошибка при загрузке групп");
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.error("Ошибка при получении групп:", err);
-    return [];
-  }
-}
-
-export async function getGroupIdForCurrentUser() {
-  try {
-    const userInfo = await getUserInfo();
-    if (!userInfo || !userInfo.groupName) {
-      throw new Error("Не удалось получить информацию о пользователе или группе");
-    }
-
-    const groups = await fetchGroups();
-    const group = groups.find(g => g.name === userInfo.groupName);
-
-    if (!group) {
-      throw new Error(`Группа с именем ${userInfo.groupName} не найдена`);
-    }
-
-    return group.id;
-  } catch (err) {
-    console.error("Ошибка при получении ID группы пользователя:", err);
-    return null;
-  }
-}
-
 export async function logoutUser() {
   try {
     const res = await fetch(`${AUTH_URL}/logout`, {
@@ -83,4 +73,14 @@ export async function logoutUser() {
     console.error("Ошибка при выходе из аккаунта:", err);
     return false;
   }
+}
+
+export async function refreshAuth() {
+  const response = await fetch(`${AUTH_URL}/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) throw new Error('Не удалось обновить токен');
+  return true;
 }

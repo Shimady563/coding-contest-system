@@ -2,7 +2,6 @@
   <div class="manage-container">
     <h1>Управление контрольными и заданиями</h1>
 
-    <!-- Меню для переключения -->
     <div class="tabs">
       <button :class="{ active: isContestsActive }" @click="isContestsActive = true">Контрольные</button>
       <button :class="{ active: !isContestsActive }" @click="isContestsActive = false">Задания</button>
@@ -14,10 +13,10 @@
         <div class="filter-group">
           <label>
             <span>Название:</span>
-            <input 
-              type="text" 
-              v-model="contestSearchParams.name" 
-              class="text-input" 
+            <input
+              type="text"
+              v-model="contestSearchParams.name"
+              class="text-input"
               placeholder="Поиск по названию"
             >
           </label>
@@ -34,7 +33,7 @@
       </form>
 
       <button class="create-btn" @click="goToCreateContest">Создать контрольную</button>
-      
+
       <div v-if="loading" class="loading-container">
         <div class="spinner"></div>
         <span>Загрузка данных...</span>
@@ -58,15 +57,15 @@
                 <div class="item-description">{{ contest.description }}</div>
               </div>
               <div class="item-actions">
-                <button 
-                  class="edit-btn" 
+                <button
+                  class="edit-btn"
                   @click="editContest(contest)"
                   title="Редактировать контрольную"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
-                <button 
-                  class="delete-btn" 
+                <button
+                  class="delete-btn"
                   @click="confirmDeleteContest(contest)"
                   title="Удалить контрольную"
                 >
@@ -81,9 +80,9 @@
             Страница {{ contestPage.number + 1 }} из {{ contestPage.totalPages }}
           </div>
           <div class="pagination-controls">
-            <button 
-              @click="changeContestPage(-1)" 
-              :disabled="contestPage.number === 0" 
+            <button
+              @click="changeContestPage(-1)"
+              :disabled="contestPage.number === 0"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-left"></i>
@@ -91,9 +90,9 @@
             <div class="page-indicator">
               Страница {{ contestPage.number + 1 }} из {{ contestPage.totalPages }}
             </div>
-            <button 
-              @click="changeContestPage(1)" 
-              :disabled="contestPage.number + 1 >= contestPage.totalPages" 
+            <button
+              @click="changeContestPage(1)"
+              :disabled="contestPage.number + 1 >= contestPage.totalPages"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-right"></i>
@@ -109,10 +108,10 @@
         <div class="filter-group">
           <label>
             <span>Название:</span>
-            <input 
-              type="text" 
-              v-model="taskSearchParams.name" 
-              class="text-input" 
+            <input
+              type="text"
+              v-model="taskSearchParams.name"
+              class="text-input"
               placeholder="Поиск по названию"
             >
           </label>
@@ -129,7 +128,7 @@
       </form>
 
       <button class="create-btn" @click="goToCreateTask">Создать задание</button>
-      
+
       <div v-if="loading" class="loading-container">
         <div class="spinner"></div>
         <span>Загрузка данных...</span>
@@ -153,15 +152,15 @@
                 <div class="item-description">{{ task.description }}</div>
               </div>
               <div class="item-actions">
-                <button 
-                  class="edit-btn" 
+                <button
+                  class="edit-btn"
                   @click="editTask(task)"
                   title="Редактировать задание"
                 >
                   <i class="fas fa-edit"></i>
                 </button>
-                <button 
-                  class="delete-btn" 
+                <button
+                  class="delete-btn"
                   @click="confirmDeleteTask(task)"
                   title="Удалить задание"
                 >
@@ -176,9 +175,9 @@
             Страница {{ taskPage.number + 1 }} из {{ taskPage.totalPages }}
           </div>
           <div class="pagination-controls">
-            <button 
-              @click="changeTaskPage(-1)" 
-              :disabled="taskPage.number === 0" 
+            <button
+              @click="changeTaskPage(-1)"
+              :disabled="taskPage.number === 0"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-left"></i>
@@ -186,9 +185,9 @@
             <div class="page-indicator">
               Страница {{ taskPage.number + 1 }} из {{ taskPage.totalPages }}
             </div>
-            <button 
-              @click="changeTaskPage(1)" 
-              :disabled="taskPage.number + 1 >= taskPage.totalPages" 
+            <button
+              @click="changeTaskPage(1)"
+              :disabled="taskPage.number + 1 >= taskPage.totalPages"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-right"></i>
@@ -198,7 +197,6 @@
       </div>
     </div>
 
-    <!-- Confirmation Dialog -->
     <ConfirmDialog
       v-if="showConfirmDialog"
       :title="confirmDialog.title"
@@ -207,13 +205,17 @@
       @cancel="cancelDelete"
     />
 
-    <!-- Notification -->
     <Notification ref="notification" />
   </div>
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/api";
+import { 
+  listContests, 
+  deleteContest, 
+  listTasks, 
+  deleteTask 
+} from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Notification from "@/components/Notification.vue";
 
@@ -250,7 +252,7 @@ export default {
         message: ''
       },
       itemToDelete: null,
-      deleteType: null 
+      deleteType: null
     };
   },
   mounted() {
@@ -266,13 +268,8 @@ export default {
           pageNumber,
           pageSize: 10,
         };
-        const query = new URLSearchParams(params).toString();
-
-        const response = await fetch(`${MANAGER_URL}/contests?${query}`, {
-          credentials: "include"
-        });
-        if (!response.ok) throw new Error('Не удалось загрузить контрольные');
-        const data = await response.json();
+        
+        const data = await listContests(params);
         this.contests = data.content || [];
         this.contestPage = {
           number: data.page.number,
@@ -280,7 +277,8 @@ export default {
           totalElements: data.page.totalElements
         };
       } catch (error) {
-        console.error(error);
+        console.error('Ошибка загрузки контрольных:', error);
+        this.$refs.notification.show('Не удалось загрузить контрольные', 'error');
       } finally {
         this.loading = false;
       }
@@ -293,13 +291,8 @@ export default {
           pageNumber,
           pageSize: 10,
         };
-        const query = new URLSearchParams(params).toString();
-
-        const response = await fetch(`${MANAGER_URL}/tasks?${query}`, {
-          credentials: "include"
-        });
-        if (!response.ok) throw new Error('Не удалось загрузить задания');
-        const data = await response.json();
+        
+        const data = await listTasks(params);
         this.tasks = data.content || [];
         this.taskPage = {
           number: data.page.number,
@@ -307,7 +300,8 @@ export default {
           totalElements: data.page.totalElements
         };
       } catch (error) {
-        console.error(error);
+        console.error('Ошибка загрузки заданий:', error);
+        this.$refs.notification.show('Не удалось загрузить задания', 'error');
       } finally {
         this.loading = false;
       }
@@ -333,16 +327,16 @@ export default {
       }
     },
     goToCreateContest() {
-      this.$router.push("/create-contest");
+      this.$router.push("/manage-contests/create-contest");
     },
     goToCreateTask() {
-      this.$router.push("/create-task");
+      this.$router.push("/manage-contests/create-task");
     },
     editContest(contest) {
-      this.$router.push(`/edit-contest/${contest.id}`);
+      this.$router.push(`/manage-contests/edit-contest/${contest.id}`);
     },
     editTask(task) {
-      this.$router.push(`/edit-task/${task.id}`);
+      this.$router.push(`/manage-contests/edit-task/${task.id}`);
     },
     confirmDeleteContest(contest) {
       this.itemToDelete = contest;
@@ -365,48 +359,27 @@ export default {
     async executeDelete() {
       try {
         if (this.deleteType === 'contest') {
-          await this.deleteContest(this.itemToDelete.id);
+          await deleteContest(this.itemToDelete.id);
+          this.$refs.notification.show('Контрольная успешно удалена', 'success');
+          this.fetchContests(this.contestPage.number);
         } else if (this.deleteType === 'task') {
-          await this.deleteTask(this.itemToDelete.id);
+          await deleteTask(this.itemToDelete.id);
+          this.$refs.notification.show('Задание успешно удалено', 'success');
+          this.fetchTasks(this.taskPage.number);
         }
+      } catch (error) {
+        console.error('Ошибка при удалении:', error);
+        this.$refs.notification.show('Ошибка при удалении', 'error');
+      } finally {
         this.showConfirmDialog = false;
         this.itemToDelete = null;
         this.deleteType = null;
-      } catch (error) {
-        console.error('Error deleting item:', error);
-        this.$refs.notification.show('Ошибка при удалении', 'error');
       }
     },
     cancelDelete() {
       this.showConfirmDialog = false;
       this.itemToDelete = null;
       this.deleteType = null;
-    },
-    async deleteContest(contestId) {
-      const response = await fetch(`${MANAGER_URL}/contests/${contestId}`, {
-        method: 'DELETE',
-        credentials: "include"
-      });
-      
-      if (!response.ok) {
-        throw new Error('Не удалось удалить контрольную');
-      }
-      
-      this.$refs.notification.show('Контрольная успешно удалена', 'success');
-      this.fetchContests(this.contestPage.number);
-    },
-    async deleteTask(taskId) {
-      const response = await fetch(`${MANAGER_URL}/tasks/${taskId}`, {
-        method: 'DELETE',
-        credentials: "include"
-      });
-      
-      if (!response.ok) {
-        throw new Error('Не удалось удалить задание');
-      }
-      
-      this.$refs.notification.show('Задание успешно удалено', 'success');
-      this.fetchTasks(this.taskPage.number);
     }
   }
 };
@@ -831,7 +804,7 @@ h1 {
   }
 
   .page-indicator {
-    display: none; 
+    display: none;
   }
 
   .empty-state {
