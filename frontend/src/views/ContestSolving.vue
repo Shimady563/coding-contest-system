@@ -10,8 +10,14 @@
     <OutputResults ref="outputResults" :taskId="taskData.id" />
 
     <div class="navigation-buttons">
-      <button @click="goToPrevTask" :disabled="!prevTask">← Назад</button>
-      <button @click="goToNextTask" :disabled="!nextTask">Вперед →</button>
+      <button @click="goToPrevTask" :disabled="!prevTask">
+        <i class="fas fa-arrow-left"></i> 
+        Назад
+      </button>
+      <button @click="goToNextTask" :disabled="!nextTask">
+        Вперед 
+        <i class="fas fa-arrow-right"></i>
+      </button>
     </div>
   </div>
 </template>
@@ -176,7 +182,7 @@ export default {
     goToPrevTask() {
       if (this.prevTask) {
         this.$router.push({
-          name: 'StudentContest',
+          name: 'ContestSolving',
           params: {
             contestId: this.$route.params.contestId,
             versionId: this.$route.params.versionId,
@@ -188,7 +194,7 @@ export default {
     goToNextTask() {
       if (this.nextTask) {
         this.$router.push({
-          name: 'StudentContest',
+          name: 'ContestSolving',
           params: {
             contestId: this.$route.params.contestId,
             versionId: this.$route.params.versionId,

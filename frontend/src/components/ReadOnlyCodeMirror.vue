@@ -6,10 +6,9 @@
   
   <script>
   import CodeMirror from "codemirror";
-  import "codemirror/mode/clike/clike.js"; // Для C++, C
+  import "codemirror/mode/clike/clike.js"; 
   import "codemirror/lib/codemirror.css";
-  import "codemirror/theme/monokai.css"; // Или любой другой
-  
+  import "codemirror/theme/monokai.css";
   export default {
     name: "ReadOnlyCodeMirror",
     props: {
