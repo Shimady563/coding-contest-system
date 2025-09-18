@@ -42,7 +42,7 @@ public class SubmissionService {
         }
 
         User user = userService.getUserById(submission.getUserId());
-        Task task = taskService.getTaskById(submission.getTaskId());
+        Task task = taskService.getTaskByIdInternal(submission.getTaskId());
 
         if (!contestVersion.getUsers().contains(user)) {
             throw new SubmissionInvalidException("User with id: " + submission.getUserId() + " doesn't have the access to contest version with id: " + submission.getContestVersionId());

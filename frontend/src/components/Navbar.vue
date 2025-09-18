@@ -2,7 +2,10 @@
   <div class="navbar-container">
     <nav class="navbar">
       <div class="container">
-        <router-link to="/" class="logo">🧠 Coding Contest</router-link>
+        <router-link to="/" class="logo">
+          <img src="../../public/paw.svg" alt="Paw" class="logo-icon"/>
+          Coding Contest
+        </router-link>
 
         <div v-if="user" class="menu-wrapper">
           <div class="hamburger-container">
@@ -19,7 +22,7 @@
             <ul class="dropdown-menu" v-show="isDropdownOpen" 
                 @mouseenter="openDropdown" @mouseleave="closeDropdown">
               <li v-if="user.role === 'student'">
-                <router-link to="/solve-contest" @click="closeDropdown">Контрольные</router-link>
+                <router-link to="/contests" @click="closeDropdown">Контрольные</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
                 <router-link to="/manage-contests" @click="closeDropdown">Задания</router-link>
@@ -28,7 +31,10 @@
                 <router-link to="/manage-students" @click="closeDropdown">Студенты</router-link>
               </li>
               <li v-if="user.role === 'teacher'">
-                <router-link to="/student-results" @click="closeDropdown">Оценки</router-link>
+                <router-link to="/manage-groups" @click="closeDropdown">Группы</router-link>
+              </li>
+              <li v-if="user.role === 'teacher'">
+                <router-link to="/manage-solutions" @click="closeDropdown">Оценки</router-link>
               </li>
               <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
               <li><a @click.prevent="logout" style="cursor: pointer;">Выйти</a></li>
@@ -63,7 +69,7 @@ export default {
     try {
       const userInfo = await getUserInfo();
       this.user = userInfo;
-    } catch (e) {
+    } catch {
       this.user = null;
     }
   },
@@ -114,10 +120,24 @@ export default {
 }
 
 .logo {
+  display: flex;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
   color: #222;
   text-decoration: none;
+  gap: 8px; 
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.2s, color 0.2s;
+  color: #222; 
+}
+
+.logo:hover .logo-icon {
+  transform: scale(1.2) rotate(-10deg);
 }
 
 .nav-links {

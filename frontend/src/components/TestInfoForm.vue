@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { MANAGER_URL } from "@/js/manager";
 
 export default {
   props: ['modelValue'],

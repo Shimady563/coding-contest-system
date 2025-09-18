@@ -9,6 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +53,7 @@ class GroupServiceTest {
     }
 
     @Test
-    void shouldReturnAllGroups() {
+    void shouldGetAllGroups() {
         Group group1 = new Group();
         Group group2 = new Group();
         GroupResponseDto dto1 = new GroupResponseDto();
@@ -60,5 +64,26 @@ class GroupServiceTest {
         List<GroupResponseDto> result = groupService.getAllGroups();
 
         assertThat(result).hasSize(2).contains(dto1, dto2);
+    }
+
+    @Test
+    void shouldGetGroupsByName() {
+        Pageable pageable = PageRequest.of(0, 10);
+        String name = "Test";
+        Group group1 = new Group();
+        group1.setName("Test Group 1");
+        Group group2 = new Group();
+        group2.setName("Another Test Group");
+        GroupResponseDto dto1 = new GroupResponseDto();
+        dto1.setName("Test Group 1");
+        GroupResponseDto dto2 = new GroupResponseDto();
+        dto2.setName("Another Test Group");
+
+        given(groupRepository.findByNameContainingIgnoreCase(name, pageable))
+                .willReturn(new PageImpl<>(List.of(group1, group2)));
+
+        Page<GroupResponseDto> result = groupService.getGroupsByName(name, pageable);
+
+        assertThat(result.getContent()).hasSize(2).contains(dto1, dto2);
     }
 }

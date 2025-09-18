@@ -8,7 +8,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.http.Method;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.RequestSpecification;
@@ -19,7 +18,6 @@ import lombok.SneakyThrows;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -51,7 +49,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
+import static io.restassured.http.Method.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
 @Slf4j
 @Testcontainers
@@ -126,8 +127,8 @@ public class EndToEndTests {
     @SneakyThrows
     private void sendRequest(EndToEndTestCase testCase) {
         String response = withOptionalBody(given()
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
+                .contentType(JSON)
+                .accept(JSON)
                 .queryParams(testCase.getQueryParams())
                 .cookies(testCase.getCookies()), testCase.getRequestBody())
                 .when()
@@ -142,11 +143,11 @@ public class EndToEndTests {
 
     private Consumer<String, String> createConsumer() {
         Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+        props.put(GROUP_ID_CONFIG, UUID.randomUUID().toString());
+        props.put(AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         return new KafkaConsumer<>(props);
     }
 
@@ -244,7 +245,7 @@ public class EndToEndTests {
                                 "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests")
                                         .statusCode(200)
                                         .build()
@@ -255,7 +256,7 @@ public class EndToEndTests {
                                 "Getting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests")
                                         .pathParams("/1")
                                         .statusCode(200)
@@ -267,7 +268,7 @@ public class EndToEndTests {
                                 "Creating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContest")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/contests")
                                         .statusCode(201)
                                         .build()
@@ -278,7 +279,7 @@ public class EndToEndTests {
                                 "Updating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateContest")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/contests")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -290,7 +291,7 @@ public class EndToEndTests {
                                 "Getting contest by group id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByGroupId")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests/group")
                                         .statusCode(200)
                                         .build()
@@ -301,7 +302,7 @@ public class EndToEndTests {
                                 "Deleting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/contests")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -314,7 +315,7 @@ public class EndToEndTests {
                                 "Getting contest versions by contest id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestVersionsByContestId")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contest-versions")
                                         .statusCode(200)
                                         .build()
@@ -325,7 +326,7 @@ public class EndToEndTests {
                                 "Creating contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContestVersion")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/contest-versions")
                                         .statusCode(201)
                                         .build()
@@ -336,7 +337,7 @@ public class EndToEndTests {
                                 "Deleting contest version by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestVersionById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/contest-versions")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -349,7 +350,7 @@ public class EndToEndTests {
                                 "Getting all groups",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getAllGroups")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/groups")
                                         .statusCode(200)
                                         .build()
@@ -360,7 +361,7 @@ public class EndToEndTests {
                                 "Creating group",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createGroup")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/groups/new")
                                         .statusCode(201)
                                         .build()
@@ -371,7 +372,7 @@ public class EndToEndTests {
                                 "Updating group",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateGroup")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/groups")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -384,7 +385,7 @@ public class EndToEndTests {
                                 "Deleting test cases by ids",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteTestCasesByIds")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/test-cases")
                                         .statusCode(200)
                                         .build()
@@ -396,7 +397,7 @@ public class EndToEndTests {
                                 "Getting tasks",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/searchForTasks")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/tasks")
                                         .statusCode(200)
                                         .build()
@@ -407,7 +408,7 @@ public class EndToEndTests {
                                 "Creating task",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createTask")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/tasks")
                                         .statusCode(201)
                                         .build()
@@ -418,10 +419,22 @@ public class EndToEndTests {
                                 "Updating task",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateTask")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/tasks")
                                         .pathParams("/1")
                                         .statusCode(204)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
+                                "Getting task by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getTaskById")
+                                        .method(GET)
+                                        .path("/tasks")
+                                        .pathParams("/1")
+                                        .statusCode(200)
                                         .build()
                         )
                 ),
@@ -431,7 +444,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getTasksByContestVersionId")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/tasks/contest-version")
                                         .statusCode(200)
                                         .build()
@@ -442,7 +455,7 @@ public class EndToEndTests {
                                 "Deleting task",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteTaskById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/tasks")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -455,7 +468,7 @@ public class EndToEndTests {
                                 "Searching for solutions",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/searchForSolutions")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/solutions")
                                         .statusCode(200)
                                         .build()
@@ -466,7 +479,7 @@ public class EndToEndTests {
                                 "Getting solution by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getSolutionById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/solutions")
                                         .pathParams("/1")
                                         .statusCode(200)
@@ -479,7 +492,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getSolutionsByTaskId")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/solutions/task")
                                         .statusCode(200)
                                         .build()
@@ -491,7 +504,7 @@ public class EndToEndTests {
                                 "Submitting solution",
                                 EndToEndKafkaTestCase.builder()
                                         .filePathPostfix("/submitSolution")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/submissions")
                                         .statusCode(202)
                                         .resultingTopic(submissionTopic)
@@ -505,7 +518,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.PATCH)
+                                        .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
                                         .statusCode(204)
@@ -517,7 +530,7 @@ public class EndToEndTests {
                                 "Searching for users",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/searchForUsers")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/users")
                                         .statusCode(200)
                                         .build()
@@ -528,7 +541,7 @@ public class EndToEndTests {
                                 "Updating user",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateUser")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/users")
                                         .pathParams("/1")
                                         .statusCode(204)
@@ -540,7 +553,7 @@ public class EndToEndTests {
                                 "Getting user by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getUserById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/users")
                                         .pathParams("/1")
                                         .statusCode(200)
@@ -552,7 +565,7 @@ public class EndToEndTests {
                                 "Deleting user",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteUserById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/users")
                                         .pathParams("/2")
                                         .statusCode(204)
@@ -570,7 +583,7 @@ public class EndToEndTests {
                                 "Getting contests by name",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByName")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests")
                                         .statusCode(403)
                                         .build()
@@ -581,7 +594,7 @@ public class EndToEndTests {
                                 "Getting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -593,7 +606,7 @@ public class EndToEndTests {
                                 "Creating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContest")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/contests")
                                         .statusCode(404)
                                         .build()
@@ -604,7 +617,7 @@ public class EndToEndTests {
                                 "Updating contest",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateContest")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/contests")
                                         .pathParams("/1")
                                         .statusCode(404)
@@ -616,7 +629,7 @@ public class EndToEndTests {
                                 "Getting contest by group id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestsByGroupId")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contests/group")
                                         .statusCode(404)
                                         .build()
@@ -627,7 +640,7 @@ public class EndToEndTests {
                                 "Deleting contest by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/contests")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -640,7 +653,7 @@ public class EndToEndTests {
                                 "Getting contest versions by contest id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getContestVersionsByContestId")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/contest-versions")
                                         .statusCode(404)
                                         .build()
@@ -651,7 +664,7 @@ public class EndToEndTests {
                                 "Creating contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/createContestVersion")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/contest-versions")
                                         .statusCode(404)
                                         .build()
@@ -662,7 +675,7 @@ public class EndToEndTests {
                                 "Deleting contest version by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteContestVersionById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/contest-versions")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -675,7 +688,7 @@ public class EndToEndTests {
                                 "Updating group",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateGroup")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/groups")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -687,7 +700,7 @@ public class EndToEndTests {
                                 "Deleting group",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteGroupById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/groups")
                                         .pathParams("/1")
                                         .statusCode(409)
@@ -697,10 +710,22 @@ public class EndToEndTests {
                 //task controller
                 Arguments.of(
                         Named.of(
+                                "Getting task by id",
+                                EndToEndTestCase.builder()
+                                        .filePathPostfix("/getTaskById")
+                                        .method(GET)
+                                        .path("/tasks")
+                                        .pathParams("/-1")
+                                        .statusCode(404)
+                                        .build()
+                        )
+                ),
+                Arguments.of(
+                        Named.of(
                                 "Updating task",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateTask")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/tasks")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -713,7 +738,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getTasksByContestVersionId")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/tasks/contest-version")
                                         .statusCode(403)
                                         .build()
@@ -725,7 +750,7 @@ public class EndToEndTests {
                                 "Getting solution by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getSolutionById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/solutions")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -737,7 +762,7 @@ public class EndToEndTests {
                                 "Getting solutions by task id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getSolutionsByTaskId")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/solutions/task")
                                         .statusCode(404)
                                         .build()
@@ -749,7 +774,7 @@ public class EndToEndTests {
                                 "Submitting solution with invalid submission time",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/submitSolution/submissionTime")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/submissions")
                                         .statusCode(403)
                                         .build()
@@ -760,7 +785,7 @@ public class EndToEndTests {
                                 "Submitting solution with user not registered for contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/submitSolution/user")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/submissions")
                                         .statusCode(403)
                                         .build()
@@ -771,7 +796,7 @@ public class EndToEndTests {
                                 "Submitting solution with task from other contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/submitSolution/task")
-                                        .method(Method.POST)
+                                        .method(POST)
                                         .path("/submissions")
                                         .statusCode(403)
                                         .build()
@@ -784,7 +809,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/user")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.PATCH)
+                                        .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/3")
                                         .statusCode(403)
@@ -797,7 +822,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/contest-version")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.PATCH)
+                                        .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
                                         .statusCode(404)
@@ -810,7 +835,7 @@ public class EndToEndTests {
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/contest")
                                         .cookies(Map.of(tokenCookieName, studentToken))
-                                        .method(Method.PATCH)
+                                        .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
                                         .statusCode(403)
@@ -822,7 +847,7 @@ public class EndToEndTests {
                                 "Updating user",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/updateUser")
-                                        .method(Method.PUT)
+                                        .method(PUT)
                                         .path("/users")
                                         .pathParams("/2")
                                         .statusCode(404)
@@ -834,7 +859,7 @@ public class EndToEndTests {
                                 "Getting user by id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getUserById")
-                                        .method(Method.GET)
+                                        .method(GET)
                                         .path("/users")
                                         .pathParams("/-1")
                                         .statusCode(404)
@@ -846,7 +871,7 @@ public class EndToEndTests {
                                 "Deleting user",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/deleteUserById")
-                                        .method(Method.DELETE)
+                                        .method(DELETE)
                                         .path("/users")
                                         .pathParams("/1")
                                         .statusCode(409)

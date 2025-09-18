@@ -2,7 +2,6 @@
   <div class="manage-container">
     <h1>Управление контрольными и заданиями</h1>
 
-    <!-- Меню для переключения -->
     <div class="tabs">
       <button :class="{ active: isContestsActive }" @click="isContestsActive = true">Контрольные</button>
       <button :class="{ active: !isContestsActive }" @click="isContestsActive = false">Задания</button>
@@ -14,10 +13,10 @@
         <div class="filter-group">
           <label>
             <span>Название:</span>
-            <input 
-              type="text" 
-              v-model="contestSearchParams.name" 
-              class="text-input" 
+            <input
+              type="text"
+              v-model="contestSearchParams.name"
+              class="text-input"
               placeholder="Поиск по названию"
             >
           </label>
@@ -34,7 +33,7 @@
       </form>
 
       <button class="create-btn" @click="goToCreateContest">Создать контрольную</button>
-      
+
       <div v-if="loading" class="loading-container">
         <div class="spinner"></div>
         <span>Загрузка данных...</span>
@@ -52,9 +51,27 @@
         </div>
         <ul class="items-list">
           <li v-for="contest in contests" :key="contest.id" class="item">
-            <div class="item-link">
-              <div class="item-title">{{ contest.name }}</div>
-              <div class="item-description">{{ contest.description }}</div>
+            <div class="item-content">
+              <div class="item-info">
+                <div class="item-title">{{ contest.name }}</div>
+                <div class="item-description">{{ contest.description }}</div>
+              </div>
+              <div class="item-actions">
+                <button
+                  class="edit-btn"
+                  @click="editContest(contest)"
+                  title="Редактировать контрольную"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="delete-btn"
+                  @click="confirmDeleteContest(contest)"
+                  title="Удалить контрольную"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
           </li>
         </ul>
@@ -63,9 +80,9 @@
             Страница {{ contestPage.number + 1 }} из {{ contestPage.totalPages }}
           </div>
           <div class="pagination-controls">
-            <button 
-              @click="changeContestPage(-1)" 
-              :disabled="contestPage.number === 0" 
+            <button
+              @click="changeContestPage(-1)"
+              :disabled="contestPage.number === 0"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-left"></i>
@@ -73,9 +90,9 @@
             <div class="page-indicator">
               Страница {{ contestPage.number + 1 }} из {{ contestPage.totalPages }}
             </div>
-            <button 
-              @click="changeContestPage(1)" 
-              :disabled="contestPage.number + 1 >= contestPage.totalPages" 
+            <button
+              @click="changeContestPage(1)"
+              :disabled="contestPage.number + 1 >= contestPage.totalPages"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-right"></i>
@@ -91,10 +108,10 @@
         <div class="filter-group">
           <label>
             <span>Название:</span>
-            <input 
-              type="text" 
-              v-model="taskSearchParams.name" 
-              class="text-input" 
+            <input
+              type="text"
+              v-model="taskSearchParams.name"
+              class="text-input"
               placeholder="Поиск по названию"
             >
           </label>
@@ -111,7 +128,7 @@
       </form>
 
       <button class="create-btn" @click="goToCreateTask">Создать задание</button>
-      
+
       <div v-if="loading" class="loading-container">
         <div class="spinner"></div>
         <span>Загрузка данных...</span>
@@ -129,10 +146,28 @@
         </div>
         <ul class="items-list">
           <li v-for="task in tasks" :key="task.id" class="item">
-            <router-link :to="`/edit-task/${task.id}`" class="item-link">
-              <div class="item-title">{{ task.name }}</div>
-              <div class="item-description">{{ task.description }}</div>
-            </router-link>
+            <div class="item-content">
+              <div class="item-info">
+                <div class="item-title">{{ task.name }}</div>
+                <div class="item-description">{{ task.description }}</div>
+              </div>
+              <div class="item-actions">
+                <button
+                  class="edit-btn"
+                  @click="editTask(task)"
+                  title="Редактировать задание"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="delete-btn"
+                  @click="confirmDeleteTask(task)"
+                  title="Удалить задание"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
           </li>
         </ul>
         <div class="pagination-container" v-if="taskPage.totalPages > 1">
@@ -140,9 +175,9 @@
             Страница {{ taskPage.number + 1 }} из {{ taskPage.totalPages }}
           </div>
           <div class="pagination-controls">
-            <button 
-              @click="changeTaskPage(-1)" 
-              :disabled="taskPage.number === 0" 
+            <button
+              @click="changeTaskPage(-1)"
+              :disabled="taskPage.number === 0"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-left"></i>
@@ -150,9 +185,9 @@
             <div class="page-indicator">
               Страница {{ taskPage.number + 1 }} из {{ taskPage.totalPages }}
             </div>
-            <button 
-              @click="changeTaskPage(1)" 
-              :disabled="taskPage.number + 1 >= taskPage.totalPages" 
+            <button
+              @click="changeTaskPage(1)"
+              :disabled="taskPage.number + 1 >= taskPage.totalPages"
               class="pagination-btn"
             >
               <i class="fas fa-chevron-right"></i>
@@ -161,13 +196,34 @@
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      v-if="showConfirmDialog"
+      :title="confirmDialog.title"
+      :message="confirmDialog.message"
+      @confirm="executeDelete"
+      @cancel="cancelDelete"
+    />
+
+    <Notification ref="notification" />
   </div>
 </template>
 
 <script>
-import { MANAGER_URL } from "@/js/auth";
+import { 
+  listContests, 
+  deleteContest, 
+  listTasks, 
+  deleteTask 
+} from "@/js/manager";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import Notification from "@/components/Notification.vue";
 
 export default {
+  components: {
+    ConfirmDialog,
+    Notification
+  },
   data() {
     return {
       isContestsActive: true,
@@ -189,7 +245,14 @@ export default {
         number: 0,
         totalPages: 1,
         totalElements: 0
-      }
+      },
+      showConfirmDialog: false,
+      confirmDialog: {
+        title: '',
+        message: ''
+      },
+      itemToDelete: null,
+      deleteType: null
     };
   },
   mounted() {
@@ -205,13 +268,8 @@ export default {
           pageNumber,
           pageSize: 10,
         };
-        const query = new URLSearchParams(params).toString();
-
-        const response = await fetch(`${MANAGER_URL}/contests?${query}`, {
-          credentials: "include"
-        });
-        if (!response.ok) throw new Error('Не удалось загрузить контрольные');
-        const data = await response.json();
+        
+        const data = await listContests(params);
         this.contests = data.content || [];
         this.contestPage = {
           number: data.page.number,
@@ -219,7 +277,8 @@ export default {
           totalElements: data.page.totalElements
         };
       } catch (error) {
-        console.error(error);
+        console.error('Ошибка загрузки контрольных:', error);
+        this.$refs.notification.show('Не удалось загрузить контрольные', 'error');
       } finally {
         this.loading = false;
       }
@@ -232,13 +291,8 @@ export default {
           pageNumber,
           pageSize: 10,
         };
-        const query = new URLSearchParams(params).toString();
-
-        const response = await fetch(`${MANAGER_URL}/tasks?${query}`, {
-          credentials: "include"
-        });
-        if (!response.ok) throw new Error('Не удалось загрузить задания');
-        const data = await response.json();
+        
+        const data = await listTasks(params);
         this.tasks = data.content || [];
         this.taskPage = {
           number: data.page.number,
@@ -246,7 +300,8 @@ export default {
           totalElements: data.page.totalElements
         };
       } catch (error) {
-        console.error(error);
+        console.error('Ошибка загрузки заданий:', error);
+        this.$refs.notification.show('Не удалось загрузить задания', 'error');
       } finally {
         this.loading = false;
       }
@@ -272,10 +327,59 @@ export default {
       }
     },
     goToCreateContest() {
-      this.$router.push("/create-contest");
+      this.$router.push("/manage-contests/create-contest");
     },
     goToCreateTask() {
-      this.$router.push("/create-task");
+      this.$router.push("/manage-contests/create-task");
+    },
+    editContest(contest) {
+      this.$router.push(`/manage-contests/edit-contest/${contest.id}`);
+    },
+    editTask(task) {
+      this.$router.push(`/manage-contests/edit-task/${task.id}`);
+    },
+    confirmDeleteContest(contest) {
+      this.itemToDelete = contest;
+      this.deleteType = 'contest';
+      this.confirmDialog = {
+        title: 'Удаление контрольной',
+        message: `Вы уверены, что хотите удалить контрольную "${contest.name}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    confirmDeleteTask(task) {
+      this.itemToDelete = task;
+      this.deleteType = 'task';
+      this.confirmDialog = {
+        title: 'Удаление задания',
+        message: `Вы уверены, что хотите удалить задание "${task.name}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    async executeDelete() {
+      try {
+        if (this.deleteType === 'contest') {
+          await deleteContest(this.itemToDelete.id);
+          this.$refs.notification.show('Контрольная успешно удалена', 'success');
+          this.fetchContests(this.contestPage.number);
+        } else if (this.deleteType === 'task') {
+          await deleteTask(this.itemToDelete.id);
+          this.$refs.notification.show('Задание успешно удалено', 'success');
+          this.fetchTasks(this.taskPage.number);
+        }
+      } catch (error) {
+        console.error('Ошибка при удалении:', error);
+        this.$refs.notification.show('Ошибка при удалении', 'error');
+      } finally {
+        this.showConfirmDialog = false;
+        this.itemToDelete = null;
+        this.deleteType = null;
+      }
+    },
+    cancelDelete() {
+      this.showConfirmDialog = false;
+      this.itemToDelete = null;
+      this.deleteType = null;
     }
   }
 };
@@ -412,29 +516,6 @@ h1 {
   background-color: #f1f1f1;
 }
 
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -495,22 +576,75 @@ h1 {
   margin-bottom: 15px;
 }
 
-.item-link {
-  display: block;
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px;
   background-color: #f5f7fa;
-  color: #2d2d2d;
-  text-decoration: none;
-  font-weight: 500;
   border-radius: 8px;
   transition: all 0.2s ease;
   text-align: left;
 }
 
-.item-link:hover {
+.item-content:hover {
   background-color: #e2e6ed;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.edit-btn,
+.delete-btn {
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.edit-btn {
+  background-color: #3498db;
+}
+
+.edit-btn:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background-color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+.edit-btn:active,
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+.edit-btn i,
+.delete-btn i {
+  font-size: 14px;
 }
 
 .item-title {
@@ -573,17 +707,6 @@ h1 {
   color: #555;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 768px) {
   .manage-container {
     padding: 15px;
@@ -640,8 +763,9 @@ h1 {
     padding: 0 10px;
   }
 
-  .item-link {
+  .item-content {
     padding: 12px;
+    gap: 8px;
   }
 
   .item-title {
@@ -650,6 +774,22 @@ h1 {
 
   .item-description {
     font-size: 13px;
+  }
+
+  .item-actions {
+    gap: 6px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 6px 10px;
+  }
+
+  .edit-btn i,
+  .delete-btn i {
+    font-size: 12px;
   }
 
   .pagination-container {
@@ -664,7 +804,7 @@ h1 {
   }
 
   .page-indicator {
-    display: none; 
+    display: none;
   }
 
   .empty-state {
@@ -692,6 +832,27 @@ h1 {
 
   .item-title {
     font-size: 15px;
+  }
+
+  .item-content {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .item-actions {
+    gap: 4px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+  }
+
+  .edit-btn i,
+  .delete-btn i {
+    font-size: 11px;
   }
 }
 </style>

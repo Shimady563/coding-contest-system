@@ -24,7 +24,8 @@
 </template>
 
 <script>
-import { MANAGER_URL, getUserInfo } from "@/js/auth";
+import { getUserInfo } from "@/js/auth";
+import { listSolutions } from "@/js/manager";
 
 export default {
   name: "OutputResults",
@@ -42,28 +43,21 @@ export default {
   methods: {
     async fetchResults() {
       if (!this.taskId) return;
-      const user = await getUserInfo();
       try {
         const user = await getUserInfo();
         if (!user?.id) throw new Error("User ID не получен");
 
-        const queryParams = new URLSearchParams();
-        
-        queryParams.append("userId", user.id);
-        queryParams.append("taskId", this.taskId);
-        queryParams.append("pageNumber", 0);
-        queryParams.append("pageSize", 1000);
+        const params = {
+          userId: user.id,
+          taskId: this.taskId,
+          pageNumber: 0,
+          pageSize: 1000,
+        };
 
-        const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error('Ошибка загрузки данных');
-        const data = await response.json();
-        this.results = data.content || [];
-        console.log(this.results)
-      } catch (error) {
-        console.log(this.results)
+        const data = await listSolutions(params);
+        this.results = data?.content || [];
+      } catch (err) {
+        console.error("Ошибка при загрузке результатов:", err);
         this.results = [];
       }
     },
@@ -194,12 +188,12 @@ h2 {
   .output-results {
     padding: 20px;
   }
-  
+
   h2 {
     font-size: 24px;
     margin-bottom: 20px;
   }
-  
+
   .results-table th,
   .results-table td {
     padding: 10px 12px;
@@ -211,25 +205,25 @@ h2 {
   .output-results {
     padding: 16px;
   }
-  
+
   h2 {
     font-size: 22px;
   }
-  
+
   .results-table th,
   .results-table td {
     padding: 8px 10px;
     font-size: 12px;
   }
-  
+
   .number-col {
     min-width: 50px;
   }
-  
+
   .status-col {
     min-width: 120px;
   }
-  
+
   .date-col {
     min-width: 150px;
   }

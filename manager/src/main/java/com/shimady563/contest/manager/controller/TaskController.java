@@ -42,6 +42,12 @@ public class TaskController {
         return taskService.searchForTasks(PageRequest.of(pageNumber, pageSize));
     }
 
+    @GetMapping("/{id}")
+    @Secured({"ROLE_TEACHER"})
+    public TaskResponseDto getTaskById(@PathVariable Long id) {
+        return taskService.getTaskById(id);
+    }
+
     @GetMapping("/contest-version")
     @Secured("ROLE_STUDENT")
     public List<TaskResponseDto> getTasksByContestVersionId(@RequestParam Long contestVersionId) {

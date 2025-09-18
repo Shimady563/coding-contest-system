@@ -1,6 +1,7 @@
 <template>
-  <div class="solutions-container">
-    <div class="header">
+  <div>
+    <div class="page-container">
+    <div class="page-header">
       <h1>Решения студентов</h1>
       <div class="stats" v-if="solutions.content && solutions.content.length">
         Показано {{ solutions.content.length }} из {{ solutions.page.totalElements }} решений
@@ -164,22 +165,23 @@
         </button>
       </div>
     </div>
-  </div>
+    </div>
 
-  <div v-if="modalCode" class="modal-overlay" @click.self="closeModal">
-    <div class="modal-content code-modal">
-      <div class="modal-header">
-        <h3>Код решения</h3>
-        <div class="modal-actions">
-          <button @click="copyCode(modalCode)" class="icon-btn" title="Скопировать">
-            <i class="fas fa-copy"></i>
-          </button>
-          <button @click="closeModal" class="icon-btn" title="Закрыть">
-            <i class="fas fa-times"></i>
-          </button>
+    <div v-if="modalCode" class="modal-overlay" @click.self="closeModal">
+      <div class="modal-content code-modal">
+        <div class="modal-header">
+          <h3>Код решения</h3>
+          <div class="modal-actions">
+            <button @click="copyCode(modalCode)" class="icon-btn" title="Скопировать">
+              <i class="fas fa-copy"></i>
+            </button>
+            <button @click="closeModal" class="icon-btn" title="Закрыть">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
         </div>
+        <ReadOnlyCodeMirror :code="modalCode" language="text/x-java" />
       </div>
-      <ReadOnlyCodeMirror :code="modalCode" language="text/x-java" />
     </div>
   </div>
 </template>
@@ -188,7 +190,7 @@
 import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
-import { MANAGER_URL } from "@/js/auth";
+import { listSolutions, listTasksWithParams, listUsers } from "@/js/manager";
 
 export default {
   name: "StudentSolutionsPage",
@@ -233,31 +235,19 @@ export default {
     async fetchSolutions() {
       this.loading = true;
       try {
-        const queryParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(this.filters)) {
-          if (value !== "" && value !== null) {
-            queryParams.append(key, value);
-          }
-        }
+        const params = { ...this.filters };
 
-        if (this.selectedStatuses && this.selectedStatuses.name) {
-          queryParams.append('status', this.selectedStatuses.name);
+        if (this.selectedStatuses?.name) {
+          params.status = this.selectedStatuses.name;
         }
-
         if (this.selectedUser) {
-          queryParams.append("userId", this.selectedUser.id);
+          params.userId = this.selectedUser.id;
         }
         if (this.selectedTask) {
-          queryParams.append("taskId", this.selectedTask.id);
+          params.taskId = this.selectedTask.id;
         }
 
-        const response = await fetch(`${MANAGER_URL}/solutions?${queryParams.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки решений");
-
-        this.solutions = await response.json();
+        this.solutions = await listSolutions(params);
       } catch {
         this.$toast.error("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
       } finally {
@@ -266,17 +256,10 @@ export default {
     },
     async fetchTasks() {
       try {
-        const params = new URLSearchParams({
+        const data = await listTasksWithParams({
           pageSize: 1000,
           pageNumber: 0,
         });
-
-        const response = await fetch(`${MANAGER_URL}/tasks?${params.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки задач");
-        const data = await response.json();
         this.tasks = data.content || [];
       } catch {
         this.$toast.error("Не удалось загрузить список задач");
@@ -284,19 +267,11 @@ export default {
     },
     async fetchUsers() {
       try {
-        const params = new URLSearchParams({
+        const data = await listUsers({
           role: "ROLE_STUDENT",
           pageSize: 1000,
           pageNumber: 0,
         });
-
-        const response = await fetch(`${MANAGER_URL}/users?${params.toString()}`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) throw new Error("Ошибка загрузки пользователей");
-
-        const data = await response.json();
         this.users = data.content || [];
       } catch {
         this.$toast.error("Не удалось загрузить список пользователей");
@@ -370,140 +345,9 @@ export default {
 </script>
 
 <style scoped>
-.solutions-container {
-  max-width: 1152px;
-  margin: 20px auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0;
-}
-
 .stats {
   font-size: 14px;
   color: #7f8c8d;
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-group label span {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.text-input,
-.select-input,
-.datetime-input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.text-input:focus,
-.select-input:focus,
-.datetime-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.filter-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.apply-btn,
-.reset-btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  align-self: flex-end;
-  height: 40px;
-}
-
-.apply-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-}
-
-.apply-btn:hover {
-  background-color: #2980b9;
-}
-
-.reset-btn {
-  background-color: transparent;
-  color: #7f8c8d;
-  border: 1px solid #ddd;
-  margin-left: 8px;
-}
-
-.reset-btn:hover {
-  background-color: #f1f1f1;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .empty-state {
@@ -821,17 +665,6 @@ pre {
   font-size: 14px;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .custom-multiselect >>> .multiselect {

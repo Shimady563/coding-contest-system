@@ -26,10 +26,10 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserService userService;
 
-    protected Task getTaskById(Long id) {
-        log.info("Getting task by id: {}", id);
-        return taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
+    @Transactional(readOnly = true)
+    public TaskResponseDto getTaskById(Long id) {
+        Task task = getTaskByIdInternal(id);
+        return TaskConverter.domain2Response(task);
     }
 
     @Transactional
@@ -44,19 +44,16 @@ public class TaskService {
     @Transactional
     public void updateTaskById(Long id, TaskRequestDto request) {
         log.info("Updating task with name: {}", request.getName());
-        Task task = getTaskById(id);
+        Task task = getTaskByIdInternal(id);
         task.setName(request.getName());
         task.setDescription(request.getDescription());
+        task.getTestCases().clear();
         request.getTestCases()
                 .stream()
                 .map(TaskConverter::dto2TestCase)
                 .forEach(task::addTestCase);
         task.setTestCasesCount((short) task.getTestCases().size());
         taskRepository.save(task);
-    }
-
-    protected List<Task> getTasksByIds(List<Long> ids) {
-        return taskRepository.findByIdIn(ids);
     }
 
     @Transactional(readOnly = true)
@@ -90,5 +87,15 @@ public class TaskService {
         return taskRepository.findByContestVersions(contestVersion).stream()
                 .map(TaskConverter::domain2Response)
                 .toList();
+    }
+
+    protected Task getTaskByIdInternal(Long id) {
+        log.info("Getting task by id: {}", id);
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
+    }
+
+    protected List<Task> getTasksByIds(List<Long> ids) {
+        return taskRepository.findByIdIn(ids);
     }
 }
