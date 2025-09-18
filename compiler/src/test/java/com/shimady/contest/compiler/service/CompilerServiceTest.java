@@ -25,10 +25,17 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(MockitoExtension.class)
 class CompilerServiceTest {
     private static final int TIMEOUT_SECONDS = 5;
+    private static final int MAX_OUTPUT_BYTES = 1_000_000;
+    private static final String workdir = "/cpp";
 
     private final Process process = mock(Process.class);
     private final TestCaseService testCaseService = mock(TestCaseService.class);
-    private final CompilerService compilerService = new CompilerService(TIMEOUT_SECONDS, testCaseService);
+    private final CompilerService compilerService = new CompilerService(
+            TIMEOUT_SECONDS,
+            MAX_OUTPUT_BYTES,
+            workdir,
+            testCaseService
+    );
 
     private static List<TestCase> testCases;
     private static final Task task = new Task();

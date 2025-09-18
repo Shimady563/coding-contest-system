@@ -25,7 +25,7 @@ import static com.shimady.contest.compiler.model.SolutionStatus.*;
 @Slf4j
 @Service
 public class CompilerService {
-    private final String workDir;
+    private final Path workdir;
     private final int maxBytesOutput;
     private final Duration timeout;
     private final TestCaseService testCaseService;
@@ -33,41 +33,40 @@ public class CompilerService {
     public CompilerService(
             @Value("${compiler.timeoutSeconds}") long timeoutSeconds,
             @Value("${compiler.maxOutputBytes}") int maxOutputBytes,
-            @Value("${compiler.maxOutputBytes}") String workDir,
+            @Value("${compiler.workdir}") String workdir,
             TestCaseService testCaseService
     ) {
         this.timeout = Duration.ofSeconds(timeoutSeconds);
         this.maxBytesOutput = maxOutputBytes;
-        this.workDir = System.getProperty("user.home") + workDir;
+        this.workdir = Path.of(System.getProperty("user.home"), workdir);
         this.testCaseService = testCaseService;
     }
 
     public CompilationResult compileAndRun(String code, Task task) {
         log.info("Compiling and running code for task with id: {}", task.getId());
         String fileId = UUID.randomUUID().toString();
-        Path runDir = Path.of(workDir);
-        Path sourcePath = runDir.resolve(fileId + ".cpp");
-        Path executablePath = runDir.resolve(fileId);
+        Path sourcePath = workdir.resolve(fileId + ".cpp");
+        Path executablePath = workdir.resolve(fileId);
 
         try {
-            Files.createDirectories(runDir);
+            Files.createDirectories(workdir);
             Files.writeString(sourcePath, code, StandardOpenOption.CREATE);
 
-            if (!compileCode(runDir, sourcePath, executablePath)) {
+            if (!compileCode(workdir, sourcePath, executablePath)) {
                 return new CompilationResult(COMPILE_ERROR, (short) 0);
             }
 
-            return runTests(runDir, executablePath, task);
+            return runTests(workdir, executablePath, task);
         } catch (IOException | InterruptedException e) {
             log.error("Error while processing", e);
         } finally {
-            cleanupDirectory(runDir);
+            cleanupDirectory(workdir);
         }
         return new CompilationResult(INTERNAL_ERROR, (short) 0);
     }
 
-    private boolean compileCode(Path runDir, Path sourcePath, Path executablePath) throws IOException, InterruptedException {
-        Process compilerProcess = startProcess(runDir, "g++", sourcePath.getFileName().toString(), "-O2", "-s", "-o", executablePath.getFileName().toString());
+    private boolean compileCode(Path workdir, Path sourcePath, Path executablePath) throws IOException, InterruptedException {
+        Process compilerProcess = startProcess(workdir, "g++", sourcePath.getFileName().toString(), "-O2", "-s", "-o", executablePath.getFileName().toString());
 
         if (!compilerProcess.waitFor(timeout.toSeconds(), TimeUnit.SECONDS)) {
             compilerProcess.destroyForcibly();
@@ -84,12 +83,12 @@ public class CompilerService {
         return true;
     }
 
-    private CompilationResult runTests(Path runDir, Path executablePath, Task task) throws IOException, InterruptedException {
+    private CompilationResult runTests(Path workdir, Path executablePath, Task task) throws IOException, InterruptedException {
         List<TestCase> testCases = testCaseService.getAllTestCasesByTask(task);
         short testsPassed = 0;
 
         for (TestCase testCase : testCases) {
-            Process runnerProcess = startProcess(runDir, executablePath.toString());
+            Process runnerProcess = startProcess(workdir, executablePath.toString());
             writeInput(runnerProcess, testCase.getInput());
 
             boolean runnerFinished = runnerProcess.waitFor(timeout.toSeconds(), TimeUnit.SECONDS);
