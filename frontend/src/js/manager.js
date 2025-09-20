@@ -87,6 +87,12 @@ export async function createContestVersion(payload) {
   });
 }
 
+export async function deleteContestVersion(versionId) {
+  return fetchJson(`${MANAGER_URL}/contest-versions/${versionId}`, {
+    method: 'DELETE'
+  });
+}
+
 export async function getContestVersionsByContest(contestId) {
   return fetchJson(`${MANAGER_URL}/contest-versions?contestId=${encodeURIComponent(contestId)}`);
 }

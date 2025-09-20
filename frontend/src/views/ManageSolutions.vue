@@ -2,7 +2,7 @@
   <div>
     <div class="page-container">
     <div class="page-header">
-      <h1>Решения студентов</h1>
+      <h1><i class="fas fa-check-circle"></i> Решения студентов</h1>
       <div class="stats" v-if="solutions.content && solutions.content.length">
         Показано {{ solutions.content.length }} из {{ solutions.page.totalElements }} решений
       </div>
@@ -13,18 +13,16 @@
         <label>
           <span>Статус:</span>
           <multiselect
-            v-model="selectedStatuses"
-            :options="statuses"
-            :searchable="true"
-            :allow-empty="true"
-            :multiple="false"
-            :select-label="''"
-            :selected-label="''"
-            :deselect-label="''"
-            placeholder="Выберите статусы"
-            label="name"
-            track-by="name"
-            class="custom-multiselect"
+          v-model="selectedStatus"
+          :options="statuses"
+          :searchable="true"
+          placeholder="Выберите статус"
+          :select-label="''"
+          :selected-label="''"
+          :deselect-label="''"
+          label="name"
+          track-by="name"
+          class="custom-multiselect"
           >
           </multiselect>
         </label>
@@ -223,7 +221,7 @@ export default {
       ],
       tasks: [],
       users: [],
-      selectedStatuses: null,
+      selectedStatus: null,
       loading: false,
       visibleCode: null,
       modalCode: null,
@@ -237,8 +235,8 @@ export default {
       try {
         const params = { ...this.filters };
 
-        if (this.selectedStatuses?.name) {
-          params.status = this.selectedStatuses.name;
+        if (this.selectedStatus?.name) { // обновите условие
+          params.status = this.selectedStatus.name;
         }
         if (this.selectedUser) {
           params.userId = this.selectedUser.id;

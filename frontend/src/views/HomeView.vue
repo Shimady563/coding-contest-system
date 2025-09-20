@@ -7,7 +7,7 @@
     <template v-else>
       <!-- Гостевой доступ -->
       <header class="header" v-if="!user">
-        <h1>Добро пожаловать 👋</h1>
+        <h1>Добро пожаловать <i class="fas fa-hand-paper"></i></h1>
         <p class="subtitle">
           В системе контроля работ вы можете создавать и решать задания, получать мгновенную обратную связь и отслеживать свой прогресс!
         </p>
@@ -19,7 +19,7 @@
 
       <!-- Студент -->
       <header class="header" v-else-if="user.role === 'student'">
-        <h1>Привет, {{ user.firstName }} {{ user.lastName }} 🎓</h1>
+        <h1>Привет, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-user-graduate"></i></h1>
         <p class="subtitle">Доступные функции:</p>
 
         <div class="cards">
@@ -48,7 +48,7 @@
 
       <!-- Преподаватель -->
       <header class="header" v-else-if="user.role === 'teacher'">
-        <h1>Здравствуйте, {{ user.firstName }} {{ user.lastName }} 👨‍🏫</h1>
+        <h1>Здравствуйте, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-chalkboard-teacher"></i></h1>
         <p class="subtitle">Вот что вы можете делать:</p>
 
         <div class="cards">

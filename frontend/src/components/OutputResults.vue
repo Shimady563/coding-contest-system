@@ -153,7 +153,6 @@ h2 {
   color: #7f8c8d;
 }
 
-/* Стили статусов */
 .status-accepted {
   color: #2ecc71;
   font-weight: bold;

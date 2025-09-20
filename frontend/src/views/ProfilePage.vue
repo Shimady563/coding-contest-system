@@ -11,11 +11,13 @@
       </div>
 
       <div class="profile-info">
-        <div class="info-item" data-icon="📧">
+        <div class="info-item">
+          <i class="fas fa-envelope"></i>
           <span>Email:</span>
           <span>{{ user.email }}</span>
         </div>
-        <div class="info-item" data-icon="👥">
+        <div class="info-item">
+          <i class="fas fa-users"></i>
           <span>Группа:</span>
           <span>{{ user.groupName }}</span>
         </div>

@@ -13,7 +13,6 @@
         <router-link
           :to="`/contests/${contest.id}`"
           class="contest-item"
-          @click="selectContest(contest)"
         >
           <div class="contest-info">
             <div class="contest-title">{{ contest.name }}</div>

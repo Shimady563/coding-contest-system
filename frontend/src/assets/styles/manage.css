@@ -72,6 +72,10 @@
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
 }
 
+.datetime-input {
+  padding: 9px;
+}
+
 /* ===== Кнопки фильтра ===== */
 .filter-actions {
   grid-column: 1 / -1;

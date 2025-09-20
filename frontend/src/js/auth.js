@@ -20,7 +20,7 @@ export async function signup(payload) {
   });
   if (!res.ok) {
     let message = 'Ошибка регистрации';
-    try { const d = await res.json(); message = d?.message || d?.error || message; } catch { /* ignore parse errors */ }
+    try { const d = await res.json(); message = d?.message || d?.error || message; } catch { }
     throw new Error(message);
   }
   return true;
