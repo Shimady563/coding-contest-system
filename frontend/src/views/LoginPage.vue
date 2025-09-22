@@ -1,63 +1,60 @@
 <template>
   <div class="auth-container">
     <form @submit.prevent="login" class="auth-form">
-      <h2>Вход в систему</h2>
+      <h2>Вход с фронтенд-капчей</h2>
+
       <div>
         <label>Email:</label>
-        <input name="email" type="email" v-model="email" required autocomplete="email" />
+        <input type="email" v-model="email" required />
       </div>
+
       <div>
         <label>Пароль:</label>
-        <input name="current-password" type="password" v-model="password" required autocomplete="current-password" />
+        <input type="password" v-model="password" required />
       </div>
 
       <!-- Контейнер для капчи -->
-      <div 
-        id="captcha-container" 
-        style="height: 100px; margin: 20px 0;"
-      ></div>
+      <div id="captcha-container" style="height: 100px; margin: 20px 0;"></div>
 
-      <button 
-        type="submit" 
-        class="btn primary" 
-        :disabled="isSubmitDisabled"
-      >
+      <button type="submit" class="btn primary" :disabled="isSubmitDisabled">
         Войти
       </button>
+
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      <p class="footer-link">
-        Нет аккаунта? <router-link to="/register">Зарегистрироваться</router-link>
-      </p>
+      <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
     </form>
   </div>
 </template>
 
 <script>
-import { login } from "@/js/auth";
+import { config } from '../config';
 
 export default {
   data() {
     return {
       email: "",
       password: "",
-      errorMessage: "",
       captchaToken: null,
       widgetId: null,
+      errorMessage: "",
+      successMessage: "",
+      clientKey: config.SMART_CAPTCHA_CLIENT_KEY || "",
+      serverKey: config.SMART_CAPTCHA_SECRET_KEY || "",
     };
   },
   computed: {
     isSubmitDisabled() {
       return !this.email || !this.password;
-    }
+    },
   },
   mounted() {
     // Callback для инициализации капчи
     window.onloadFunction = () => {
-      if (window.smartCaptcha) {
-        const container = document.getElementById('captcha-container');
+      if (window.smartCaptcha && this.clientKey) {
+        const container = document.getElementById("captcha-container");
         this.widgetId = window.smartCaptcha.render(container, {
-          sitekey: '<ключ_клиента>', // ваш client key
-          hl: 'ru',
+          sitekey: this.clientKey,
+          hl: "ru",
           callback: (token) => {
             this.captchaToken = token;
           },
@@ -65,41 +62,68 @@ export default {
       }
     };
 
-    // Динамическая загрузка скрипта
-    const script = document.createElement('script');
-    script.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction';
+    // Динамическая загрузка скрипта капчи
+    const script = document.createElement("script");
+    script.src =
+      "https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction";
     script.defer = true;
-    script.onerror = () => console.error('Ошибка загрузки SmartCaptcha');
+    script.onerror = () => console.error("Ошибка загрузки SmartCaptcha");
     document.body.appendChild(script);
   },
   methods: {
     async login() {
+      this.errorMessage = "";
+      this.successMessage = "";
+
       if (!this.captchaToken) {
         this.errorMessage = "Подтвердите, что вы не робот";
         return;
       }
 
+      if (!this.serverKey) {
+        this.errorMessage = "Серверный ключ капчи не задан";
+        return;
+      }
+
       try {
-        this.$root.notify("Попытка входа...", "info");
-        await login({ 
-          email: this.email, 
-          password: this.password, 
-          captchaToken: this.captchaToken
+        // Проверка капчи через API Яндекс
+        const params = new URLSearchParams({
+          secret: this.serverKey,
+          token: this.captchaToken,
+          ip: "127.0.0.1", // для демонстрации
         });
 
-        this.$root.notify("Вход выполнен успешно!", "success");
-        this.$router.push("/").then(() => window.location.reload());
-      } catch (err) {
-        this.errorMessage = err.message || "Ошибка входа";
-        this.$root.notify(this.errorMessage, "error");
+        const res = await fetch(
+          "https://smartcaptcha.yandexcloud.net/validate",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString(),
+          }
+        );
 
-        // сброс капчи после ошибки
+        const data = await res.json();
+
+        if (data.status !== "ok") {
+          throw new Error("Капча не пройдена или истекла");
+        }
+
+        // Имитируем проверку логина
+        if (this.email === "test@example.com" && this.password === "123456") {
+          this.successMessage = "Успешный вход!";
+        } else {
+          throw new Error("Неверный email или пароль");
+        }
+      } catch (err) {
+        this.errorMessage = err.message;
+
+        // Сброс капчи
         if (this.widgetId && window.smartCaptcha) {
           window.smartCaptcha.reset(this.widgetId);
         }
         this.captchaToken = null;
       }
-    }
+    },
   },
 };
 </script>
@@ -110,8 +134,7 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  }
-
+}
 .auth-form {
   background-color: #fff;
   padding: 2rem;
@@ -119,83 +142,35 @@ export default {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  animation: fadeIn 0.4s ease-in-out;
 }
-
-h2 {
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-form > div {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
 input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
-  box-sizing: border-box;
 }
-
 button {
   width: 100%;
   padding: 12px;
   background-color: #2f80ed;
   color: white;
-  font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
-
-button:hover:not(:disabled) {
-  background-color: #1366d6;
-}
-
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
-
-p {
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.footer-link {
-  margin-top: 20px;
-}
-
-.footer-link a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.footer-link a:hover {
-  text-decoration: underline;
-}
-
 .error-message {
   color: red;
-  font-size: 14px;
   margin-top: 10px;
   text-align: center;
 }
-
-form > div {
-  margin-bottom: 1rem;
-  padding-left: 12px;
-  padding-right: 12px;
+.success-message {
+  color: green;
+  margin-top: 10px;
+  text-align: center;
 }
 </style>
