@@ -10,6 +10,13 @@
         <label>Пароль:</label>
         <input name="current-password" type="password" v-model="password" required autocomplete="current-password" />
       </div>
+
+      <!-- Контейнер для капчи -->
+      <div 
+        id="captcha-container" 
+        style="height: 100px; margin: 20px 0;"
+      ></div>
+
       <button 
         type="submit" 
         class="btn primary" 
@@ -34,6 +41,8 @@ export default {
       email: "",
       password: "",
       errorMessage: "",
+      captchaToken: null,
+      widgetId: null,
     };
   },
   computed: {
@@ -41,19 +50,56 @@ export default {
       return !this.email || !this.password;
     }
   },
+  mounted() {
+    // Callback для инициализации капчи
+    window.onloadFunction = () => {
+      if (window.smartCaptcha) {
+        const container = document.getElementById('captcha-container');
+        this.widgetId = window.smartCaptcha.render(container, {
+          sitekey: '<ключ_клиента>', // ваш client key
+          hl: 'ru',
+          callback: (token) => {
+            this.captchaToken = token;
+          },
+        });
+      }
+    };
+
+    // Динамическая загрузка скрипта
+    const script = document.createElement('script');
+    script.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction';
+    script.defer = true;
+    script.onerror = () => console.error('Ошибка загрузки SmartCaptcha');
+    document.body.appendChild(script);
+  },
   methods: {
     async login() {
+      if (!this.captchaToken) {
+        this.errorMessage = "Подтвердите, что вы не робот";
+        return;
+      }
+
       try {
         this.$root.notify("Попытка входа...", "info");
-        await login({ email: this.email, password: this.password });
+        await login({ 
+          email: this.email, 
+          password: this.password, 
+          captchaToken: this.captchaToken
+        });
 
         this.$root.notify("Вход выполнен успешно!", "success");
         this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
         this.errorMessage = err.message || "Ошибка входа";
         this.$root.notify(this.errorMessage, "error");
+
+        // сброс капчи после ошибки
+        if (this.widgetId && window.smartCaptcha) {
+          window.smartCaptcha.reset(this.widgetId);
+        }
+        this.captchaToken = null;
       }
-    },
+    }
   },
 };
 </script>

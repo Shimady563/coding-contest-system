@@ -1,4 +1,5 @@
 window.config = {
     VITE_APP_AUTH_URL: "http://localhost:8081/api/v1/auth",
-    VITE_APP_MANAGER_URL: "http://localhost:8080/api/v1"
+    VITE_APP_MANAGER_URL: "http://localhost:8080/api/v1",
+    SMART_CAPTCHA_SECRET_KEY: ""
 };
