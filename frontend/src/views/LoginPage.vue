@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
     <form @submit.prevent="login" class="auth-form">
-      <h2>Вход с фронтенд-капчей</h2>
+      <h2>Вход в систему</h2>
 
       <div>
         <label>Email:</label>
@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { login } from "@/js/auth"
 import { config } from '../config';
 
 export default {
@@ -48,7 +49,7 @@ export default {
     },
   },
   mounted() {
-    // Callback для инициализации капчи
+    // Callback для рендеринга капчи после загрузки скрипта
     window.onloadFunction = () => {
       if (window.smartCaptcha && this.clientKey) {
         const container = document.getElementById("captcha-container");
@@ -62,13 +63,12 @@ export default {
       }
     };
 
-    // Динамическая загрузка скрипта капчи
-    const script = document.createElement("script");
-    script.src =
-      "https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction";
-    script.defer = true;
-    script.onerror = () => console.error("Ошибка загрузки SmartCaptcha");
-    document.body.appendChild(script);
+    // Динамическая загрузка скрипта SmartCaptcha
+    const scriptElement = document.createElement('script');
+    scriptElement.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction';
+    scriptElement.defer = true;
+    scriptElement.onerror = () => console.error("Ошибка загрузки SmartCaptcha");
+    document.body.appendChild(scriptElement);
   },
   methods: {
     async login() {
@@ -108,14 +108,10 @@ export default {
           throw new Error("Капча не пройдена или истекла");
         }
 
-        // Имитируем проверку логина
-        if (this.email === "test@example.com" && this.password === "123456") {
-          this.successMessage = "Успешный вход!";
-        } else {
-          throw new Error("Неверный email или пароль");
-        }
-      } catch (err) {
-        this.errorMessage = err.message;
+        await login({
+          email: this.email,
+          password: this.password
+        });
 
         // Сброс капчи
         if (this.widgetId && window.smartCaptcha) {
