@@ -13,8 +13,14 @@
         <input type="password" v-model="password" required />
       </div>
 
-      <!-- Контейнер для капчи -->
-      <div id="captcha-container" style="height: 100px; margin: 20px 0;"></div>
+      <div id="captcha-container" style="height: 100px; margin: 20px 0;">
+         <input
+                  type="hidden"
+                  name="smart-token"
+                  ref="captchaInput"
+                  :value="captchaToken"
+                />
+      </div>
 
       <button type="submit" class="btn primary" :disabled="isSubmitDisabled">
         Войти
@@ -27,7 +33,7 @@
 </template>
 
 <script>
-import { login } from "@/js/auth"
+import { login, captcha } from "@/js/auth"
 import { config } from '../config';
 
 export default {
@@ -39,8 +45,7 @@ export default {
       widgetId: null,
       errorMessage: "",
       successMessage: "",
-      clientKey: config.SMART_CAPTCHA_CLIENT_KEY || "",
-      serverKey: config.SMART_CAPTCHA_SECRET_KEY || "",
+      clientKey: config.SMART_CAPTCHA_CLIENT_KEY || ""
     };
   },
   computed: {
@@ -49,7 +54,6 @@ export default {
     },
   },
   mounted() {
-    // Callback для рендеринга капчи после загрузки скрипта
     window.onloadFunction = () => {
       if (window.smartCaptcha && this.clientKey) {
         const container = document.getElementById("captcha-container");
@@ -57,13 +61,15 @@ export default {
           sitekey: this.clientKey,
           hl: "ru",
           callback: (token) => {
-            this.captchaToken = token;
+             this.captchaToken = token;
+            if (this.$refs.captchaInput) {
+              this.$refs.captchaInput.value = token;
+            }
           },
         });
       }
     };
 
-    // Динамическая загрузка скрипта SmartCaptcha
     const scriptElement = document.createElement('script');
     scriptElement.src = 'https://smartcaptcha.yandexcloud.net/captcha.js?render=onload&onload=onloadFunction';
     scriptElement.defer = true;
@@ -80,45 +86,32 @@ export default {
         return;
       }
 
-      if (!this.serverKey) {
-        this.errorMessage = "Серверный ключ капчи не задан";
-        return;
-      }
-
       try {
-        // Проверка капчи через API Яндекс
-        const params = new URLSearchParams({
-          secret: this.serverKey,
-          token: this.captchaToken,
-          ip: "127.0.0.1", // для демонстрации
+        const res = await captcha({
+          token: this.captchaToken
         });
 
-        const res = await fetch(
-          "https://smartcaptcha.yandexcloud.net/validate",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: params.toString(),
-          }
-        );
-
-        const data = await res.json();
-
-        if (data.status !== "ok") {
-          throw new Error("Капча не пройдена или истекла");
+        if (res.status !== "ok") {
+          this.errorMessage = "Капча не пройдена";
+           return;
         }
 
-        await login({
-          email: this.email,
-          password: this.password
-        });
+        try {
+          this.$root.notify("Попытка входа...", "info");
+          await login({ email: this.email, password: this.password });
 
-        // Сброс капчи
+          this.$root.notify("Вход выполнен успешно!", "success");
+          window.location.href = "/";
+        } catch (err) {
+          this.errorMessage = err.message || "Ошибка входа";
+          this.$root.notify(this.errorMessage, "error");
+        }
+
         if (this.widgetId && window.smartCaptcha) {
           window.smartCaptcha.reset(this.widgetId);
         }
         this.captchaToken = null;
-      }
+      } catch(e) {console.log(e);}
     },
   },
 };

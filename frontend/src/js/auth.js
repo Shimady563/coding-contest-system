@@ -11,6 +11,17 @@ export async function login(payload) {
   return true;
 }
 
+export async function captcha(payload) {
+  const res = await fetch(`${AUTH_URL}/captcha/validate`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error('Ошибка капчи');
+  return res.json();
+}
+
 export async function signup(payload) {
   const res = await fetch(`${AUTH_URL}/signup`, {
     method: 'POST',
