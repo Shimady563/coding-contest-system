@@ -15,13 +15,19 @@ spring:
               packages: com.shimady563.contest.manager.model
             type:
               mapping: com.shimady563.contest.manager.model.dto.CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
+
 kafka:
-  topic:
-    submission: submissionTopic
-logging:
-  level:
-    root: info
+  topics:
+    submission:
+      name: submissionTopic
+      replication-factor: 1
+      partitions: 4
+
 compiler:
   timeoutSeconds: 15
   maxOutputBytes: 1_000_000
   workdir: /cpp
+
+logging:
+  level:
+    root: info

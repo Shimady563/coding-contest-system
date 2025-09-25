@@ -1,8 +1,8 @@
 package com.shimady563.contest.manager.config;
 
+import com.shimady563.contest.manager.config.props.AuthProperties;
 import com.shimady563.contest.manager.security.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,19 +19,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
-    @Value("${auth.whitelist}")
-    private final String[] whitelist;
-
-    @Value("${auth.allowed-origins}")
-    private final String[] allowedOrigins;
-
+    private final AuthProperties authProperties;
     private final JwtFilter jwtFilter;
 
     @Bean
@@ -43,7 +37,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource customCorsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins).toList());
+        configuration.setAllowedOrigins(authProperties.getAllowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -61,7 +55,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(customCorsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-                    auth.requestMatchers(whitelist).permitAll();
+                    auth.requestMatchers(authProperties.getWhitelist().toArray(String[]::new)).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)

@@ -1,5 +1,6 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.config.props.KafkaTopicProperties;
 import com.shimady563.contest.manager.converter.CodeSubmissionConverter;
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
 import com.shimady563.contest.manager.model.Contest;
@@ -9,7 +10,6 @@ import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.model.dto.CodeSubmissionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +21,12 @@ public class SubmissionService {
     private final ContestVersionService contestVersionService;
     private final TaskService taskService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
-
-    @Value("${kafka.topic.submission}")
-    public String topic;
+    private final KafkaTopicProperties kafkaProperties;
 
     public void submitSolution(CodeSubmissionDto submissionDto) {
         log.info("Submitting solution: {}", submissionDto);
         checkSubmissionValidity(submissionDto);
-        kafkaTemplate.send(topic, CodeSubmissionConverter.request2Transport(submissionDto));
+        kafkaTemplate.send(kafkaProperties.getSubmission().getName(), CodeSubmissionConverter.request2Transport(submissionDto));
     }
 
     private void checkSubmissionValidity(CodeSubmissionDto submission) {

@@ -9,15 +9,25 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 auth:
   whitelist: /groups, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**, /actuator, /actuator/**
   allowed-origins: http://localhost:5173
+
+kafka:
+  topics:
+    submission:
+      name: submissionTopic
+      replication-factor: 1
+      partitions: 4
+
+housekeeping:
+  solution-keep-days: 180
+
 server:
   servlet:
     context-path: /api/v1/
-kafka:
-  topic:
-    submission: submissionTopic
+
 logging:
   level:
     root: info

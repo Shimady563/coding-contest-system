@@ -1,29 +1,30 @@
 package com.shimady.contest.compiler.config;
 
+import com.shimady.contest.compiler.config.props.KafkaTopicProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import static com.shimady.contest.compiler.config.props.KafkaTopicProperties.TopicInfo;
+
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConfig {
-
-    @Value("${kafka.topic.submission}")
-    private String submissionTopic;
+    private final KafkaTopicProperties kafkaProperties;
 
     @Bean
     public NewTopic submissionTopic() {
+        TopicInfo submission = kafkaProperties.getSubmission();
         return TopicBuilder
-                .name(submissionTopic)
-                .partitions(4)
-                .replicas(1)
+                .name(submission.getName())
+                .partitions(submission.getPartitions())
+                .replicas(submission.getReplicationFactor())
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.shimady.auth.controller;
 
+import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
@@ -8,30 +9,16 @@ import com.shimady.auth.service.AuthService;
 import com.shimady.auth.utils.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final JwtProperties jwtProperties;
 
-    @Value("${jwt.token.access.expiration}")
-    private Long accessTokenExpiration;
-
-    @Value("${jwt.token.refresh.expiration}")
-    private Long refreshTokenExpiration;
-
-    @Value("${jwt.token.access.cookie.name}")
-    private String accessTokenCookieName;
-
-    @Value("${jwt.token.refresh.cookie.name}")
-    private String refreshTokenCookieName;
-
-    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     @GetMapping("/me")
     public UserResponse getCurrentUser() {
         return authService.getCurrentUser();
@@ -59,15 +46,35 @@ public class AuthController {
     public ResponseEntity<Void> logout() {
         authService.logout();
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(accessTokenCookieName))
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.deleteTokenCookie(refreshTokenCookieName))
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        JwtUtils.removeTokenCookie(jwtProperties.getAccess().getCookieName())
+                )
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        JwtUtils.removeTokenCookie(jwtProperties.getRefresh().getCookieName())
+                )
                 .build();
     }
 
     private ResponseEntity<Void> buildResponse(JwtResponse response) {
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(accessTokenCookieName, response.getAccessToken(), accessTokenExpiration))
-                .header(HttpHeaders.SET_COOKIE, JwtUtils.createTokenCookie(refreshTokenCookieName, response.getRefreshToken(), refreshTokenExpiration))
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        JwtUtils.createTokenCookie(
+                                jwtProperties.getAccess().getCookieName(),
+                                response.getAccessToken(),
+                                jwtProperties.getAccess().getExpiration()
+                        )
+                )
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        JwtUtils.createTokenCookie(
+                                jwtProperties.getRefresh().getCookieName(),
+                                response.getRefreshToken(),
+                                jwtProperties.getRefresh().getExpiration()
+                        )
+                )
                 .build();
     }
 }

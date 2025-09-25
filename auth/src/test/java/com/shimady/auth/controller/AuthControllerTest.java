@@ -2,6 +2,7 @@ package com.shimady.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.TestSecurityConfig;
+import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
@@ -10,7 +11,6 @@ import com.shimady.auth.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -37,11 +37,8 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${jwt.token.access.cookie.name}")
-    private String accessTokenCookieName;
-
-    @Value("${jwt.token.refresh.cookie.name}")
-    private String refreshTokenCookieName;
+    @Autowired
+    private JwtProperties jwtProperties;
 
     @Test
     @WithMockUser(roles = {"TEACHER", "STUDENT"})
@@ -80,8 +77,8 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
-                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
+                .andExpect(cookie().value(jwtProperties.getAccess().getCookieName(), response.getAccessToken()))
+                .andExpect(cookie().value(jwtProperties.getRefresh().getCookieName(), response.getRefreshToken()));
     }
 
     @Test
@@ -99,15 +96,15 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
-                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
+                .andExpect(cookie().value(jwtProperties.getAccess().getCookieName(), response.getAccessToken()))
+                .andExpect(cookie().value(jwtProperties.getRefresh().getCookieName(), response.getRefreshToken()));
     }
 
     @Test
     @WithAnonymousUser
     void shouldRefreshToken() throws Exception {
         var refreshToken = "refreshToken";
-        Cookie cookie = new Cookie(refreshTokenCookieName, refreshToken);
+        Cookie cookie = new Cookie(jwtProperties.getRefresh().getCookieName(), refreshToken);
         var response = new JwtResponse("newToken", "newRefreshToken");
 
         given(authService.refreshToken(refreshToken)).willReturn(response);
@@ -117,8 +114,8 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .cookie(cookie))
                 .andExpect(status().isOk())
-                .andExpect(cookie().value(accessTokenCookieName, response.getAccessToken()))
-                .andExpect(cookie().value(refreshTokenCookieName, response.getRefreshToken()));
+                .andExpect(cookie().value(jwtProperties.getAccess().getCookieName(), response.getAccessToken()))
+                .andExpect(cookie().value(jwtProperties.getRefresh().getCookieName(), response.getRefreshToken()));
     }
 
     @Test
@@ -126,8 +123,8 @@ class AuthControllerTest {
     void shouldLogoutUser() throws Exception {
         var refreshToken = "refreshToken";
         var accessToken = "accessToken";
-        Cookie refreshCookie = new Cookie(refreshTokenCookieName, refreshToken);
-        Cookie accessCookie = new Cookie(accessTokenCookieName, accessToken);
+        Cookie refreshCookie = new Cookie(jwtProperties.getRefresh().getCookieName(), refreshToken);
+        Cookie accessCookie = new Cookie(jwtProperties.getAccess().getCookieName(), accessToken);
 
         mockMvc.perform(post("/logout")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -135,8 +132,8 @@ class AuthControllerTest {
                         .cookie(accessCookie)
                         .cookie(refreshCookie))
                 .andExpect(status().isOk())
-                .andExpect(cookie().maxAge(accessTokenCookieName, 0))
-                .andExpect(cookie().maxAge(refreshTokenCookieName, 0));
+                .andExpect(cookie().maxAge(jwtProperties.getAccess().getCookieName(), 0))
+                .andExpect(cookie().maxAge(jwtProperties.getRefresh().getCookieName(), 0));
     }
 }
 

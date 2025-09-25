@@ -1,11 +1,11 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.config.props.JwtProperties;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -16,8 +16,8 @@ import javax.crypto.SecretKey;
 public class JwtProvider {
     private final SecretKey accessSecret;
 
-    public JwtProvider(@Value("${jwt.token.access.secret}") String accessSecret) {
-        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
+    public JwtProvider(JwtProperties jwtProperties) {
+        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getAccess().getSecret()));
     }
 
     public boolean validateAccessToken(String token) {
