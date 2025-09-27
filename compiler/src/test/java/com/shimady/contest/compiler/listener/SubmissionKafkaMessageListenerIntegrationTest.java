@@ -1,6 +1,8 @@
 package com.shimady.contest.compiler.listener;
 
 import com.shimady.contest.compiler.config.TestcontainersConfiguration;
+import com.shimady.contest.compiler.config.props.CompilerProperties;
+import com.shimady.contest.compiler.config.props.KafkaTopicProperties;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import com.shimady.contest.compiler.model.User;
@@ -11,7 +13,6 @@ import com.shimady.contest.compiler.service.SubmissionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -29,11 +30,7 @@ import static org.mockito.Mockito.after;
 @SpringBootTest
 @Testcontainers
 @Import({TestcontainersConfiguration.class})
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SubmissionKafkaMessageListenerIntegrationTest {
-
-    @Value("${kafka.topic.submission}")
-    private String topic;
 
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -46,6 +43,9 @@ public class SubmissionKafkaMessageListenerIntegrationTest {
 
     @Autowired
     private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+
+    @Autowired
+    private KafkaTopicProperties properties;
 
     @MockitoSpyBean
     private SubmissionService submissionService;
@@ -81,7 +81,7 @@ public class SubmissionKafkaMessageListenerIntegrationTest {
         message.setUserId(1L);
         message.setSubmittedAt(LocalDateTime.now());
 
-        kafkaTemplate.send(topic, partition, "", message);
+        kafkaTemplate.send(properties.getSubmission().getName(), partition, "", message);
 
         then(listener).should(after(5000)).listenSubmission(message, partition);
         then(submissionService).should().submitSolution(message);

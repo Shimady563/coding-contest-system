@@ -1,11 +1,14 @@
 package com.shimady.contest.compiler.service;
 
+import com.shimady.contest.compiler.config.props.CompilerProperties;
 import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,25 +23,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class CompilerServiceTest {
-    private static final int TIMEOUT_SECONDS = 5;
-    private static final int MAX_OUTPUT_BYTES = 1_000_000;
-    private static final String workdir = "/cpp";
-
-    private final Process process = mock(Process.class);
-    private final TestCaseService testCaseService = mock(TestCaseService.class);
-    private final CompilerService compilerService = new CompilerService(
-            TIMEOUT_SECONDS,
-            MAX_OUTPUT_BYTES,
-            workdir,
-            testCaseService
-    );
-
+    private static final CompilerProperties PROPS = new CompilerProperties();
     private static List<TestCase> testCases;
-    private static final Task task = new Task();
+    private static final Task TASK = new Task();
+
+    @Mock
+    private Process process;
+    @Mock
+    private TestCaseService testCaseService;
+
+    private CompilerService compilerService;
 
     @BeforeAll
     public static void init() {
@@ -54,9 +51,20 @@ class CompilerServiceTest {
 
         testCases = List.of(tc1, tc2);
 
-        task.setId(1L);
-        task.setTestCases(Set.of(tc1, tc2));
-        task.setTestCasesCount((short) task.getTestCases().size());
+        TASK.setId(1L);
+        TASK.setTestCases(Set.of(tc1, tc2));
+        TASK.setTestCasesCount((short) TASK.getTestCases().size());
+    }
+
+    @BeforeEach
+    public void setUp() {
+        PROPS.setWorkdir("/cpp");
+        PROPS.setMaxOutputBytes(1_000_000);
+        PROPS.setTimeoutSeconds(5L);
+        compilerService = new CompilerService(
+                PROPS,
+                testCaseService
+        );
     }
 
     @Test
@@ -72,9 +80,9 @@ class CompilerServiceTest {
                 }
                 """;
 
-        given(testCaseService.getAllTestCasesByTask(task)).willReturn(testCases);
+        given(testCaseService.getAllTestCasesByTask(TASK)).willReturn(testCases);
 
-        var result = compilerService.compileAndRun(code, task);
+        var result = compilerService.compileAndRun(code, TASK);
 
         assertEquals(SolutionStatus.ACCEPTED, result.status());
         assertEquals(2, result.testsPassed());
@@ -93,7 +101,7 @@ class CompilerServiceTest {
                 }
                 """;
 
-        var result = compilerService.compileAndRun(code, task);
+        var result = compilerService.compileAndRun(code, TASK);
 
         then(testCaseService).shouldHaveNoInteractions();
         assertEquals(SolutionStatus.COMPILE_ERROR, result.status());
@@ -111,9 +119,9 @@ class CompilerServiceTest {
                 }
                 """;
 
-        given(testCaseService.getAllTestCasesByTask(task)).willReturn(testCases);
+        given(testCaseService.getAllTestCasesByTask(TASK)).willReturn(testCases);
 
-        var result = compilerService.compileAndRun(code, task);
+        var result = compilerService.compileAndRun(code, TASK);
 
         assertEquals(SolutionStatus.RUNTIME_ERROR, result.status());
         assertEquals(0, result.testsPassed());
@@ -130,9 +138,9 @@ class CompilerServiceTest {
                 }
                 """;
 
-        given(testCaseService.getAllTestCasesByTask(task)).willReturn(testCases);
+        given(testCaseService.getAllTestCasesByTask(TASK)).willReturn(testCases);
 
-        var result = compilerService.compileAndRun(code, task);
+        var result = compilerService.compileAndRun(code, TASK);
 
         assertEquals(SolutionStatus.TIMED_OUT, result.status());
         assertEquals(0, result.testsPassed());
@@ -151,9 +159,9 @@ class CompilerServiceTest {
                 }
                 """;
 
-        given(testCaseService.getAllTestCasesByTask(task)).willReturn(testCases);
+        given(testCaseService.getAllTestCasesByTask(TASK)).willReturn(testCases);
 
-        var result = compilerService.compileAndRun(code, task);
+        var result = compilerService.compileAndRun(code, TASK);
 
         assertEquals(SolutionStatus.WRONG_ANSWER, result.status());
         assertEquals(0, result.testsPassed());
@@ -172,7 +180,7 @@ class CompilerServiceTest {
                 }
                 """;
 
-        given(process.waitFor(eq(TIMEOUT_SECONDS), any(TimeUnit.class))).willReturn(false);
+        given(process.waitFor(eq(PROPS.getTimeoutSeconds()), any(TimeUnit.class))).willReturn(false);
 
         try (MockedConstruction<ProcessBuilder> mocked = Mockito.mockConstruction(ProcessBuilder.class,
                 (builderMock, context) -> {
@@ -180,7 +188,7 @@ class CompilerServiceTest {
                     given(builderMock.start()).willReturn(process);
                 })) {
 
-            var result = compilerService.compileAndRun(code, task);
+            var result = compilerService.compileAndRun(code, TASK);
 
             assertEquals(SolutionStatus.COMPILE_ERROR, result.status());
             assertEquals(0, result.testsPassed());
@@ -202,7 +210,7 @@ class CompilerServiceTest {
                     given(builderMock.start()).willThrow(new IOException());
                 })) {
 
-            var result = compilerService.compileAndRun(code, task);
+            var result = compilerService.compileAndRun(code, TASK);
 
             assertEquals(SolutionStatus.INTERNAL_ERROR, result.status());
             assertEquals(0, result.testsPassed());

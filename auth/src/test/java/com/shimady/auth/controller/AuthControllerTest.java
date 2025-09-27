@@ -2,6 +2,7 @@ package com.shimady.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.TestSecurityConfig;
+import com.shimady.auth.config.props.AuthProperties;
 import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
@@ -11,6 +12,7 @@ import com.shimady.auth.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -26,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
-@Import(TestSecurityConfig.class)
+@Import({TestSecurityConfig.class, JwtProperties.class, AuthProperties.class})
 class AuthControllerTest {
     @MockitoBean
     private AuthService authService;

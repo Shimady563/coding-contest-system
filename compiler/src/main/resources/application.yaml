@@ -24,8 +24,8 @@ kafka:
       partitions: 4
 
 compiler:
-  timeoutSeconds: 15
-  maxOutputBytes: 1_000_000
+  timeout-seconds: 15
+  max-output-bytes: 1_000_000
   workdir: /cpp
 
 logging:

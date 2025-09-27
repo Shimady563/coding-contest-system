@@ -27,13 +27,23 @@ spring:
               packages: "*"
             type:
               mapping: CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
+
 kafka:
-  topic:
-    submission: submissionTopic
+  topics:
+    submission:
+      name: submissionTopic
+      replication-factor: 1
+      partitions: 4
+
+compiler:
+  timeout-seconds: 15
+  max-output-bytes: 1_000_000
+  workdir: /cpp
+
+server:
+  servlet:
+    context-path: /api/v1/
+
 logging:
   level:
     root: info
-compiler:
-  timeoutSeconds: 15
-  maxOutputBytes: 1_000_000
-  workdir: /cpp

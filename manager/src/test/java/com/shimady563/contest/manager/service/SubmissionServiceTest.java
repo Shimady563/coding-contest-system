@@ -1,5 +1,6 @@
 package com.shimady563.contest.manager.service;
 
+import com.shimady563.contest.manager.config.props.KafkaTopicProperties;
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
 import com.shimady563.contest.manager.model.Contest;
 import com.shimady563.contest.manager.model.ContestVersion;
@@ -25,7 +26,7 @@ import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionServiceTest {
-    private final String topic = "submissionTopic";
+    private static final KafkaTopicProperties PROPS = new KafkaTopicProperties();
 
     @Mock
     private UserService userService;
@@ -45,9 +46,12 @@ class SubmissionServiceTest {
     @BeforeEach
     @SneakyThrows
     public void setUp() {
-        Field field = submissionService.getClass().getDeclaredField("topic");
+        var topicInfo = new KafkaTopicProperties.TopicInfo();
+        topicInfo.setName("submission");
+        PROPS.setSubmission(topicInfo);
+        Field field = submissionService.getClass().getDeclaredField("kafkaProperties");
         field.setAccessible(true);
-        field.set(submissionService, topic);
+        field.set(submissionService, PROPS);
     }
 
     @Test
@@ -89,7 +93,7 @@ class SubmissionServiceTest {
 
         submissionService.submitSolution(dto);
 
-        then(kafkaTemplate).should().send(topic, submission);
+        then(kafkaTemplate).should().send(PROPS.getSubmission().getName(), submission);
     }
 
     @Test
