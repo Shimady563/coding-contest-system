@@ -4,8 +4,14 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
   kafka:
+    listener:
+      ack-mode: record
+      concurrency: 1
     consumer:
-      group-id: compiler
+      client-id: ${spring.application.name}
+      group-id: ${spring.application.name}-submission
+      auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:

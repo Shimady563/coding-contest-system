@@ -7,6 +7,12 @@ spring:
     change-log: classpath:/db/changelog/db-changelog-master.xml
   kafka:
     producer:
+      client-id: ${spring.application.name}
+      enable-idempotence: true
+      acks: all
+      linger-ms: 100
+      retry-backoff-ms: 1000
+      delivery-timeout-ms: 30000
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 

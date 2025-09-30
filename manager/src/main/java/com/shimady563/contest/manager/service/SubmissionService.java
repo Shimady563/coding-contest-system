@@ -26,7 +26,8 @@ public class SubmissionService {
     public void submitSolution(CodeSubmissionDto submissionDto) {
         log.info("Submitting solution: {}", submissionDto);
         checkSubmissionValidity(submissionDto);
-        kafkaTemplate.send(kafkaProperties.getSubmission().getName(), CodeSubmissionConverter.request2Transport(submissionDto));
+        String partitionKey = submissionDto.getTaskId() + submissionDto.getUserId() + submissionDto.getSubmittedAt().toString();
+        kafkaTemplate.send(kafkaProperties.getSubmission().getName(), partitionKey, CodeSubmissionConverter.request2Transport(submissionDto));
     }
 
     private void checkSubmissionValidity(CodeSubmissionDto submission) {
