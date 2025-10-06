@@ -235,7 +235,7 @@ export default {
       try {
         const params = { ...this.filters };
 
-        if (this.selectedStatus?.name) { // обновите условие
+        if (this.selectedStatus?.name) { 
           params.status = this.selectedStatus.name;
         }
         if (this.selectedUser) {
