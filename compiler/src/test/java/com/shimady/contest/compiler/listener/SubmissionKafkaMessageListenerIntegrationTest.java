@@ -28,7 +28,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.after;
 
 @SpringBootTest
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @Import({TestcontainersConfiguration.class})
 public class SubmissionKafkaMessageListenerIntegrationTest {
 
