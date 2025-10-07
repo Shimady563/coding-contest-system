@@ -86,6 +86,7 @@ class SubmissionServiceTest {
         submission.setUserId(userId);
         submission.setTaskId(taskId);
         submission.setSubmittedAt(dto.getSubmittedAt());
+        String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
@@ -93,7 +94,7 @@ class SubmissionServiceTest {
 
         submissionService.submitSolution(dto);
 
-        then(kafkaTemplate).should().send(PROPS.getSubmission().getName(), submission);
+        then(kafkaTemplate).should().send(PROPS.getSubmission().getName(), key, submission);
     }
 
     @Test

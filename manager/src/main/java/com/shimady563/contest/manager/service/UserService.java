@@ -18,11 +18,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.shimady563.contest.manager.model.Role.ROLE_STUDENT;
+import static com.shimady563.contest.manager.model.Role.ROLE_TEACHER;
 
 @Slf4j
 @Service
@@ -31,6 +35,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final GroupService groupService;
     private final ContestService contestService;
+    private final PasswordEncoder passwordEncoder;
 
     protected User getUserByEmail(String email) {
         log.info("Getting user by email: {}", email);
@@ -92,6 +97,17 @@ public class UserService implements UserDetailsService {
     public void updateUserById(Long id, UserUpdateRequestDto request) {
         log.info("Updating user with id: {}", id);
         User user = getUserById(id);
+        User curUser = getCurrentUser();
+        Role curUserRole = curUser.getRole();
+
+        if ((curUserRole == ROLE_STUDENT && !curUser.getId().equals(user.getId()))
+                || (curUserRole == ROLE_TEACHER && user.getRole() == ROLE_TEACHER
+                && !curUser.getId().equals(user.getId()))) {
+            throw new AccessDeniedException("User with role " +
+                    curUserRole.getValue() + " cannot update other " +
+                    curUserRole.getValue() + "s. User id: " + curUser.getId());
+        }
+
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
@@ -100,7 +116,28 @@ public class UserService implements UserDetailsService {
             Group newGroup = groupService.getGroupById(request.getGroupId());
             user.setGroup(newGroup);
         }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         userRepository.save(user);
+    }
+
+    private void updateTeacher(User user, Long userId, UserUpdateRequestDto request) {
+        if (!user.getId().equals(userId) && user.getRole() == Role.ROLE_TEACHER) {
+            throw new AccessDeniedException("User with role teacher cannot update other teachers. User id: " + userId);
+        }
+        updateUserInternal(user, request);
+    }
+
+    private void updateStudent(User user, Long userId, UserUpdateRequestDto request) {
+        if (!user.getId().equals(userId)) {
+            throw new AccessDeniedException("User with role student cannot update other users. User id: " + userId);
+        }
+        updateUserInternal(user, request);
+    }
+
+    private void updateUserInternal(User user, UserUpdateRequestDto request) {
+
     }
 
     @Transactional
