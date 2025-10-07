@@ -56,9 +56,11 @@ function setupFetchInterceptor() {
   };
 }
 
-await initAuth();
-setupFetchInterceptor();
+(async () => {
+  await initAuth();
+  setupFetchInterceptor();
 
-const app = createApp(App);
-app.use(router);
-app.mount('#app');
+  const app = createApp(App);
+  app.use(router);
+  app.mount('#app');
+})();
