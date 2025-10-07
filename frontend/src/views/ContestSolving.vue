@@ -49,7 +49,9 @@ export default {
       loadingTasks: false,
       contest: null,
       timeLeft: null,
-      timerInterval: null
+      timerInterval: null,
+      lastSendTime: null,
+      sendInterval: 5000,
     };
   },
   computed: {
@@ -130,6 +132,13 @@ export default {
       }
     },
     async sendCode() {
+      const now = Date.now();
+      if (this.lastSendTime && (now - this.lastSendTime < this.sendInterval)) {
+        this.$root.notify(`Подождите ${this.sendInterval / 1000} секунд перед следующей отправкой`, "warning");
+        return;
+      }
+      this.lastSendTime = now;
+      
       const codeEditor = this.$refs.codeEditor;
       if (!codeEditor || !codeEditor.editor) return;
 
@@ -167,7 +176,6 @@ export default {
         while (retries < MAX_RETRIES) {
           await outputComponent.fetchResults();
           if (outputComponent.results.length > initialLength) {
-            this.$root.notify("Результат получен", "success");
             return;
           }
           retries++;

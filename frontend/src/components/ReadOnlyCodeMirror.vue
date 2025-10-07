@@ -28,6 +28,9 @@
         theme: "monokai",
         lineNumbers: true,
         readOnly: true,
+        tabSize: 4,       
+        indentUnit: 4,    
+        indentWithTabs: false, 
       });
   
       this.editor.setValue(this.code);

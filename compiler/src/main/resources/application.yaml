@@ -4,8 +4,14 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
   kafka:
+    listener:
+      ack-mode: record
+      concurrency: 1
     consumer:
-      group-id: compiler
+      client-id: ${spring.application.name}
+      group-id: ${spring.application.name}-submission
+      auto-offset-reset: earliest
+      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
@@ -15,13 +21,19 @@ spring:
               packages: com.shimady563.contest.manager.model
             type:
               mapping: com.shimady563.contest.manager.model.dto.CodeSubmission:com.shimady.contest.compiler.model.dto.CodeSubmission
+
 kafka:
-  topic:
-    submission: submissionTopic
+  topics:
+    submission:
+      name: submissionTopic
+      replication-factor: 1
+      partitions: 4
+
+compiler:
+  timeout-seconds: 15
+  max-output-bytes: 1_000_000
+  workdir: /cpp
+
 logging:
   level:
     root: info
-compiler:
-  timeoutSeconds: 15
-  maxOutputBytes: 1_000_000
-  workdir: /cpp

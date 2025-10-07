@@ -1,23 +1,26 @@
 package com.shimady563.contest.manager.config;
 
+import com.shimady563.contest.manager.config.props.KafkaTopicProperties;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
-@Configuration
-public class KafkaConfig {
+import static com.shimady563.contest.manager.config.props.KafkaTopicProperties.TopicInfo;
 
-    @Value("${kafka.topic.submission}")
-    private String submissionTopic;
+@Configuration
+@RequiredArgsConstructor
+public class KafkaConfig {
+    private final KafkaTopicProperties kafkaProperties;
 
     @Bean
     public NewTopic submissionTopic() {
+        TopicInfo submission = kafkaProperties.getSubmission();
         return TopicBuilder
-                .name(submissionTopic)
-                .partitions(4)
-                .replicas(1)
+                .name(submission.getName())
+                .partitions(submission.getPartitions())
+                .replicas(submission.getReplicationFactor())
                 .build();
     }
 }

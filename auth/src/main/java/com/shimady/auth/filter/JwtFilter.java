@@ -1,6 +1,8 @@
 package com.shimady.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shimady.auth.config.props.AuthProperties;
+import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.model.JwtAuthentication;
 import com.shimady.auth.repository.JwtProvider;
 import com.shimady.auth.utils.JwtUtils;
@@ -11,7 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -24,12 +25,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    @Value("${auth.whitelist}")
-    private final String[] whiteList;
-
-    @Value("${jwt.token.access.cookie.name}")
-    private String accessTokenCookieName;
-
+    private final AuthProperties authProperties;
+    private final JwtProperties jwtProperties;
     private final JwtProvider provider;
     private final ObjectMapper mapper;
 
@@ -40,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         log.info("Filtering request: {}", request.getRequestURI());
-        String token = JwtUtils.getTokenFromCookies(request.getCookies(), accessTokenCookieName);
+        String token = JwtUtils.getTokenFromCookies(request.getCookies(), jwtProperties.getAccess().getCookieName());
 
         if (!provider.validateAccessToken(token)) {
             SecurityContextHolder.clearContext();
@@ -60,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        for (String path : whiteList) {
+        for (String path : authProperties.getWhitelist()) {
             PathPatternRequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(path);
             if (matcher.matches(request)) {
                 return true;

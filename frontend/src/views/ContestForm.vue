@@ -21,12 +21,24 @@
         </div>
 
         <div class="form-group">
-          <label for="group">Группа <span class="required">*</span></label>
-          <select id="group" v-model="contest.groupId" :class="{ 'invalid': !contest.groupId && submitted }">
-            <option disabled value="">-- Выберите группу --</option>
-            <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name }}</option>
-          </select>
-          <span v-if="!contest.groupId && submitted" class="error-message">Выберите группу</span>
+          <label>Группа <span class="required">*</span></label>
+          <multiselect
+            v-model="selectedGroup"
+            :options="groups"
+            :searchable="true"
+            :allow-empty="false"
+            :multiple="false"
+            :select-label="''"
+            :selected-label="''"
+            :deselect-label="''"
+            placeholder="Выберите группу"
+            label="name"
+            track-by="id"
+            :class="{ 'invalid': !selectedGroup && submitted }"
+            class="custom-multiselect"
+          >
+          </multiselect>
+          <span v-if="!selectedGroup && submitted" class="error-message">Выберите группу</span>
         </div>
 
         <div class="form-row">
@@ -57,16 +69,24 @@
               <label>Задания <span class="required">*</span></label>
               <TaskSelector :allTasks="tasks" @add-task="task => addTaskToVariant(index, task)" />
               
-              <div class="selected-tasks">
-                <span v-for="t in variant.tasks" :key="t.id" class="task-chip">
-                  {{ t.name }}
-                  <button type="button" class="remove-task" @click="removeTaskFromVariant(index, t.id)">×</button>
-                </span>
-              </div>
+                <div class="selected-tasks">
+                  <span v-for="t in variant.tasks" :key="t.id" class="task-chip">
+                    {{ t.name }}
+                    <button
+                      v-if="!isEdit" 
+                      type="button"
+                      class="remove-task"
+                      @click="removeTaskFromVariant(index, t.id)"
+                    >
+                      ×
+                    </button>
+                  </span>
+                </div>
+
               <span v-if="variant.tasks.length === 0 && submitted" class="error-message">Добавьте хотя бы одно задание</span>
             </div>
 
-            <button class="btn btn-danger" type="button" @click="removeVariant(index)">
+            <button class="btn btn-danger" type="button" @click="confirmRemoveVariant(index)">
               <i class="fas fa-trash"></i> 
               Удалить вариант
             </button>
@@ -90,33 +110,62 @@
           </button>
         </div>
       </div>
+      <ConfirmDialog
+        v-if="showConfirmDialog"
+        :title="confirmDialog.title"
+        :message="confirmDialog.message"
+        @confirm="removeDelete"
+        @cancel="cancelDelete"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import TaskSelector from '@/components/TaskSelector.vue';
+import ConfirmDialog from "@/components/ConfirmDialog.vue"
 import { fetchGroups } from '@/js/manager';
 import { getContest, updateContest, createContest, listTasks, createContestVersion, getContestVersionsByContest, 
   deleteContestVersion } from '@/js/manager';
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.min.css";
 
 export default {
-  components: { TaskSelector },
+  components: { 
+    TaskSelector,
+    Multiselect,
+    ConfirmDialog
+  },
   props: { id: { type: String, required: false } },
   data() {
     return {
       contest: { name: '', description: '', groupId: '', startTime: '', endTime: '' },
       groups: [],
+      selectedGroup: null,
       tasks: [],
       variants: [],
       submitted: false,
       loading: false,
       saving: false,
       nextVariantNumber: 1,
-      variantsToDelete: [] // Массив для хранения ID вариантов, которые нужно удалить
+      variantsToDelete: [],
+      variantToDeleteIndex: null, 
+      showConfirmDialog: false, 
+      confirmDialog: { title: '', message: '' }   
     };
   },
-  computed: { isEdit() { return !!this.id; } },
+  computed: { 
+    isEdit() { return !!this.id; } 
+  },
+  watch: {
+    selectedGroup(newGroup) {
+      if (newGroup) {
+        this.contest.groupId = newGroup.id;
+      } else {
+        this.contest.groupId = '';
+      }
+    }
+  },
   async mounted() {
     await this.loadGroups();
     await this.loadTasks();
@@ -128,10 +177,17 @@ export default {
   },
   methods: {
     async loadGroups() {
-      try { this.groups = await fetchGroups(); } catch (_) { this.$root.notify('Ошибка при загрузке групп', 'error'); }
+      try { 
+        this.groups = await fetchGroups(); 
+      } catch (_) { 
+        this.$root.notify('Ошибка при загрузке групп', 'error'); 
+      }
     },
     async loadTasks() {
-      try { const data = await listTasks(); this.tasks = data.content || []; } catch (_) {}
+      try { 
+        const data = await listTasks(); 
+        this.tasks = data.content || []; 
+      } catch (_) {}
     },
     async loadContest() {
       this.loading = true;
@@ -146,6 +202,7 @@ export default {
           const min = String(date.getMinutes()).padStart(2, '0'); 
           return `${y}-${m}-${day}T${h}:${min}`; 
         };
+        
         this.contest = { 
           id: data.id, 
           name: data.name || '', 
@@ -154,10 +211,16 @@ export default {
           startTime: data.startTime ? format(data.startTime) : '', 
           endTime: data.endTime ? format(data.endTime) : '' 
         };
+
+        if (this.contest.groupId) {
+          this.selectedGroup = this.groups.find(group => group.id === this.contest.groupId) || null;
+        }
       } catch (_) {
         this.$root.notify('Не удалось загрузить данные контрольной', 'error');
         this.$router.push('/manage-contests');
-      } finally { this.loading = false; }
+      } finally { 
+        this.loading = false; 
+      }
     },
     async loadContestVersions() {
       try {
@@ -193,17 +256,32 @@ export default {
         tasks: [] 
       }); 
     },
-    async removeVariant(index) { 
+    confirmRemoveVariant(index) {
+      this.variantToDeleteIndex = index;
+      this.showConfirmDialog = true;
+      this.confirmDialog = {
+        title: "Подтверждение удаления",
+        message: "Вы уверены, что хотите удалить этот вариант?"
+      };
+    },
+    async removeDelete() {
+      const index = this.variantToDeleteIndex;
       const variant = this.variants[index];
-      
+
       if (variant.id) {
-        if (!confirm('Вы уверены, что хотите удалить этот вариант? Это действие нельзя отменить.')) {
-          return;
-        }
         this.variantsToDelete.push(variant.id);
       }
-      
       this.variants.splice(index, 1);
+
+      this.closeConfirmDialog();
+    },
+    cancelDelete() {
+      this.closeConfirmDialog();
+    },
+    closeConfirmDialog() {
+      this.variantToDeleteIndex = null;
+      this.showConfirmDialog = false;
+      this.confirmDialog = { title: "", message: "" };
     },
     addTaskToVariant(index, task) { 
       const v = this.variants[index]; 
@@ -219,7 +297,7 @@ export default {
       this.submitted = true;
       if (!this.contest.name.trim()) { this.$root.notify('Введите название контрольной', 'error'); return false; }
       if (!this.contest.description.trim()) { this.$root.notify('Введите описание контрольной', 'error'); return false; }
-      if (!this.contest.groupId) { this.$root.notify('Выберите группу', 'error'); return false; }
+      if (!this.selectedGroup) { this.$root.notify('Выберите группу', 'error'); return false; }
       if (!this.contest.startTime) { this.$root.notify('Выберите время начала', 'error'); return false; }
       if (!this.contest.endTime) { this.$root.notify('Выберите время окончания', 'error'); return false; }
       if (new Date(this.contest.startTime) >= new Date(this.contest.endTime)) { this.$root.notify('Время окончания должно быть позже времени начала', 'error'); return false; }
@@ -245,10 +323,8 @@ export default {
         };
         
         if (this.isEdit) {
-          // Обновляем основную информацию о контрольной
           await updateContest(this.id, payload);
           
-          // Удаляем варианты, которые были помечены для удаления
           for (const variantId of this.variantsToDelete) {
             try {
               await deleteContestVersion(variantId);
@@ -258,12 +334,10 @@ export default {
             }
           }
           
-          // Обрабатываем оставшиеся варианты
           for (const variant of this.variants) {
             const taskIds = variant.tasks.map(t => Number(t.id));
             
             if (!variant.id) {
-              // Создаем новый вариант
               await createContestVersion({
                 name: variant.name,
                 contestId: Number(this.id),
@@ -275,7 +349,6 @@ export default {
           this.$root.notify('Контрольная успешно обновлена!', 'success');
           this.$router.push('/manage-contests');
         } else {
-          // Создание новой контрольной
           const contest = await createContest(payload);
           const contestId = contest.id;
           
@@ -332,5 +405,121 @@ export default {
 
 .task-chip .remove-task:hover {
   color: red;
+}
+
+.custom-multiselect :deep(.multiselect) {
+  min-height: 38px;
+  margin-top: 6px;
+}
+
+.custom-multiselect :deep(.multiselect__tags) {
+  min-height: 38px;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font-size: 16px;
+}
+
+.custom-multiselect :deep(.multiselect__tags:focus-within) {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
+  outline: none;
+}
+
+.custom-multiselect.invalid :deep(.multiselect__tags) {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
+.custom-multiselect :deep(.multiselect__input),
+.custom-multiselect :deep(.multiselect__single) {
+  font-size: 16px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+.custom-multiselect :deep(.multiselect__input:focus) {
+  outline: none;
+  box-shadow: none;
+}
+
+.custom-multiselect :deep(.multiselect__placeholder) {
+  color: #999;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.custom-multiselect :deep(.multiselect__select) {
+  height: 36px;
+  right: 1px;
+  top: 1px;
+  width: 30px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0 8px 8px 0;
+}
+
+.custom-multiselect :deep(.multiselect__select:before) {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 5px 0 5px;
+  border-color: #666 transparent transparent transparent;
+  transition: transform 0.2s ease;
+}
+
+.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.custom-multiselect :deep(.multiselect__select:hover) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect :deep(.multiselect__select:hover:before) {
+  border-color: #333 transparent transparent transparent;
+}
+
+.custom-multiselect :deep(.multiselect--active .multiselect__select) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.custom-multiselect :deep(.multiselect__content-wrapper) {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 4px;
+  z-index: 10;
+}
+
+.custom-multiselect :deep(.multiselect__option) {
+  padding: 8px 12px;
+  font-size: 16px;
+  min-height: 36px;
+}
+
+.custom-multiselect :deep(.multiselect__option--selected) {
+  background-color: #d0ebff;
+  color: #333;
+  font-weight: normal;
+}
+
+.custom-multiselect :deep(.multiselect__option--highlight) {
+  background: #2f80ed;
+  color: white;
+}
+
+.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) {
+  background: #1366d6;
+  color: white;
 }
 </style>

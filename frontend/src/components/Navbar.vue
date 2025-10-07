@@ -3,7 +3,7 @@
     <nav class="navbar">
       <div class="container">
         <router-link to="/" class="logo">
-          <img src="../../public/paw.svg" alt="Paw" class="logo-icon"/>
+          <img src="/paw.svg" alt="Paw" class="logo-icon"/>
           Coding Contest
         </router-link>
 

@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
 public class SubmissionKafkaMessageListener {
     private final SubmissionService submissionService;
 
-    @KafkaListener(topics = "${kafka.topic.submission}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${kafka.topics.submission.name}", groupId = "${spring.kafka.consumer.group-id}")
     public void listenSubmission(
             @Payload CodeSubmission submission,
             @Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition
     ) {
-        log.info("Received submission message: {}, from partition: {}",
+        log.debug("Received submission message: {}, from partition: {}",
                 submission,
                 partition
         );

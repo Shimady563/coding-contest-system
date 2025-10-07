@@ -1,12 +1,12 @@
 package com.shimady.auth.repository;
 
+import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -17,21 +17,16 @@ import java.util.Date;
 @Slf4j
 @Repository
 public class JwtProvider {
-    @Value("${jwt.token.access.expiration}")
-    private Long accessTokenExpiration;
-
-    @Value("${jwt.token.refresh.expiration}")
-    private Long refreshTokenExpiration;
-
+    private final Long accessTokenExpiration;
+    private final Long refreshTokenExpiration;
     private final SecretKey accessSecret;
     private final SecretKey refreshSecret;
 
-    public JwtProvider(
-            @Value("${jwt.token.access.secret}") String accessSecret,
-            @Value("${jwt.token.refresh.secret}") String refreshSecret
-    ) {
-        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
-        this.refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
+    public JwtProvider(JwtProperties jwtProperties) {
+        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getAccess().getSecret()));
+        this.refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getRefresh().getSecret()));
+        this.accessTokenExpiration = jwtProperties.getAccess().getExpiration();
+        this.refreshTokenExpiration = jwtProperties.getRefresh().getExpiration();
     }
 
     public String generateAccessToken(User user) {

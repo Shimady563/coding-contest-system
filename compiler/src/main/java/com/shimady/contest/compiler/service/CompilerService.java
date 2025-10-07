@@ -1,11 +1,11 @@
 package com.shimady.contest.compiler.service;
 
+import com.shimady.contest.compiler.config.props.CompilerProperties;
 import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import com.shimady.contest.compiler.model.dto.CompilationResult;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -30,15 +30,10 @@ public class CompilerService {
     private final Duration timeout;
     private final TestCaseService testCaseService;
 
-    public CompilerService(
-            @Value("${compiler.timeoutSeconds}") long timeoutSeconds,
-            @Value("${compiler.maxOutputBytes}") int maxOutputBytes,
-            @Value("${compiler.workdir}") String workdir,
-            TestCaseService testCaseService
-    ) {
-        this.timeout = Duration.ofSeconds(timeoutSeconds);
-        this.maxBytesOutput = maxOutputBytes;
-        this.workdir = Path.of(System.getProperty("user.home"), workdir);
+    public CompilerService(CompilerProperties compilerProperties, TestCaseService testCaseService) {
+        this.timeout = Duration.ofSeconds(compilerProperties.getTimeoutSeconds());
+        this.maxBytesOutput = compilerProperties.getMaxOutputBytes();
+        this.workdir = Path.of(System.getProperty("user.home"), compilerProperties.getWorkdir());
         this.testCaseService = testCaseService;
     }
 

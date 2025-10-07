@@ -31,7 +31,7 @@ public class JwtUtils {
         return createCookie(tokenName, tokenValue, maxAgeMs).toString();
     }
 
-    public static String deleteTokenCookie(String tokenName) {
+    public static String removeTokenCookie(String tokenName) {
         return createCookie(tokenName, "", 0L).toString();
     }
 

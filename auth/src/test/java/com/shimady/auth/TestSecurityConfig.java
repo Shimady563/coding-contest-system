@@ -1,10 +1,12 @@
 package com.shimady.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shimady.auth.config.props.AuthProperties;
+import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.filter.JwtFilter;
 import com.shimady.auth.repository.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -21,22 +23,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @TestConfiguration
+@RequiredArgsConstructor
 public class TestSecurityConfig {
-    @Value("${auth.whitelist}")
-    private String[] whitelist;
-
-    @Value("${auth.allowed-origins}")
-    private String[] allowedOrigins;
-
-    @Value("${jwt.token.access.secret}")
-    private String accessSecret;
-
-    @Value("${jwt.token.refresh.secret}")
-    private String refreshSecret;
+    private final AuthProperties authProperties;
+    private final JwtProperties jwtProperties;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,7 +39,7 @@ public class TestSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins).toList());
+        configuration.setAllowedOrigins(authProperties.getAllowedOrigins());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
@@ -66,7 +59,7 @@ public class TestSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
-                    auth.requestMatchers(whitelist).permitAll();
+                    auth.requestMatchers(authProperties.getWhitelist().toArray(String[]::new)).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .addFilterAt(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -76,20 +69,20 @@ public class TestSecurityConfig {
     @Bean
     @Primary
     public JwtFilter jwtFilter() {
-        return new TestJwtFilter(whitelist, jwtProvider(), new ObjectMapper());
+        return new TestJwtFilter(authProperties, jwtProperties, jwtProvider(), new ObjectMapper());
     }
 
     @Bean
     public JwtProvider jwtProvider() {
-        return new JwtProvider(accessSecret, refreshSecret);
+        return new JwtProvider(jwtProperties);
     }
 
 
     // overriding the jwt filter to turn it off
     // because every other method didn't work
     private static class TestJwtFilter extends JwtFilter {
-        public TestJwtFilter(String[] whitelist, JwtProvider jwtProvider, ObjectMapper objectMapper) {
-            super(whitelist, jwtProvider, objectMapper);
+        public TestJwtFilter(AuthProperties authProperties, JwtProperties jwtProperties, JwtProvider jwtProvider, ObjectMapper objectMapper) {
+            super(authProperties, jwtProperties, jwtProvider, objectMapper);
         }
 
         @Override

@@ -2,6 +2,8 @@ package com.shimady563.contest.manager.endtoend;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady563.contest.manager.TestcontainersConfiguration;
+import com.shimady563.contest.manager.config.props.JwtProperties;
+import com.shimady563.contest.manager.config.props.KafkaTopicProperties;
 import com.shimady563.contest.manager.model.User;
 import com.shimady563.contest.manager.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
@@ -65,12 +67,6 @@ public class EndToEndTests {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
-    @Value("${jwt.token.access.cookie.name}")
-    private String tokenCookieName;
-
-    @Value("${kafka.topic.submission}")
-    public String submissionTopic;
-
     @LocalServerPort
     private Integer port;
 
@@ -82,6 +78,12 @@ public class EndToEndTests {
 
     @Autowired
     private KafkaContainer kafkaContainer;
+
+    @Autowired
+    private JwtProperties jwtProperties;
+
+    @Autowired
+    private KafkaTopicProperties kafkaProperties;
 
     private String token;
     private String studentToken;
@@ -182,7 +184,7 @@ public class EndToEndTests {
     private EndToEndTestCase prepareTestCase(EndToEndTestCase testCase, String filePrefix) {
         String fullPath = filePrefix + testCase.path + testCase.filePathPostfix;
         EndToEndTestCase testCase1 = testCase.toBuilder()
-                .cookies(testCase.cookies == null ? Map.of(tokenCookieName, token) : testCase.cookies)
+                .cookies(testCase.cookies == null ? Map.of(jwtProperties.getAccess().getCookieName(), token) : testCase.cookies)
                 .queryParams(loadToMap(fullPath + "/queryParams.json"))
                 .requestBody(loadRaw(fullPath + "/requestBody.json"))
                 .responseBody(loadRaw(fullPath + "/responseBody.json"))
@@ -443,7 +445,7 @@ public class EndToEndTests {
                                 "Getting tasks by contest version id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getTasksByContestVersionId")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(GET)
                                         .path("/tasks/contest-version")
                                         .statusCode(200)
@@ -491,7 +493,7 @@ public class EndToEndTests {
                                 "Getting solutions by task id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getSolutionsByTaskId")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(GET)
                                         .path("/solutions/task")
                                         .statusCode(200)
@@ -507,7 +509,7 @@ public class EndToEndTests {
                                         .method(POST)
                                         .path("/submissions")
                                         .statusCode(202)
-                                        .resultingTopic(submissionTopic)
+                                        .resultingTopic(kafkaProperties.getSubmission().getName())
                                         .build()
                         )
                 ),
@@ -517,7 +519,7 @@ public class EndToEndTests {
                                 "Registering user for contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
@@ -737,7 +739,7 @@ public class EndToEndTests {
                                 "Getting tasks by contest version id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/getTasksByContestVersionId")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(GET)
                                         .path("/tasks/contest-version")
                                         .statusCode(403)
@@ -808,7 +810,7 @@ public class EndToEndTests {
                                 "Registering user for contest version with wrong user id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/user")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/3")
@@ -821,7 +823,7 @@ public class EndToEndTests {
                                 "Registering user for contest version with wrong contest version id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/contest-version")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
@@ -834,7 +836,7 @@ public class EndToEndTests {
                                 "Registering user for contest version with wrong contest id",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/registerUserForContestVersion/contest")
-                                        .cookies(Map.of(tokenCookieName, studentToken))
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(PATCH)
                                         .path("/users/start")
                                         .pathParams("/2")
