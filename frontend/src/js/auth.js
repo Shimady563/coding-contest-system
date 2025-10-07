@@ -81,6 +81,10 @@ export async function refreshAuth() {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
   });
-  if (!response.ok) throw new Error('Не удалось обновить токен');
+
+  if (!response.ok) {
+    return false;
+  }
+
   return true;
 }
