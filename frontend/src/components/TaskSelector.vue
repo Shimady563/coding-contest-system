@@ -1,6 +1,5 @@
 <template>
   <div class="task-selector">
-    <label>Выберите задание:</label>
     <multiselect
       v-model="selectedTaskId"
       :options="tasksArray"
@@ -10,7 +9,7 @@
       :select-label="''"
       :selected-label="''"
       :deselect-label="''"
-      placeholder="-- Задание --"
+      placeholder="Выберите задание"
       label="name"
       track-by="id"
       class="custom-multiselect"

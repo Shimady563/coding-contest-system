@@ -375,6 +375,11 @@ export default {
 </script>
 
 <style scoped>
+.card{
+  overflow: visible !important;
+  position: relative;
+}
+
 .selected-tasks {
   display: flex;
   flex-wrap: wrap;
