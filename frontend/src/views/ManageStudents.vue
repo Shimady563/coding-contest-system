@@ -27,16 +27,16 @@
           <span>Группа:</span>
           <multiselect
             v-model="searchParams.selectedGroup"
-            :options="groupOptions"
+            :options="groups"
             :multiple="false"
             :searchable="true"
             :close-on-select="true"
             :show-labels="false"
             placeholder="Выберите группу"
             label="name"
-            track-by="name"
-            class="custom-multiselect"
-          ></multiselect>
+            track-by="id"
+            class="custom-multiselect full-width"
+          />
         </label>
       </div>
 
@@ -156,8 +156,8 @@
               placeholder="Выберите группу"
               label="name"
               track-by="id"
-              class="custom-multiselect"
-            ></multiselect>
+              class="custom-multiselect full-width"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -199,27 +199,36 @@ export default {
       loading: false,
       editingStudent: null,
       showConfirmDialog: false,
-      confirmDialog: {
-        title: '',
-        message: ''
-      },
+      confirmDialog: { title: "", message: "" },
       studentToDelete: null,
       searchParams: {
-        firstName: '',
-        lastName: '',
-        role: 'ROLE_STUDENT',
-        groupNames: null
+        firstName: "",
+        lastName: "",
+        role: "ROLE_STUDENT",
+        selectedGroup: null
       }
     };
+  },
+  async created() {
+    await this.fetchGroups();
+    await this.fetchStudents();
+  },
+  watch: {
+    groups(newGroups) {
+      if (this.searchParams.selectedGroup) {
+        const ref = newGroups.find(g => g.id === this.searchParams.selectedGroup.id);
+        if (ref) this.searchParams.selectedGroup = ref;
+      }
+      if (this.editingStudent && this.editingStudent.selectedGroup) {
+        const ref = newGroups.find(g => g.id === this.editingStudent.selectedGroup.id);
+        if (ref) this.editingStudent.selectedGroup = ref;
+      }
+    }
   },
   computed: {
     groupOptions() {
       return this.groups.map(group => ({ name: group.name }));
     }
-  },
-  async created() {
-    await this.fetchStudents();
-    await this.fetchGroups();
   },
   methods: {
     async fetchStudents() {
@@ -232,52 +241,32 @@ export default {
         };
         if (this.searchParams.firstName) params.firstName = this.searchParams.firstName;
         if (this.searchParams.lastName) params.lastName = this.searchParams.lastName;
-
         if (this.searchParams.selectedGroup) {
           params.groupName = this.searchParams.selectedGroup.name;
         }
-        
+
         const data = await listUsers(params);
         this.students = data.content || [];
         this.totalPages = data.page?.totalPages || 1;
         this.totalElements = data.page?.totalElements || 0;
-      } catch  {
+      } catch (err) {
         this.$toast?.error("Ошибка при загрузке студентов");
       } finally {
         this.loading = false;
       }
     },
     async fetchGroups() {
-      this.groups = await fetchGroups();
-    },
-    onSearch() {
-      this.currentPage = 0;
-      this.fetchStudents();
-    },
-    resetSearch() {
-      this.searchParams.firstName = '';
-      this.searchParams.lastName = '';
-      this.searchParams.selectedGroup = null;
-      this.currentPage = 0;
-      this.fetchStudents();
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages - 1) {
-        this.currentPage++;
-        this.fetchStudents();
-      }
-    },
-    prevPage() {
-      if (this.currentPage > 0) {
-        this.currentPage--;
-        this.fetchStudents();
+      try {
+        const groups = await fetchGroups();
+        this.groups = Array.isArray(groups) ? groups : (groups.content || []);
+      } catch (err) {
+        this.$toast?.error("Ошибка при загрузке групп");
+        this.groups = [];
       }
     },
     openEditModal(student) {
-      this.editingStudent = { 
-        ...student,
-        selectedGroup: this.groups.find(g => g.id === student.groupId) || null
-      };
+      const groupRef = this.groups.find(g => g.id === student.groupId || g.name === student.groupName) || null;
+      this.editingStudent = { ...student, selectedGroup: groupRef };
     },
     closeModal() {
       this.editingStudent = null;
@@ -296,6 +285,28 @@ export default {
         this.$toast?.error("Ошибка при обновлении");
       }
     },
+    onSearch() {
+      this.currentPage = 0;
+      this.fetchStudents();
+    },
+    resetSearch() {
+      this.searchParams = {
+        firstName: '',
+        lastName: '',
+        selectedGroup: null,
+        role: 'ROLE_STUDENT'
+      };
+      this.currentPage = 0;
+      this.fetchStudents();
+    },
+    confirmDeleteStudent(student) {
+      this.studentToDelete = student;
+      this.confirmDialog = {
+        title: 'Удаление студента',
+        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
     async deleteStudent(id) {
       try {
         await deleteUser(id);
@@ -306,14 +317,6 @@ export default {
         this.$toast?.error("Ошибка при удалении");
       }
     },
-    confirmDeleteStudent(student) {
-      this.studentToDelete = student;
-      this.confirmDialog = {
-        title: 'Удаление студента',
-        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
-    },
     async executeDelete() {
       if (!this.studentToDelete) return;
       await this.deleteStudent(this.studentToDelete.id);
@@ -323,7 +326,19 @@ export default {
     cancelDelete() {
       this.showConfirmDialog = false;
       this.studentToDelete = null;
-    }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages - 1) {
+        this.currentPage++;
+        this.fetchStudents();
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+        this.fetchStudents();
+      }
+    },
   }
 };
 </script>
