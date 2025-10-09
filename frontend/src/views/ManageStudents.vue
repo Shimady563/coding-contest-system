@@ -26,16 +26,18 @@
         <label>
           <span>Группа:</span>
           <multiselect
-            v-model="searchParams.selectedGroup"
-            :options="groups"
-            :multiple="false"
-            :searchable="true"
-            :close-on-select="true"
-            :show-labels="false"
-            placeholder="Выберите группу"
-            label="name"
-            track-by="id"
-            class="custom-multiselect full-width"
+          ref="groupSelect"
+          v-model="searchParams.selectedGroup"
+          :options="groups"
+          :multiple="false"
+          :searchable="true"
+          :close-on-select="true"
+          :show-labels="false"
+          placeholder="Выберите группу"
+          label="name"
+          track-by="id"
+          class="custom-multiselect full-width"
+          @select="forceCloseSelect"
           />
         </label>
       </div>
@@ -263,6 +265,11 @@ export default {
         this.$toast?.error("Ошибка при загрузке групп");
         this.groups = [];
       }
+    },
+    forceCloseSelect() {
+          setTimeout(() => {
+        this.$refs.groupSelect?.deactivate();
+      }, 0);
     },
     openEditModal(student) {
       const groupRef = this.groups.find(g => g.id === student.groupId || g.name === student.groupName) || null;
@@ -527,6 +534,7 @@ export default {
 }
 
 .modal-dialog {
+  overflow: visible !important;
   background: white;
   border-radius: 12px;
   width: 500px;
@@ -550,6 +558,8 @@ export default {
 }
 
 .modal-body {
+  overflow: visible !important;
+  position: relative;
   padding: 1.5rem;
   box-sizing: border-box;
 }

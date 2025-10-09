@@ -13,6 +13,7 @@
         <label>
           <span>Статус:</span>
           <multiselect
+          ref="statusSelect"
           v-model="selectedStatus"
           :options="statuses"
           :searchable="true"
@@ -23,6 +24,7 @@
           label="name"
           track-by="name"
           class="custom-multiselect"
+          @select="forceCloseSelect('statusSelect')"
           >
           </multiselect>
         </label>
@@ -32,6 +34,7 @@
         <label>
           <span>Пользователь:</span>
           <multiselect
+            ref="userSelect"
             v-model="selectedUser"
             :options="users"
             :custom-label="userLabel"
@@ -45,6 +48,7 @@
             :selected-label="''"
             :deselect-label="''"
             class="custom-multiselect"
+            @select="forceCloseSelect('userSelect')"
           >
           </multiselect>
         </label>
@@ -54,6 +58,7 @@
         <label>
           <span>Задача:</span>
           <multiselect
+            ref="taskSelect"
             v-model="selectedTask"
             :options="tasks"
             track-by="id"
@@ -66,6 +71,7 @@
             :selected-label="''"
             :deselect-label="''"
             class="custom-multiselect"
+            @select="forceCloseSelect('taskSelect')"
           >
           </multiselect>
         </label>
@@ -332,6 +338,11 @@ export default {
     },
     closeModal() {
       this.modalCode = null;
+    },
+    forceCloseSelect(selectName) {
+      setTimeout(() => {
+        this.$refs[selectName]?.deactivate();
+      }, 0);
     },
   },
   mounted() {
