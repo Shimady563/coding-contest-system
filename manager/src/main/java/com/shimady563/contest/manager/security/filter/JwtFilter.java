@@ -3,6 +3,7 @@ package com.shimady563.contest.manager.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady563.contest.manager.config.props.AuthProperties;
 import com.shimady563.contest.manager.config.props.JwtProperties;
+import com.shimady563.contest.manager.exception.AppError;
 import com.shimady563.contest.manager.model.JwtAuthentication;
 import com.shimady563.contest.manager.service.JwtProvider;
 import com.shimady563.contest.manager.utils.JwtUtils;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -36,17 +38,26 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        log.info("Filtering request: {}", request.getRequestURI());
+        log.debug("Filtering request: {}", request.getRequestURI());
         String token = JwtUtils.getTokenFromCookies(request.getCookies(), jwtProperties.getAccess().getCookieName());
 
         if (!provider.validateAccessToken(token)) {
+            log.warn("Jwt token is invalid or expired");
+            SecurityContextHolder.clearContext();
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("Jwt token is invalid or expired"));
+            response.getWriter().write(
+                    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+                            new AppError(
+                                    "Jwt token is invalid or expired",
+                                    HttpStatus.UNAUTHORIZED.value()
+                            )
+                    )
+            );
             return;
         }
 
-        log.info("Jwt token validated successfully");
+        log.debug("Jwt token validated successfully");
         Claims claims = provider.getClaimsFromAccessToken(token);
         JwtAuthentication authentication = JwtUtils.generateAuthentication(claims);
         authentication.setAuthenticated(true);
