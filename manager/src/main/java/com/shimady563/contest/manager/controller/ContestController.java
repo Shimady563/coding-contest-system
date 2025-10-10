@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.controller;
 
 import com.shimady563.contest.manager.exception.AppError;
+import com.shimady563.contest.manager.exception.ValidationError;
 import com.shimady563.contest.manager.model.dto.ContestRequestDto;
 import com.shimady563.contest.manager.model.dto.ContestResponseDto;
 import com.shimady563.contest.manager.service.ContestService;
@@ -29,7 +30,10 @@ import java.util.List;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                 content = @Content(mediaType = "application/json",
-                        schema = @Schema(implementation = String.class))),
+                        schema = @Schema(implementation = AppError.class))),
+        @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = AppError.class))),
         @ApiResponse(responseCode = "500", description = "Internal server error",
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = AppError.class)))
@@ -76,10 +80,10 @@ public class ContestController {
                             schema = @Schema(implementation = ContestResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.ValidationError.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
+                            schema = @Schema(implementation = ValidationError.class))),
+            @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppError.class)))
+                            schema = @Schema(implementation = AppError.class))),
     })
     public ContestResponseDto createContest(@Valid @RequestBody ContestRequestDto request) {
         return contestService.createContest(request);
@@ -93,13 +97,10 @@ public class ContestController {
             @ApiResponse(responseCode = "204", description = "Contest updated"),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.ValidationError.class))),
+                            schema = @Schema(implementation = ValidationError.class))),
             @ApiResponse(responseCode = "404", description = "Contest not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppError.class)))
     })
     public void updateContest(@Parameter(description = "Contest id") @PathVariable Long id, @Valid @RequestBody ContestRequestDto request) {
         contestService.updateContestById(id, request);

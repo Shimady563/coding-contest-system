@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.controller;
 
 import com.shimady563.contest.manager.exception.AppError;
+import com.shimady563.contest.manager.exception.ValidationError;
 import com.shimady563.contest.manager.model.dto.TaskRequestDto;
 import com.shimady563.contest.manager.model.dto.TaskResponseDto;
 import com.shimady563.contest.manager.service.TaskService;
@@ -29,7 +30,10 @@ import java.util.List;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                 content = @Content(mediaType = "application/json",
-                        schema = @Schema(implementation = String.class))),
+                        schema = @Schema(implementation = AppError.class))),
+        @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = AppError.class))),
         @ApiResponse(responseCode = "500", description = "Internal server error",
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = AppError.class)))
@@ -45,10 +49,7 @@ public class TaskController {
             @ApiResponse(responseCode = "201", description = "Task created"),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.ValidationError.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class)))
+                            schema = @Schema(implementation = ValidationError.class))),
     })
     public void createTask(@Valid @RequestBody TaskRequestDto request) {
         taskService.createTask(request);
@@ -62,13 +63,10 @@ public class TaskController {
             @ApiResponse(responseCode = "204", description = "Task updated"),
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.ValidationError.class))),
+                            schema = @Schema(implementation = ValidationError.class))),
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class)))
+                            schema = @Schema(implementation = AppError.class))),
     })
     public void updateTask(@Parameter(description = "Task id") @PathVariable Long id, @Valid @RequestBody TaskRequestDto request) {
         taskService.updateTaskById(id, request);
@@ -96,7 +94,7 @@ public class TaskController {
                             schema = @Schema(implementation = TaskResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class)))
+                            schema = @Schema(implementation = AppError.class)))
     })
     public TaskResponseDto getTaskById(@Parameter(description = "Task id") @PathVariable Long id) {
         return taskService.getTaskById(id);
@@ -111,7 +109,7 @@ public class TaskController {
                             array = @ArraySchema(schema = @Schema(implementation = TaskResponseDto.class)))),
             @ApiResponse(responseCode = "404", description = "Contest version not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class)))
+                            schema = @Schema(implementation = AppError.class)))
     })
     public List<TaskResponseDto> getTasksByContestVersionId(@Parameter(description = "Contest version id") @RequestParam Long contestVersionId) {
         return taskService.getTasksByContestVersionId(contestVersionId);
@@ -125,7 +123,10 @@ public class TaskController {
             @ApiResponse(responseCode = "204", description = "Task deleted"),
             @ApiResponse(responseCode = "404", description = "Task not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = com.shimady563.contest.manager.exception.AppError.class)))
+                            schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "409", description = "Task is in one of the contests (delete them first)",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class)))
     })
     public void deleteTaskById(@Parameter(description = "Task id") @PathVariable Long id) {
         taskService.deleteTaskById(id);

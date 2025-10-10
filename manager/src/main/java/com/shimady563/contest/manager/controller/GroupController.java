@@ -51,7 +51,10 @@ public class GroupController {
             @ApiResponse(responseCode = "200", description = "Page of groups"),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                            schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class))),
     })
     public Page<GroupResponseDto> getGroupsPage(
             @Parameter(description = "Optional name filter") @RequestParam(required = false) String name,
@@ -72,10 +75,10 @@ public class GroupController {
                             schema = @Schema(implementation = ValidationError.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
+                            schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppError.class)))
+                            schema = @Schema(implementation = AppError.class))),
     })
     public void createGroup(@Valid @RequestBody GroupRequestDto request) {
         groupService.createGroup(request);
@@ -92,13 +95,13 @@ public class GroupController {
                             schema = @Schema(implementation = ValidationError.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                            schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class))),
             @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
-            @ApiResponse(responseCode = "409", description = "Conflict (duplicate)",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppError.class)))
     })
     public void updateGroupById(@Parameter(description = "Group id") @PathVariable Long id, @Valid @RequestBody GroupRequestDto request) {
         groupService.updateGroupById(id, request);
@@ -112,7 +115,10 @@ public class GroupController {
             @ApiResponse(responseCode = "204", description = "Group deleted"),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                            schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class))),
             @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class)))

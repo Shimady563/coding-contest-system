@@ -29,7 +29,10 @@ import org.springframework.web.bind.annotation.*;
 @ApiResponses({
         @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                 content = @Content(mediaType = "application/json",
-                        schema = @Schema(implementation = String.class))),
+                        schema = @Schema(implementation = AppError.class))),
+        @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = AppError.class))),
         @ApiResponse(responseCode = "500", description = "Internal server error",
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = AppError.class)))

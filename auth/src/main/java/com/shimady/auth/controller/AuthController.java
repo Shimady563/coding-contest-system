@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Auth", description = "Authentication and session management endpoints")
 @ApiResponses({
+        @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = AppError.class))),
         @ApiResponse(responseCode = "500", description = "Internal server error",
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = AppError.class)))
@@ -44,7 +47,7 @@ public class AuthController {
                             schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class))),
+                            schema = @Schema(implementation = AppError.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class)))
@@ -63,7 +66,7 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
-            @ApiResponse(responseCode = "409", description = "Data conflict (e.g., unique constraint)",
+            @ApiResponse(responseCode = "409", description = "User with such email already exists",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class)))
     })
@@ -79,9 +82,6 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Validation error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ValidationError.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = AppError.class))),
             @ApiResponse(responseCode = "404", description = "User not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class)))
@@ -113,7 +113,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Logged out successfully (cookies cleared)"),
             @ApiResponse(responseCode = "401", description = "Unauthorized (no/invalid token)",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class)))
+                            schema = @Schema(implementation = AppError.class)))
     })
     public ResponseEntity<Void> logout() {
         authService.logout();
