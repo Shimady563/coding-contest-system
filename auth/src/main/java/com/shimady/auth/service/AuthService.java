@@ -46,7 +46,7 @@ public class AuthService {
         log.info("Authenticating user with email: {}", request.getEmail());
         User user = userService.getUserByEmail(request.getEmail());
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new BadCredentialsException("Invalid password for user: " + user.getEmail());
         }
         return jwtService.generateTokens(user);
     }

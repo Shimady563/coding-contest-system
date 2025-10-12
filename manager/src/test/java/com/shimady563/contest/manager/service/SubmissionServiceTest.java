@@ -86,6 +86,7 @@ class SubmissionServiceTest {
         submission.setUserId(userId);
         submission.setTaskId(taskId);
         submission.setSubmittedAt(dto.getSubmittedAt());
+        String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 
         String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 

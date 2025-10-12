@@ -57,7 +57,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
 @Slf4j
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @Import(TestcontainersConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

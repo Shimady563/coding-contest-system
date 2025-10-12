@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.config;
 
 import com.shimady563.contest.manager.config.props.AuthProperties;
+import com.shimady563.contest.manager.security.Http403ForbiddenAccessDeniedHandler;
 import com.shimady563.contest.manager.security.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,6 +29,8 @@ import java.util.List;
 public class SecurityConfig {
     private final AuthProperties authProperties;
     private final JwtFilter jwtFilter;
+    private final Http403ForbiddenAccessDeniedHandler accessDeniedHandler;
+    private final Http403ForbiddenEntryPoint entryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,6 +63,9 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handling ->
+                        handling.authenticationEntryPoint(entryPoint)
+                                .accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
 

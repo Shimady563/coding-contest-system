@@ -19,11 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.shimady563.contest.manager.model.Role.ROLE_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,6 +33,8 @@ import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private UserRepository userRepository;
@@ -52,6 +56,7 @@ class UserServiceTest {
         user = new User();
         user.setId(1L);
         user.setEmail("test@example.com");
+        user.setPassword("StrongPassword!123");
 
         Group group = new Group();
         group.setId(1L);
@@ -97,10 +102,12 @@ class UserServiceTest {
     @Test
     void shouldUpdateUserById() {
         Long newUserId = 2L;
+        String newPassword = "NewPassword!12391823";
         UserUpdateRequestDto request = new UserUpdateRequestDto();
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setEmail("new@example.com");
+        request.setPassword(newPassword);
         request.setGroupId(newUserId);
 
         Group newGroup = new Group();
@@ -108,6 +115,9 @@ class UserServiceTest {
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(groupService.getGroupById(newUserId)).willReturn(newGroup);
+        given(passwordEncoder.matches(eq(request.getPassword()), anyString())).willReturn(false);
+        given(passwordEncoder.encode(request.getPassword())).willReturn(newPassword);
+        willReturn(user).given(userService).getCurrentUser();
 
         userService.updateUserById(1L, request);
 
@@ -115,7 +125,66 @@ class UserServiceTest {
         assertThat(user.getLastName()).isEqualTo("Doe");
         assertThat(user.getEmail()).isEqualTo("new@example.com");
         assertThat(user.getGroup()).isEqualTo(newGroup);
+        assertThat(user.getPassword()).isEqualTo(newPassword);
         then(userRepository).should().save(user);
+    }
+
+    @Test
+    void shouldThrowWhenStudentTryingToUpdateOtherUser() {
+        Long newUserId = 2L;
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("new@example.com");
+        request.setGroupId(newUserId);
+        User newUser = new User();
+        newUser.setId(newUserId);
+        newUser.setEmail("Other email");
+
+        Group newGroup = new Group();
+        newGroup.setId(newUserId);
+
+        given(userRepository.findById(newUserId)).willReturn(Optional.of(newUser));
+        willReturn(user).given(userService).getCurrentUser();
+
+        assertThrows(AccessDeniedException.class, () ->
+                userService.updateUserById(newUserId, request)
+        );
+
+        then(groupService).shouldHaveNoInteractions();
+        then(userRepository).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    void shouldThrowWhenTeacherTryingToUpdateOtherTeacher() {
+        Long newUserId = 2L;
+        User curUser = new User();
+        curUser.setId(1L);
+        curUser.setEmail("curUser@exmaple.com");
+        curUser.setRole(ROLE_TEACHER);
+
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("new@example.com");
+        request.setGroupId(newUserId);
+        User newUser = new User();
+        newUser.setId(newUserId);
+        newUser.setEmail("Other email");
+        newUser.setRole(ROLE_TEACHER);
+
+        Group newGroup = new Group();
+        newGroup.setId(newUserId);
+
+        given(userRepository.findById(newUserId)).willReturn(Optional.of(newUser));
+        willReturn(curUser).given(userService).getCurrentUser();
+
+        assertThrows(AccessDeniedException.class, () ->
+                userService.updateUserById(newUserId, request)
+        );
+
+        then(groupService).shouldHaveNoInteractions();
+        then(userRepository).shouldHaveNoMoreInteractions();
     }
 
     @Test
