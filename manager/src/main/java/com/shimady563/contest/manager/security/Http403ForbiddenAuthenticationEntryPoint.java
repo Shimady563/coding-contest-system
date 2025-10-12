@@ -16,7 +16,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-class Http403ForbiddenAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class Http403ForbiddenAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final ObjectMapper mapper;
 
     @Override

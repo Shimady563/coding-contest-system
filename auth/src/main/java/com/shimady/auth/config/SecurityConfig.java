@@ -2,6 +2,7 @@ package com.shimady.auth.config;
 
 import com.shimady.auth.config.props.AuthProperties;
 import com.shimady.auth.security.Http403ForbiddenAccessDeniedHandler;
+import com.shimady.auth.security.Http403ForbiddenAuthenticationEntryPoint;
 import com.shimady.auth.security.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -14,7 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,7 +30,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final AuthProperties authProperties;
     private final JwtFilter jwtFilter;
-    private final Http403ForbiddenEntryPoint entryPoint;
+    private final Http403ForbiddenAuthenticationEntryPoint entryPoint;
     private final Http403ForbiddenAccessDeniedHandler accessDeniedHandler;
 
     @Bean
