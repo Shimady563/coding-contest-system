@@ -37,7 +37,7 @@ public class UserUpdateRequestDto {
             "upper case letter, " +
             "digit, " +
             "symbol from @#$%^&+=")
-    @Schema(description = "Email", example = "")
+    @Schema(description = "Password", example = "Strongpassword!123")
     private String password;
 
     @NotNull(message = "group id cannot be null")
