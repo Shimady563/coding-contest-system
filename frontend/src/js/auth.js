@@ -1,52 +1,29 @@
 import { AUTH_URL } from "./base";
-import { handleApiError } from "./handleApiError";
+import { fetchJson } from "./base";
 
 export async function login(payload) {
-  const res = await fetch(`${AUTH_URL}/login`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+  return fetchJson(`${AUTH_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
-
-  if (!res.ok) {
-    let data = {};
-    try { data = await res.json(); } catch {}
-    throw new Error(handleApiError(res, data));
-  }
-
-  return true;
 }
 
 export async function signup(payload) {
-  const res = await fetch(`${AUTH_URL}/signup`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+  return fetchJson(`${AUTH_URL}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(payload),
   });
-  
-  if (!res.ok) {
-    let data = {};
-    try { data = await res.json(); } catch {}
-    throw new Error(handleApiError(res, data));
-  }
-
-  return true;
 }
 
 export async function getUserInfo() {
   try {
-    const res = await fetch(`${AUTH_URL}/me`, {
+    const data = await fetchJson(`${AUTH_URL}/me`, {
       method: "GET",
-      credentials: "include",
     });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    const data = await res.json();
 
     const role = data.groupName === "Teacher" ? "teacher" : "student";
 
@@ -57,43 +34,35 @@ export async function getUserInfo() {
       email: data.email,
       groupName: data.groupName,
       groupId: data.groupId,
-      role: role,
+      role,
     };
-  } catch {
+  } catch (err) {
     return null;
   }
 }
 
 export async function logoutUser() {
   try {
-    const res = await fetch(`${AUTH_URL}/logout`, {
+    await fetchJson(`${AUTH_URL}/logout`, {
       method: "POST",
-      credentials: "include",
     });
 
-    if (!res.ok) {
-      throw new Error("Не удалось выйти из аккаунта");
-    }
-
     localStorage.removeItem("seenWelcome");
-
     return true;
   } catch (err) {
-    console.error("Ошибка при выходе из аккаунта:", err);
     return false;
   }
 }
 
 export async function refreshAuth() {
-  const response = await fetch(`${AUTH_URL}/refresh`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    await fetchJson(`${AUTH_URL}/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
 
-  if (!response.ok) {
+    return true;
+  } catch {
     return false;
   }
-
-  return true;
 }

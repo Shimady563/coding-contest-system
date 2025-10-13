@@ -148,7 +148,7 @@ export default {
       this.user = userInfo;
       await this.fetchGroupsList();
     } catch (err) {
-      if (err.message === "UNAUTHORIZED") this.$router.push("/login");
+      this.$root.notify(err.message, "error");
     }
   },
   methods: {
