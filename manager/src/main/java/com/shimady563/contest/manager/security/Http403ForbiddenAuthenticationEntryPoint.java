@@ -22,7 +22,9 @@ public class Http403ForbiddenAuthenticationEntryPoint implements AuthenticationE
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.warn("An authentication error occurred: {}", authException.getMessage());
-        log.debug("Authentication credentials: {}", authException.getAuthenticationRequest().getCredentials());
+        if (authException.getAuthenticationRequest() != null) {
+            log.debug("Authentication credentials: {}", authException.getAuthenticationRequest().getCredentials());
+        }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
         response.getWriter().write(

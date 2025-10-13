@@ -1,10 +1,12 @@
 package com.shimady.auth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shimady.auth.exception.AppError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,18 @@ public class Http403ForbiddenAuthenticationEntryPoint implements AuthenticationE
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.warn("An authentication error occurred: {}", authException.getMessage());
-        log.debug("Authentication credentials: {}", authException.getAuthenticationRequest().getCredentials());
+        if (authException.getAuthenticationRequest() != null) {
+            log.debug("Authentication credentials: {}", authException.getAuthenticationRequest().getCredentials());
+        }
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.getWriter().write(
+                mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+                        new AppError(
+                                authException.getMessage(),
+                                HttpStatus.FORBIDDEN.value()
+                        )
+                )
+        );
     }
 }
