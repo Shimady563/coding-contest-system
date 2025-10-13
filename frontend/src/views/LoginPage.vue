@@ -43,6 +43,7 @@ export default {
   },
   methods: {
     async login() {
+      this.errorMessage = "";
       try {
         this.$root.notify("Попытка входа...", "info");
         await login({ email: this.email, password: this.password });
@@ -50,7 +51,8 @@ export default {
         this.$root.notify("Вход выполнен успешно!", "success");
         this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
-        this.errorMessage = err.message || "Ошибка входа";
+        // красиво выводим ошибку
+        this.errorMessage = err.message || "Ошибка при входе";
         this.$root.notify(this.errorMessage, "error");
       }
     },
