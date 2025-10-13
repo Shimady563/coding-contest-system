@@ -1,4 +1,5 @@
 import { AUTH_URL } from "./base";
+import { handleApiError } from "./handleApiError";
 
 export async function login(payload) {
   const res = await fetch(`${AUTH_URL}/login`, {
@@ -9,52 +10,9 @@ export async function login(payload) {
   });
 
   if (!res.ok) {
-    let message = 'Ошибка входа в систему';
-
-    try {
-      const data = await res.json();
-
-      // 1️⃣ Ошибка валидации (400)
-      if (res.status === 400 && data?.violations?.length) {
-        const v = data.violations.map(v => `${v.field}: ${v.message}`).join(', ');
-        message = `Ошибка валидации: ${v}`;
-      }
-
-      // 2️⃣ Ошибка авторизации (403)
-      else if (res.status === 403) {
-        const backendMessage = (data?.message || '').toLowerCase();
-
-        if (backendMessage.includes('invalid password')) {
-          message = 'Неверный пароль';
-        } else if (backendMessage.includes('bad credentials')) {
-          message = 'Неверный email или пароль';
-        } else if (backendMessage.includes('user not found')) {
-          message = 'Пользователь не найден';
-        } else {
-          message = 'Ошибка авторизации. Проверьте данные для входа.';
-        }
-      }
-
-      // 3️⃣ Пользователь не найден (404)
-      else if (res.status === 404 || data?.code === 404) {
-        message = 'Пользователь не найден';
-      }
-
-      // 4️⃣ Ошибка сервера (500)
-      else if (res.status === 500) {
-        message = 'Внутренняя ошибка сервера. Попробуйте позже.';
-      }
-
-      // 5️⃣ Общее сообщение от бэкенда
-      else if (data?.message) {
-        message = data.message;
-      }
-
-    } catch (e) {
-      console.warn('Ошибка при разборе ответа от сервера:', e);
-    }
-
-    throw new Error(message);
+    let data = {};
+    try { data = await res.json(); } catch {}
+    throw new Error(handleApiError(res, data));
   }
 
   return true;
@@ -67,11 +25,13 @@ export async function signup(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
+  
   if (!res.ok) {
-    let message = 'Ошибка регистрации';
-    try { const d = await res.json(); message = d?.message || d?.error || message; } catch { }
-    throw new Error(message);
+    let data = {};
+    try { data = await res.json(); } catch {}
+    throw new Error(handleApiError(res, data));
   }
+
   return true;
 }
 
