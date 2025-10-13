@@ -51,7 +51,6 @@ export default {
         this.$root.notify("Вход выполнен успешно!", "success");
         this.$router.push("/").then(() => window.location.reload());
       } catch (err) {
-        // красиво выводим ошибку
         this.errorMessage = err.message || "Ошибка при входе";
         this.$root.notify(this.errorMessage, "error");
       }

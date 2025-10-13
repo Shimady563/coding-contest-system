@@ -183,8 +183,6 @@ export default {
         if (this.selectedGroup) payload.groupId = this.selectedGroup.id;
         payload.password = this.form.password || this.form.oldPassword;
 
-        console.log("Отправляем payload:", payload);
-
         await updateUser(this.user.id, payload);
 
         this.user = {
@@ -194,10 +192,10 @@ export default {
         };
 
         this.isEditing = false;
-        alert("Данные успешно обновлены!");
+        this.$root.notify("Данные успешно обновлены!", "success");
       } catch (err) {
         console.error("Ошибка при сохранении:", err);
-        alert("Ошибка при сохранении изменений");
+        this.$root.notify("Ошибка при сохранении изменений", "error");
       }
     },
   },

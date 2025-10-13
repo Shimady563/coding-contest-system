@@ -20,10 +20,21 @@
 
       <div>
         <label>Пароль:</label>
-        <input type="password" v-model="password" required autocomplete="new-password" />
-        <small v-if="password && !isPasswordValid" class="error-message">
-          Пароль должен содержать минимум 8 символов, одну заглавную, одну строчную букву, цифру и спецсимвол
-        </small>
+        <input
+          type="password"
+          v-model="password"
+          :class="{ 'input-error': password && !isPasswordValid }"
+          required
+          autocomplete="new-password"
+        />
+
+        <div class="password-hints" v-if="password">
+          <div :class="{ valid: hasMinLength }">• Минимум 8 символов</div>
+          <div :class="{ valid: hasUpperCase }">• Заглавная буква</div>
+          <div :class="{ valid: hasLowerCase }">• Строчная буква</div>
+          <div :class="{ valid: hasDigit }">• Цифра</div>
+          <div :class="{ valid: hasSpecialChar }">• Спецсимвол</div>
+        </div>
       </div>
 
       <div>
@@ -88,8 +99,13 @@ export default {
     };
   },
   computed: {
+    hasMinLength() { return this.password.length >= 8; },
+    hasUpperCase() { return /[A-Z]/.test(this.password); },
+    hasLowerCase() { return /[a-z]/.test(this.password); },
+    hasDigit() { return /\d/.test(this.password); },
+    hasSpecialChar() { return /[@#$%^&+=!]/.test(this.password); },
     isPasswordValid() {
-      return this.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).{8,}$/);
+      return !this.password || (this.hasMinLength && this.hasUpperCase && this.hasLowerCase && this.hasDigit && this.hasSpecialChar);
     },
     isSubmitDisabled() {
       return (
@@ -200,6 +216,15 @@ button:disabled {
 p {
   margin-top: 1rem;
   text-align: center;
+}
+
+.password-hints div {
+  font-size: 0.85rem;
+  margin: 2px 0;
+}
+
+.password-hints .valid {
+  color: green;
 }
 
 .footer-link {
