@@ -79,6 +79,9 @@ public class GroupController {
             @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "409", description = "Group with such name already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class)))
     })
     public void createGroup(@Valid @RequestBody GroupRequestDto request) {
         groupService.createGroup(request);
@@ -102,6 +105,9 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
+            @ApiResponse(responseCode = "409", description = "Group with such name already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppError.class)))
     })
     public void updateGroupById(@Parameter(description = "Group id") @PathVariable Long id, @Valid @RequestBody GroupRequestDto request) {
         groupService.updateGroupById(id, request);
@@ -119,7 +125,7 @@ public class GroupController {
             @ApiResponse(responseCode = "403", description = "Authentication or authorization error",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class))),
-            @ApiResponse(responseCode = "404", description = "Group not found",
+            @ApiResponse(responseCode = "409", description = "Group is already assigned for students (delete them first)",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AppError.class)))
     })
