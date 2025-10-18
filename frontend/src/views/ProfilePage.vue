@@ -28,60 +28,120 @@
       </div>
 
       <form v-else class="edit-form" @submit.prevent="saveChanges">
-        <div class="form-group">
-          <label>Имя:</label>
-          <input v-model="form.firstName" type="text" :class="{ 'input-error': !form.firstName }" required />
+        <div class="floating-label">
+          <input 
+            v-model="form.firstName" 
+            type="text" 
+            id="firstName"
+            required 
+            placeholder=""
+            :class="{ 'input-error': !form.firstName }"
+          />
+          <label for="firstName">Имя</label>
         </div>
 
-        <div class="form-group">
-          <label>Фамилия:</label>
-          <input v-model="form.lastName" type="text" :class="{ 'input-error': !form.lastName }" required />
+        <div class="floating-label">
+          <input 
+            v-model="form.lastName" 
+            type="text" 
+            id="lastName"
+            required 
+            placeholder=""
+            :class="{ 'input-error': !form.lastName }"
+          />
+          <label for="lastName">Фамилия</label>
         </div>
 
-        <div class="form-group">
-          <label>Email:</label>
-          <input v-model="form.email" type="email" :class="{ 'input-error': !form.email }" required />
+        <div class="floating-label">
+          <input 
+            v-model="form.email" 
+            type="email" 
+            id="email"
+            required 
+            placeholder=""
+            :class="{ 'input-error': !form.email }"
+          />
+          <label for="email">Email</label>
         </div>
 
-        <div class="form-group">
-          <label>Старый пароль:</label>
-          <input type="password" v-model="form.oldPassword" :class="{ 'input-error': !form.oldPassword && !form.password }" placeholder="Введите старый пароль" />
+        <div class="floating-label">
+          <input 
+            type="password" 
+            v-model="form.oldPassword" 
+            id="oldPassword"
+            placeholder=""
+            :class="{ 'input-error': !form.oldPassword && form.password }" 
+          />
+          <label for="oldPassword">Старый пароль</label>
+          <small v-if="form.password && !form.oldPassword" class="error-message">
+            Для смены пароля требуется старый пароль
+          </small>
         </div>
 
-        <div class="form-group">
-          <label>Новый пароль:</label>
-          <input type="password" v-model="form.password" :class="{ 'input-error': form.password && !isPasswordValid }" placeholder="Введите новый пароль" />
+        <div class="floating-label">
+          <input 
+            type="password" 
+            v-model="form.password" 
+            id="password"
+            placeholder=""
+            :class="{ 'input-error': form.password && !isPasswordValid }" 
+          />
+          <label for="password">Новый пароль</label>
           <div class="password-hints" v-if="form.password">
-            <div :class="{ valid: hasMinLength }">• Минимум 8 символов</div>
-            <div :class="{ valid: hasUpperCase }">• Заглавная буква</div>
-            <div :class="{ valid: hasLowerCase }">• Строчная буква</div>
-            <div :class="{ valid: hasDigit }">• Цифра</div>
-            <div :class="{ valid: hasSpecialChar }">• Спецсимвол</div>
+            <div :class="{ valid: hasMinLength }">
+              <span class="hint-icon">✓</span>
+              <span class="hint-text">Минимум 8 символов</span>
+            </div>
+            <div :class="{ valid: hasUpperCase }">
+              <span class="hint-icon">✓</span>
+              <span class="hint-text">Заглавная буква</span>
+            </div>
+            <div :class="{ valid: hasLowerCase }">
+              <span class="hint-icon">✓</span>
+              <span class="hint-text">Строчная буква</span>
+            </div>
+            <div :class="{ valid: hasDigit }">
+              <span class="hint-icon">✓</span>
+              <span class="hint-text">Цифра</span>
+            </div>
+            <div :class="{ valid: hasSpecialChar }">
+              <span class="hint-icon">✓</span>
+              <span class="hint-text">Спецсимвол</span>
+            </div>
           </div>
         </div>
 
-        <div class="form-group" v-if="form.password">
-          <label>Подтверждение пароля:</label>
-          <input type="password" v-model="form.confirmPassword" :class="{ 'input-error': form.confirmPassword && form.password !== form.confirmPassword }" placeholder="Повторите пароль" />
-          <small v-if="form.confirmPassword && form.password !== form.confirmPassword" class="error-message">Пароли не совпадают</small>
+        <div class="floating-label" v-if="form.password">
+          <input 
+            type="password" 
+            v-model="form.confirmPassword" 
+            id="confirmPassword"
+            placeholder=""
+            :class="{ 'input-error': form.confirmPassword && form.password !== form.confirmPassword }" 
+          />
+          <label for="confirmPassword">Подтверждение пароля</label>
+          <small v-if="form.confirmPassword && form.password !== form.confirmPassword" class="error-message">
+            Пароли не совпадают
+          </small>
         </div>
 
-        <div class="form-group">
-          <label>Группа:</label>
-          <multiselect
-            v-model="selectedGroup"
-            :options="groups"
-            :searchable="true"
-            :allow-empty="false"
-            :multiple="false"
-            :select-label="''"
-            :selected-label="''"
-            :deselect-label="''"
-            placeholder="Выберите группу"
-            label="name"
-            track-by="id"
-            class="custom-multiselect"
-          ></multiselect>
+        <div class="floating-label multiselect-floating" :class="{ active: selectedGroup }">
+          <div class="custom-multiselect">
+            <multiselect
+              v-model="selectedGroup"
+              :options="groups"
+              :searchable="true"
+              :allow-empty="false"
+              :multiple="false"
+              :select-label="''"
+              :selected-label="''"
+              :deselect-label="''"
+              placeholder=""
+              label="name"
+              track-by="id"
+            />
+          </div>
+          <label for="group">Группа</label>
         </div>
 
         <div class="button-group">
@@ -132,13 +192,13 @@ export default {
     },
     isSubmitDisabled() {
       const passwordsMatch = !this.form.password || this.form.password === this.form.confirmPassword;
+      const passwordFieldsValid = !this.form.password || (this.form.oldPassword && this.isPasswordValid && passwordsMatch);
+      
       return (
         !this.form.firstName ||
         !this.form.lastName ||
         !this.form.email ||
-        !this.form.oldPassword || 
-        !passwordsMatch ||        
-        !this.isPasswordValid     
+        !passwordFieldsValid
       );
     }
   },
@@ -181,7 +241,13 @@ export default {
         };
 
         if (this.selectedGroup) payload.groupId = this.selectedGroup.id;
-        payload.password = this.form.password || this.form.oldPassword;
+        
+        // Если указан новый пароль, используем его, иначе оставляем старый
+        if (this.form.password) {
+          payload.password = this.form.password;
+        } else if (this.form.oldPassword) {
+          payload.password = this.form.oldPassword;
+        }
 
         await updateUser(this.user.id, payload);
 
@@ -255,11 +321,15 @@ h1 {
   margin-top: 4px;
 }
 
-.profile-info,
-.edit-form {
+.profile-info {
   display: grid;
   gap: 1rem;
   word-break: break-word;
+}
+
+.edit-form {
+  display: grid;
+  gap: 1.8rem;
 }
 
 .info-item {
@@ -273,49 +343,143 @@ h1 {
   color: #34495e;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
+.floating-label {
+  position: relative;
+  margin-bottom: 0;
 }
 
-.form-group label {
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: #2c3e50;
-}
-
-.form-group input {
-  padding: 0.5rem;
+.floating-label input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  border: 1px solid #dcdfe6;
-  transition: 0.2s;
+  outline: none;
+  transition: all 0.25s ease;
+  background: #fff;
+  font-size: 15px;
+  color: #333;
+  box-sizing: border-box;
 }
 
-.form-group input:focus {
+.floating-label label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label,
+.floating-label.multiselect-floating.active label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.floating-label input:focus {
   border-color: #2f80ed;
-  outline: none;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
+}
+
+.floating-label input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #f44336;
+}
+
+.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label {
+  color: #f44336;
+}
+
+.password-hints {
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.password-hints div {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  font-size: 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.password-hints .valid {
+  color: #27ae60;
+}
+
+.password-hints .valid .hint-icon {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.hint-text {
+  flex: 1;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+}
+
+.input-error {
+  border-color: #e74c3c !important;
+}
+
+.input-error:focus {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12) !important;
 }
 
 .button-group {
   display: flex;
   justify-content: space-between;
   margin-top: 1rem;
+  gap: 1rem;
 }
 
 .edit-btn,
 .save-btn,
 .cancel-btn {
-  padding: 0.6rem 1.2rem;
+  padding: 12px 1.5rem;
   border-radius: 10px;
   font-weight: 500;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   border: none;
+  font-size: 15px;
+  flex: 1;
 }
 
 .edit-btn {
   background-color: #2f80ed;
   color: #fff;
+  margin-top: 1rem;
 }
 
 .save-btn {
@@ -325,86 +489,75 @@ h1 {
 
 .cancel-btn {
   background-color: #e0e0e0;
+  color: #333;
 }
 
 .edit-btn:hover {
   background-color: #256bcc;
+  transform: translateY(-1px);
 }
 
-.save-btn:hover {
+.save-btn:hover:not(:disabled) {
   background-color: #219150;
+  transform: translateY(-1px);
 }
 
 .cancel-btn:hover {
   background-color: #ccc;
+  transform: translateY(-1px);
 }
 
-.error-message { 
-  color: red; 
-  font-size: 0.85rem; 
-  margin-top: 4px; 
+.save-btn:disabled {
+  background-color: #cfcfcf;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.input-error { 
-  border-color: red !important; 
-}
-
-.password-hints div { 
-  font-size: 0.85rem; 
-  margin: 2px 0; 
-}
-
-.password-hints .valid { 
-  color: green; 
+.multiselect-floating {
+  position: relative;
 }
 
 .custom-multiselect :deep(.multiselect) {
-  min-height: 38px;
-  margin-top: 6px;
+  min-height: 44px;
+  margin-top: 0;
+  border-radius: 8px;
 }
 
 .custom-multiselect :deep(.multiselect__tags) {
-  min-height: 38px;
-  padding: 8px 30px 8px 12px;
+  min-height: 44px;
+  padding: 8px 36px 8px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: white;
-  font-size: 16px;
+  background: #fff;
+  font-size: 15px;
+  transition: all 0.25s ease;
 }
 
 .custom-multiselect :deep(.multiselect__tags:focus-within) {
   border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
   outline: none;
 }
 
 .custom-multiselect :deep(.multiselect__input),
 .custom-multiselect :deep(.multiselect__single) {
-  font-size: 16px;
-  padding: 0;
+  font-size: 15px;
+  padding: 3px;
   margin: 0;
   background: transparent;
   border: none;
 }
 
-.custom-multiselect :deep(.multiselect__input:focus) {
-  outline: none;
-  box-shadow: none;
-}
-
 .custom-multiselect :deep(.multiselect__placeholder) {
-  color: #999;
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
 }
 
 .custom-multiselect :deep(.multiselect__select) {
-  height: 36px;
-  right: 1px;
+  height: 42px;
+  right: 6px;
   top: 1px;
   width: 30px;
-  padding: 0;
   background: transparent;
   border-radius: 0 8px 8px 0;
 }
@@ -449,14 +602,13 @@ h1 {
 
 .custom-multiselect :deep(.multiselect__option) {
   padding: 8px 12px;
-  font-size: 16px;
+  font-size: 15px;
   min-height: 36px;
 }
 
 .custom-multiselect :deep(.multiselect__option--selected) {
   background-color: #d0ebff;
   color: #333;
-  font-weight: normal;
 }
 
 .custom-multiselect :deep(.multiselect__option--highlight) {
@@ -464,8 +616,30 @@ h1 {
   color: white;
 }
 
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) {
-  background: #1366d6;
-  color: white;
+.multiselect-floating label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: transparent;
+  z-index: 2;
+}
+
+.multiselect-floating.active label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.multiselect-floating.active :deep(.multiselect__placeholder) {
+  display: none;
 }
 </style>
