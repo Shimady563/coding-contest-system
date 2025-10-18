@@ -41,11 +41,16 @@ public class SubmissionService {
         }
 
         User user = userService.getUserById(submission.getUserId());
+        User curUser = userService.getCurrentUser();
+
+        if (!curUser.getId().equals(user.getId())
+                || !contestVersion.getUsers().contains(user)) {
+            throw new SubmissionInvalidException("User with id: " + submission.getUserId() + " doesn't have the access to contest version with id: " + submission.getContestVersionId());
+        }
+
         Task task = taskService.getTaskByIdInternal(submission.getTaskId());
 
-        if (!contestVersion.getUsers().contains(user)) {
-            throw new SubmissionInvalidException("User with id: " + submission.getUserId() + " doesn't have the access to contest version with id: " + submission.getContestVersionId());
-        } else if (!contestVersion.getTasks().contains(task)) {
+        if (!contestVersion.getTasks().contains(task)) {
             throw new SubmissionInvalidException("Task with id: " + submission.getTaskId() + " not found in contest version with id: " + submission.getContestVersionId());
         }
     }
