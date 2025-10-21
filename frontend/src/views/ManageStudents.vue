@@ -712,7 +712,7 @@ export default {
 
 .modal-dialog {
   position: relative;
-  background:  #f8f9fa;
+  background: white;
   border-radius: 12px;
   width: 500px; 
   max-width: calc(100% - 40px); 
@@ -725,7 +725,7 @@ export default {
 .modal-body :deep(.multiselect__content-wrapper) {
   z-index: 10000 !important; 
   position: fixed;
-  width: 452px !important; /* 500px (ширина модалки) - 48px (padding) */
+  width: 452px !important;
   min-width: auto !important;
   left: auto !important;
   right: auto !important;
@@ -733,6 +733,80 @@ export default {
 
 .modal-footer {
   z-index: 1; 
+}
+
+.modal-body .floating-label {
+  position: relative;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.modal-body .floating-label input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+  background-color: white; 
+  transition: all 0.25s ease;
+}
+
+.modal-body .floating-label label {
+  position: absolute;
+  left: 16px;
+  top: 14px; 
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: white; 
+  z-index: 2;
+}
+
+.modal-body .floating-label input:focus + label,
+.modal-body .floating-label input:not(:placeholder-shown) + label {
+  top: -8px; 
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: white;
+  padding: 0 4px;
+  z-index: 3;
+}
+
+.modal-body .multiselect-floating label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: white; 
+  z-index: 2;
+}
+
+.modal-body .multiselect-floating.active label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: white; 
+  z-index: 2;
+}
+
+.modal-body .custom-multiselect :deep(.multiselect__tags) {
+  min-height: 48px; 
+  padding: 12px 40px 0 16px;
+  border: 1px solid #ddd; 
+  border-radius: 8px; 
+  background: white; 
+  font-size: 14px;
 }
 
 @keyframes modalFadeIn {
@@ -748,7 +822,7 @@ export default {
   align-items: center;
   position: sticky;
   top: 0;
-  background: #f8f9fa;
+  background: white;
   z-index: 10;
 }
 
@@ -773,7 +847,7 @@ export default {
   display: flex; justify-content: flex-end; gap: 12px;
   position: sticky; 
   bottom: 0; 
-  background: #f8f9fa;;
+  background: white;
 }
 
 .btn-cancel, .btn-save {
