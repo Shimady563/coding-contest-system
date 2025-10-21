@@ -61,6 +61,9 @@
             <td class="name-col">{{ group.name }}</td>
             <td class="actions-col">
               <div class="action-buttons">
+                <button @click="openEditModal(group)" class="btn-icon edit-btn" title="Редактировать">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
                 <button @click="confirmDeleteGroup(group)" class="btn-icon delete-btn" title="Удалить">
                   <i class="fas fa-trash-alt"></i>
                 </button>
@@ -122,6 +125,32 @@
       </div>
     </div>
 
+    <div v-if="editingGroup" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3><i class="fas fa-pencil-alt"></i> Редактирование группы</h3>
+        </div>
+        <div class="modal-body">
+          <div class="floating-label">
+            <input 
+              v-model="editingGroup.name" 
+              id="editGroupName"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="editGroupName">Название группы</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeEditModal" class="btn-cancel">Отмена</button>
+          <button @click="updateGroup" class="btn-save" :disabled="updating">
+            <span v-if="updating">Сохранение...</span>
+            <span v-else>Сохранить</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <ConfirmDialog
       v-if="showConfirmDialog"
       :title="confirmDialog.title"
@@ -133,7 +162,7 @@
 </template>
 
 <script>
-import { getGroupsPage, createGroup, deleteGroup } from "@/js/manager";
+import { getGroupsPage, createGroup, deleteGroup, updateGroupById } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default {
@@ -152,7 +181,9 @@ export default {
       searchParams: { name: '' },
       showConfirmDialog: false,
       confirmDialog: { title: '', message: '' },
-      groupToDelete: null
+      groupToDelete: null,
+      editingGroup: null,
+      updating: false,
     };
   },
   async created() {
@@ -250,7 +281,34 @@ export default {
     cancelDelete() {
       this.showConfirmDialog = false;
       this.groupToDelete = null;
-    }
+    },
+    openEditModal(group) {
+      this.editingGroup = { ...group };
+    },
+    closeEditModal() {
+      this.editingGroup = null;
+    },
+    async updateGroup() {
+      if (!this.editingGroup.name.trim()) {
+        this.$toast?.error('Введите название группы');
+        return;
+      }
+      this.updating = true;
+      try {
+        await updateGroupById(this.editingGroup.id, { name: this.editingGroup.name.trim() });
+        this.$toast?.success('Группа обновлена');
+        this.closeEditModal();
+        this.fetchGroups();
+      } catch (err) {
+        if (err.response?.status === 409) {
+          this.$toast?.error('Группа с таким названием уже существует');
+        } else {
+          this.$toast?.error('Ошибка при обновлении группы');
+        }
+      } finally {
+        this.updating = false;
+      }
+    },
   }
 };
 </script>
@@ -502,6 +560,8 @@ export default {
   background: transparent;
 }
 
+.edit-btn { color: #2f80ed; }
+.edit-btn:hover { background-color: rgba(47, 128, 237, 0.1); }
 .delete-btn { color: #e74c3c; }
 .delete-btn:hover { background-color: rgba(231, 76, 60, 0.1); }
 
