@@ -136,6 +136,8 @@
               :select-label="''"
               :selected-label="''"
               :deselect-label="''"
+              :append-to-body="true"
+              open-direction="below"
               placeholder=""
               label="name"
               track-by="id"

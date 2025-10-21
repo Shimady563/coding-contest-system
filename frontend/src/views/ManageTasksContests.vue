@@ -10,16 +10,15 @@
     <!-- Контрольные -->
     <div v-if="isContestsActive" class="management-section">
       <form class="filters" @submit.prevent="fetchContests(0)">
-        <div class="filter-group">
-          <label>
-            <span>Название:</span>
-            <input
-              type="text"
-              v-model="contestSearchParams.name"
-              class="text-input"
-              placeholder="Поиск по названию"
-            >
-          </label>
+        <div class="filter-group floating-label">
+          <input
+            type="text"
+            v-model="contestSearchParams.name"
+            id="contestName"
+            class="text-input"
+            placeholder=""
+          >
+          <label for="contestName">Название</label>
         </div>
 
         <div class="filter-actions">
@@ -46,8 +45,10 @@
       </div>
 
       <div v-else>
-        <div class="stats" v-if="contests.length">
-          Показано {{ contests.length }} из {{ contestPage.totalElements }} контрольных
+        <div class="stats-container" v-if="contests.length">
+          <div class="stats">
+            Показано {{ contests.length }} из {{ contestPage.totalElements }} контрольных
+          </div>
         </div>
         <ul class="items-list">
           <li v-for="contest in contests" :key="contest.id" class="item">
@@ -58,18 +59,18 @@
               </div>
               <div class="item-actions">
                 <button
-                  class="edit-btn"
+                  class="btn-icon edit-btn"
                   @click="editContest(contest)"
                   title="Редактировать контрольную"
                 >
-                  <i class="fas fa-edit"></i>
+                  <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button
-                  class="delete-btn"
+                  class="btn-icon delete-btn"
                   @click="confirmDeleteContest(contest)"
                   title="Удалить контрольную"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
             </div>
@@ -105,16 +106,15 @@
     <!-- Задания -->
     <div v-else class="management-section">
       <form class="filters" @submit.prevent="fetchTasks(0)">
-        <div class="filter-group">
-          <label>
-            <span>Название:</span>
-            <input
-              type="text"
-              v-model="taskSearchParams.name"
-              class="text-input"
-              placeholder="Поиск по названию"
-            >
-          </label>
+        <div class="filter-group floating-label">
+          <input
+            type="text"
+            v-model="taskSearchParams.name"
+            id="taskName"
+            class="text-input"
+            placeholder=""
+          >
+          <label for="taskName">Название</label>
         </div>
 
         <div class="filter-actions">
@@ -141,8 +141,10 @@
       </div>
 
       <div v-else>
-        <div class="stats" v-if="tasks.length">
-          Показано {{ tasks.length }} из {{ taskPage.totalElements }} заданий
+        <div class="stats-container" v-if="tasks.length">
+          <div class="stats">
+            Показано {{ tasks.length }} из {{ taskPage.totalElements }} заданий
+          </div>
         </div>
         <ul class="items-list">
           <li v-for="task in tasks" :key="task.id" class="item">
@@ -153,18 +155,18 @@
               </div>
               <div class="item-actions">
                 <button
-                  class="edit-btn"
+                  class="btn-icon edit-btn"
                   @click="editTask(task)"
                   title="Редактировать задание"
                 >
-                  <i class="fas fa-edit"></i>
+                  <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button
-                  class="delete-btn"
+                  class="btn-icon delete-btn"
                   @click="confirmDeleteTask(task)"
                   title="Удалить задание"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
             </div>
@@ -434,10 +436,10 @@ h1 {
 
 .filters {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
   margin-bottom: 24px;
-  padding: 20px;
+  padding: 24px;
   background: #f8f9fa;
   border-radius: 12px;
   border: 1px solid #e0e0e0;
@@ -448,29 +450,51 @@ h1 {
   flex-direction: column;
 }
 
-.filter-group label span {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
-  display: block;
-  text-align: initial;
+.floating-label {
+  position: relative;
+  margin-bottom: 20px;
 }
 
-.text-input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
+.floating-label input {
   width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  color: #333;
   box-sizing: border-box;
+  background-color: #f8f9fa;
+  transition: all 0.25s ease;
 }
 
-.text-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+.floating-label label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: #f8f9fa;
+  padding: 0 4px;
+  z-index: 3;
+}
+
+.floating-label input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
 }
 
 .filter-actions {
@@ -483,37 +507,37 @@ h1 {
 
 .apply-btn,
 .reset-btn {
-  padding: 10px 16px;
+  padding: 12px 20px;
+  border: none;
   border-radius: 8px;
-  font-weight: 500;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  align-self: flex-end;
-  height: 40px;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  height: fit-content;
 }
 
 .apply-btn {
-  background-color: #3498db;
+  background: #2f80ed;
   color: white;
-  border: none;
 }
 
 .apply-btn:hover {
-  background-color: #2980b9;
+  background: #256bcc;
+  transform: translateY(-1px);
 }
 
 .reset-btn {
-  background-color: transparent;
-  color: #7f8c8d;
-  border: 1px solid #ddd;
+  background: #6c757d;
+  color: white;
 }
 
 .reset-btn:hover {
-  background-color: #f1f1f1;
+  background: #5a6268;
+  transform: translateY(-1px);
 }
 
 .empty-state {
@@ -538,11 +562,20 @@ h1 {
   font-size: 14px;
 }
 
+.stats-container {
+  margin: 16px 0;
+  padding: 0 8px;
+  text-align: left;
+}
+
 .stats {
   font-size: 14px;
   color: #7f8c8d;
-  margin-bottom: 16px;
-  text-align: left;
+  font-weight: 500;
+  background: #f8f9fa;
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: inline-block;
 }
 
 .create-btn {
@@ -604,47 +637,34 @@ h1 {
   flex-shrink: 0;
 }
 
-.edit-btn,
-.delete-btn {
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* Обновленные стили для кнопок - как в примере со студентами */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
-  height: 40px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
 }
 
-.edit-btn {
-  background-color: #3498db;
+.edit-btn { 
+  color: #2f80ed; 
 }
 
-.edit-btn:hover {
-  background-color: #2980b9;
-  transform: scale(1.05);
+.edit-btn:hover { 
+  background-color: rgba(47, 128, 237, 0.1); 
 }
 
-.delete-btn {
-  background-color: #dc3545;
+.delete-btn { 
+  color: #e74c3c; 
 }
 
-.delete-btn:hover {
-  background-color: #c82333;
-  transform: scale(1.05);
-}
-
-.edit-btn:active,
-.delete-btn:active {
-  transform: scale(0.95);
-}
-
-.edit-btn i,
-.delete-btn i {
-  font-size: 14px;
+.delete-btn:hover { 
+  background-color: rgba(231, 76, 60, 0.1); 
 }
 
 .item-title {
@@ -732,18 +752,9 @@ h1 {
 
   .filters {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 15px;
+    gap: 16px;
+    padding: 20px;
     margin: 0 10px 20px 10px;
-  }
-
-  .filter-group label span {
-    font-size: 12px;
-  }
-
-  .text-input {
-    font-size: 13px;
-    padding: 7px 10px;
   }
 
   .filter-actions {
@@ -780,16 +791,9 @@ h1 {
     gap: 6px;
   }
 
-  .edit-btn,
-  .delete-btn {
-    min-width: 36px;
-    height: 36px;
-    padding: 6px 10px;
-  }
-
-  .edit-btn i,
-  .delete-btn i {
-    font-size: 12px;
+  .btn-icon {
+    width: 32px;
+    height: 32px;
   }
 
   .pagination-container {
@@ -843,16 +847,13 @@ h1 {
     gap: 4px;
   }
 
-  .edit-btn,
-  .delete-btn {
-    min-width: 32px;
-    height: 32px;
-    padding: 4px 8px;
+  .btn-icon {
+    width: 28px;
+    height: 28px;
   }
 
-  .edit-btn i,
-  .delete-btn i {
-    font-size: 11px;
+  .btn-icon i {
+    font-size: 12px;
   }
 }
 </style>
