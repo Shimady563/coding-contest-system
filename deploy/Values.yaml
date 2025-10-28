@@ -1,0 +1,33 @@
+global:
+  serviceAccount: deploy-sa
+
+  dockerRepositoryName: shimady563
+  dockerTag: 1.1.2
+
+  mountPath:
+    config: /etc/spring-config
+    secret: /etc/spring-secret
+
+  kafka:
+    servers: kafka:9092
+    topics:
+      submission:
+        name: submissionTopic
+        replication-factor: 1
+        partitions: 4
+
+  db:
+    url: jdbc:postgresql://postgres:5432/contest
+    username: postgres
+    password: postgres
+
+  jwt:
+    access:
+      expiration: 86_400_000
+      secret: e2572ccf3dad3fbae0d34ab2d395a3d8d538d9031b0c3037f302c077c344cd6c75e15ab7a5322fcf35e87d1ad3e813008f7bff153d4b912d358da6707ff10825
+      cookie-name: coding_contest_system_access_token
+    refresh:
+      expiration: 604_800_000
+      secret: 4e7dd4cfb4136b7aefd2560492b843a9c5cd006553dbb4c3f6e3ddbdac5fe1e67534ede1045df8ca0e88790e9df24a2e567bc0a3196663890825a012e3717adc
+      cookie-name: coding_contest_system_refresh_token
+

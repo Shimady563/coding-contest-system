@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{ include  }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      {{ include  }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{ include  }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          serviceAccountName: {{ .Values.global.serviceAccount }}
+          image: {{ .Values.global.docker.repositoryName }}/{{ .Values.frontend.dockerImageName }}:{{ .Values.global.docker.tag }}
+          ports:
+            - name: Frontend
+              protocol: TCP
+              containerPort: {{ .Values.frontend.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.frontend.server.basePath }}/actuator/health/readiness
+              port: {{ .Values.frontend.server.port }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.frontend.server.basePath }}/actuator/health/liveness
+              port: {{ .Values.frontend.server.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          env:
+            envFrom:
+              configMap:
+                name: {{ .Release.Name }}-config

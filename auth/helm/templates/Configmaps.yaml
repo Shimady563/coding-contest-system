@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    {{ include  }}
+data:
+  spring.profiles.active: {{ .Values.auth.profiles | default "prod" }}
+
+  auth.whitelist: {{ .Values.auth.whitelist | quote }}
+  auth.allowed-origins: {{ .Values.auth.allowedOrigins | quote }}
+
+  server.servlet.context-path: {{ .Values.auth.server.basePath }}
+  server.servlet.port: {{ .Values.auth.server.internalPort }}
+
+  logging.level.root: {{ .Values.auth.logLevel.root | default "INFO" }}
+  logging.level.com.shimady.auth: {{ .Values.auth.logLevel.auth | default "INFO" }}

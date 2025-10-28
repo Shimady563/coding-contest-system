@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    {{ include  }}
+data:
+  spring.profiles.active: {{ .Values.compiler.profiles | default "prod" }}
+
+  server.servlet.context-path: {{ .Values.compiler.server.basePath }}
+  server.servlet.port: {{ .Values.compiler.server.internalPort }}
+
+  kafka.topics.submission:
+    {{ - toYaml .Values.global.kafka.topics.submission | nindent 4 }}
+
+  compiler.timeout-seconds: {{ .Values.compiler.timeoutSeconds | default 15 }}
+  compiler.max-output-byte: {{ .Values.compiler.maxOutputBytes | default 1000000 }}
+  compiler.workdir: {{ .Values.compiler.workdir }}
+
+  logging.level.root: {{ .Values.compiler.logLevel.root | default "INFO" }}
+  logging.level.com.shimady.contest.compiler: {{ .Values.compiler.logLevel.compiler | default "INFO" }}

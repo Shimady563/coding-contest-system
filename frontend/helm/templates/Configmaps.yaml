@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    {{ include  }}
+data:
+  VITE_APP_MANAGER_URL: {{ .Values.frontend.managerUrl }}
+  VITE_APP_AUTH_URL: {{ .Values.frontend.authUrl }}

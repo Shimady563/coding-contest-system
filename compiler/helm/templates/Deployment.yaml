@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{ include  }}
+spec:
+  replicas: {{ .Values.compiler.replicas }}
+  selector:
+    matchLabels:
+      {{ include  }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{ include  }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          serviceAccountName: {{ .Values.global.serviceAccount }}
+          image: {{ .Values.global.dockerRepositoryName }}/{{ .Values.compiler.dockerImageName }}:{{ .Values.global.dockerTag }}
+          ports:
+            - name: Compiler
+              protocol: TCP
+              containerPort: {{ .Values.compiler.server.port }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.compiler.server.basePath }}/actuator/health/readiness
+              port: {{ .Values.compiler.server.port }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.compiler.server.basePath }}/actuator/health/liveness
+              port: {{ .Values.compiler.server.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.compiler.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ .Release.Name }}-config
+              mountPath: {{ .Values.global.mountPath.config }}
+            - name: {{ .Release.Name }}-secret
+              mountPath: {{ .Values.global.mountPath.secret }}
+      volumes:
+        - name: {{ .Release.Name }}-config
+          configMap:
+            name: {{ .Release.Name }}-config
+        - name: {{ .Release.Name }}-secret
+          secret:
+            secretName: {{ .Release.Name }}-secret

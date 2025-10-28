@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include  }}
+spec:
+  selector:
+    {{ include }}
+  ports:
+    - name: Auth
+      protocol: TCP
+      port: {{ .Values.auth.server.externalPort }}
+      targetPort: {{ .Values.auth.server.internalPort }}

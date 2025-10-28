@@ -1,0 +1,24 @@
+auth:
+  replicas: 1
+  dockerImageName: coding-contest-compiler
+  resources:
+    requests:
+      cpu: 0.25
+      memory: 128
+    limits:
+      cpu: 0.5
+      memory: 256
+
+  profiles: prod
+
+  server:
+    basePath: /api/v1/compiler
+    port: 8082
+
+  timeoutSeconds: 10
+  masOutputBytes: 1000000
+  workdir: /cpp
+
+  logLevel:
+    root: INFO
+    compiler: INFO

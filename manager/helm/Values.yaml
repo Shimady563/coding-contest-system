@@ -1,0 +1,23 @@
+auth:
+  replicas: 1
+  dockerImageName: coding-contest-manager
+  resources:
+    requests:
+      cpu: 0.25
+      memory: 128
+    limits:
+      cpu: 0.5
+      memory: 256
+
+  profiles: prod
+
+  server:
+    basePath: /api/v1/
+    port: 8080
+
+  whitelist: /groups, /actuator/**
+  allowedOrigins: https://coding-contest.k-lab.su, http://coding-contest.k-lab.su, https://192.168.0.38:30443, http://192.168.0.38:30443
+
+  logLevel:
+    base: INFO
+    manager: INFO
