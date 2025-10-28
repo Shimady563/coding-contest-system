@@ -106,7 +106,7 @@
             </div>
             <div :class="{ valid: hasSpecialChar }">
               <span class="hint-icon">✓</span>
-              <span class="hint-text">Спецсимвол</span>
+              <span class="hint-text">Спецсимвол @#$%^&+=!?*</span>
             </div>
           </div>
         </div>
@@ -188,7 +188,7 @@ export default {
     hasUpperCase() { return /[A-Z]/.test(this.form.password); },
     hasLowerCase() { return /[a-z]/.test(this.form.password); },
     hasDigit() { return /\d/.test(this.form.password); },
-    hasSpecialChar() { return /[@#$%^&+=!]/.test(this.form.password); },
+    hasSpecialChar() { return /[@#$%^&+=!?*]/.test(this.form.password); },
     isPasswordValid() {
       return !this.form.password || (this.hasMinLength && this.hasUpperCase && this.hasLowerCase && this.hasDigit && this.hasSpecialChar);
     },
