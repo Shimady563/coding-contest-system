@@ -489,9 +489,10 @@ h1 {
   color: #fff;
 }
 
-.cancel-btn {
-  background-color: #e0e0e0;
-  color: #333;
+.btn-cancel { 
+  background-color: #f8f9fa;
+  color: #333; 
+  border: 1px solid #ddd; 
 }
 
 .edit-btn:hover {
@@ -505,7 +506,7 @@ h1 {
 }
 
 .cancel-btn:hover {
-  background-color: #ccc;
+  background-color: #e9ecef;
   transform: translateY(-1px);
 }
 
