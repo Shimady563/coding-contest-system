@@ -125,9 +125,13 @@
           </small>
         </div>
 
-        <div class="floating-label multiselect-floating" :class="{ active: selectedGroup }">
+        <div 
+          class="floating-label multiselect-floating" 
+          :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
+        >
           <div class="custom-multiselect">
             <multiselect
+              ref="groupSelect"
               v-model="selectedGroup"
               :options="groups"
               :searchable="true"
@@ -141,6 +145,8 @@
               placeholder=""
               label="name"
               track-by="id"
+              @open="$forceUpdate()" 
+              @close="$forceUpdate()"
             />
           </div>
           <label for="group">Группа</label>
@@ -520,6 +526,39 @@ h1 {
   position: relative;
 }
 
+.multiselect-floating label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: #fff; 
+  z-index: 3; 
+}
+
+.multiselect-floating.active label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.multiselect-floating.active :deep(.multiselect__placeholder) {
+  display: none;
+}
+
+.multiselect-floating :deep(.multiselect),
+.multiselect-floating :deep(.multiselect__tags),
+.multiselect-floating :deep(.multiselect__content-wrapper) {
+  z-index: auto !important;    
+}
+
 .custom-multiselect :deep(.multiselect) {
   min-height: 44px;
   margin-top: 0;
@@ -617,32 +656,5 @@ h1 {
 .custom-multiselect :deep(.multiselect__option--highlight) {
   background: #2f80ed;
   color: white;
-}
-
-.multiselect-floating label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  font-size: 15px;
-  transition: all 0.25s ease;
-  background: transparent;
-  z-index: 2;
-}
-
-.multiselect-floating.active label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.multiselect-floating.active :deep(.multiselect__placeholder) {
-  display: none;
 }
 </style>

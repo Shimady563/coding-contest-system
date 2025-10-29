@@ -362,7 +362,7 @@ export default {
 <style scoped>
 .page-container {
   padding: 20px;
-  max-width: 1400px;
+  max-width: 1152px;
   margin: 0 auto;
 }
 

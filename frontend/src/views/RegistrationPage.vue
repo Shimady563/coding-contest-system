@@ -67,9 +67,13 @@
         </small>
       </div>
 
-      <div class="floating-label" :class="{ active: groupId }">
+      <div 
+        class="floating-label multiselect-floating" 
+        :class="{ active: groupId || $refs.groupSelect?.isOpen }"
+      >
         <div class="custom-multiselect">
           <multiselect
+            ref="groupSelect"
             v-model="groupId"
             :options="groups"
             :searchable="true"
@@ -84,11 +88,12 @@
             label="name"
             track-by="id"
             required
+            @open="$forceUpdate()"
+            @close="$forceUpdate()"
           />
         </div>
         <label for="group">Группа</label>
       </div>
-
 
       <button type="submit" class="btn primary" :disabled="isSubmitDisabled">
         Зарегистрироваться
@@ -464,5 +469,42 @@ button:disabled {
   color: #2f80ed !important;
   background: #fff;
   transform: none;
+}
+
+.multiselect-floating {
+  position: relative;
+}
+
+.multiselect-floating label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: #fff;
+  z-index: 3;
+}
+
+.multiselect-floating.active label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.multiselect-floating.active :deep(.multiselect__placeholder) {
+  display: none;
+}
+
+.multiselect-floating :deep(.multiselect),
+.multiselect-floating :deep(.multiselect__tags),
+.multiselect-floating :deep(.multiselect__content-wrapper) {
+  z-index: auto !important;
 }
 </style>
