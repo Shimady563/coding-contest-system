@@ -34,6 +34,22 @@ compiler:
   max-output-bytes: 1_000_000
   workdir: /cpp
 
+server:
+  servlet:
+    context-path: /api/v1/compiler
+    port: 8082
+
+management:
+  endpoints:
+    web.exposure.include: *
+  endpoint:
+    health:
+      probes.enabled: true
+      show-details: always
+      access: unrestricted
+    info:
+      access: unrestricted
+
 logging:
   level:
     root: info

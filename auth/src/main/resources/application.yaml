@@ -8,9 +8,21 @@ auth:
   whitelist: /signup, /login, /refresh, /logout, /swagger-ui.html, /v3/api-docs/**, /swagger-ui/**
   allowed-origins: http://localhost:5173
 
+management:
+  endpoints:
+    web.exposure.include: *
+  endpoint:
+    health:
+      probes.enabled: true
+      show-details: always
+      access: unrestricted
+    info:
+      access: unrestricted
+
 server:
   servlet:
     context-path: /api/v1/auth
+    port: 8081
 
 logging:
   level:
