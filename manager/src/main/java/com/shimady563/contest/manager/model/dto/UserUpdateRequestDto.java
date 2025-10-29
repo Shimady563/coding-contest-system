@@ -1,6 +1,5 @@
 package com.shimady563.contest.manager.model.dto;
 
-import com.shimady563.contest.manager.validation.Password;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -32,12 +31,7 @@ public class UserUpdateRequestDto {
     @Schema(description = "Email", example = "student@example.com")
     private String email;
 
-    @Password(message = "password should be at least 8 characters long " +
-            "and contain at least one lower case letter, " +
-            "upper case letter, " +
-            "digit, " +
-            "symbol from @#$%^&+=!?*")
-    @Schema(description = "Password", example = "P@ssw0rd!")
+    @Schema(description = "Password (empty for no changes)", example = "P@ssw0rd!")
     private String password;
 
     @NotNull(message = "group id cannot be null")

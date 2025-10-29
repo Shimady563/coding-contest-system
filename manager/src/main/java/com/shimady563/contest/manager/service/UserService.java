@@ -10,6 +10,7 @@ import com.shimady563.contest.manager.model.dto.UserResponseDto;
 import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
 import com.shimady563.contest.manager.specification.UserSpecification;
+import com.shimady563.contest.manager.validation.PasswordUpdateValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class UserService implements UserDetailsService {
     private final GroupService groupService;
     private final ContestService contestService;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordUpdateValidator passwordUpdateValidator;
 
     protected User getUserByEmail(String email) {
         log.info("Getting user by email: {}", email);
@@ -116,7 +118,9 @@ public class UserService implements UserDetailsService {
             Group newGroup = groupService.getGroupById(request.getGroupId());
             user.setGroup(newGroup);
         }
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        boolean shouldUpdatePassword = passwordUpdateValidator.validateIfPresent(request.getPassword());
+        if (shouldUpdatePassword
+                && !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         userRepository.save(user);

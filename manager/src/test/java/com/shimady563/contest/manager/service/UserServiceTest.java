@@ -8,6 +8,8 @@ import com.shimady563.contest.manager.model.dto.UserRegistrationRequestDto;
 import com.shimady563.contest.manager.model.dto.UserResponseDto;
 import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
+import com.shimady563.contest.manager.validation.PasswordUpdateValidator;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,9 @@ class UserServiceTest {
 
     @Mock
     private ContestService contestService;
+
+    @Mock
+    private PasswordUpdateValidator passwordUpdateValidator;
 
     @Spy
     @InjectMocks
@@ -115,6 +120,7 @@ class UserServiceTest {
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(groupService.getGroupById(newUserId)).willReturn(newGroup);
+        given(passwordUpdateValidator.validateIfPresent(newPassword)).willReturn(true);
         given(passwordEncoder.matches(eq(request.getPassword()), anyString())).willReturn(false);
         given(passwordEncoder.encode(request.getPassword())).willReturn(newPassword);
         willReturn(user).given(userService).getCurrentUser();
@@ -127,6 +133,59 @@ class UserServiceTest {
         assertThat(user.getGroup()).isEqualTo(newGroup);
         assertThat(user.getPassword()).isEqualTo(newPassword);
         then(userRepository).should().save(user);
+    }
+
+    @Test
+    void shouldSkipPasswordUpdateWhenPasswordEmpty() {
+        Long newUserId = 2L;
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("new@example.com");
+        request.setPassword("");
+        request.setGroupId(newUserId);
+
+        Group newGroup = new Group();
+        newGroup.setId(newUserId);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(groupService.getGroupById(newUserId)).willReturn(newGroup);
+        given(passwordUpdateValidator.validateIfPresent("")).willReturn(false);
+        willReturn(user).given(userService).getCurrentUser();
+
+        userService.updateUserById(1L, request);
+
+        assertThat(user.getFirstName()).isEqualTo("John");
+        assertThat(user.getLastName()).isEqualTo("Doe");
+        assertThat(user.getEmail()).isEqualTo("new@example.com");
+        assertThat(user.getGroup()).isEqualTo(newGroup);
+        assertThat(user.getPassword()).isEqualTo("StrongPassword!123");
+        then(passwordEncoder).should(never()).matches(anyString(), anyString());
+        then(passwordEncoder).should(never()).encode(anyString());
+        then(userRepository).should().save(user);
+    }
+
+    @Test
+    void shouldThrowWhenPasswordInvalidOnUpdate() {
+        Long newUserId = 2L;
+        String invalidPassword = "weak";
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("new@example.com");
+        request.setPassword(invalidPassword);
+        request.setGroupId(newUserId);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        willReturn(user).given(userService).getCurrentUser();
+        willThrow(new ConstraintViolationException(Set.of())).given(passwordUpdateValidator).validateIfPresent(invalidPassword);
+
+        assertThrows(ConstraintViolationException.class, () ->
+                userService.updateUserById(1L, request)
+        );
+
+        then(userRepository).should(never()).save(any(User.class));
+        then(passwordEncoder).shouldHaveNoInteractions();
     }
 
     @Test
