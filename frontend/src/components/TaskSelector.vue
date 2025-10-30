@@ -73,7 +73,6 @@ export default {
         : null;
     },
     isActive() {
-      // Активное состояние: есть значение или открыт список
       return this.selectedTaskId || this.isOpen;
     },
   },
@@ -141,7 +140,7 @@ export default {
 .floating-label.active label {
   top: -8px;
   font-size: 12px;
-  color: #60a5fa;
+  color: #2f80ed;
   transform: none;
 }
 

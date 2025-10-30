@@ -31,6 +31,32 @@
 
       <div 
         class="filter-group floating-label multiselect-floating" 
+        :class="{ active: selectedTask || $refs.taskSelect?.isOpen }"
+      >
+        <div class="custom-multiselect full-width">
+          <multiselect
+            id="taskSelect"
+            name="taskSelect"
+            ref="taskSelect"
+            v-model="selectedTask"
+            :options="tasks"
+            track-by="id"
+            label="name"
+            placeholder=""
+            :searchable="true"
+            :allow-empty="true"
+            :multiple="false"
+            :show-labels="false"
+            :append-to-body="true"
+            open-direction="below"
+            @select="forceCloseSelect('taskSelect')"
+          />
+        </div>
+        <label for="taskSelect">Задача</label>
+      </div>
+
+      <div 
+        class="filter-group floating-label multiselect-floating" 
         :class="{ active: selectedUser || $refs.userSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
@@ -57,17 +83,18 @@
 
       <div 
         class="filter-group floating-label multiselect-floating" 
-        :class="{ active: selectedTask || $refs.taskSelect?.isOpen }"
+        v-if="groups.length"
+        :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
           <multiselect
-            id="taskSelect"
-            name="taskSelect"
-            ref="taskSelect"
-            v-model="selectedTask"
-            :options="tasks"
-            track-by="id"
+            id="groupSelect"
+            name="groupSelect"
+            ref="groupSelect"
+            v-model="selectedGroup"
+            :options="groups"
             label="name"
+            track-by="id"
             placeholder=""
             :searchable="true"
             :allow-empty="true"
@@ -75,10 +102,10 @@
             :show-labels="false"
             :append-to-body="true"
             open-direction="below"
-            @select="forceCloseSelect('taskSelect')"
+            @select="forceCloseSelect('groupSelect')"
           />
         </div>
-        <label for="taskSelect">Задача</label>
+        <label for="groupSelect">Группа</label>
       </div>
 
       <div class="filter-group floating-label">
@@ -137,8 +164,9 @@
         <thead>
           <tr>
             <th class="task-col">Имя задачи</th>
-            <th class="user-col">Пользователь</th>
             <th class="status-col">Статус</th>
+            <th class="user-col">Пользователь</th>
+            <th class="group-col">Группа</th>
             <th class="date-col">Отправлено</th>
             <th class="code-col">Код</th>
           </tr>
@@ -146,10 +174,13 @@
         <tbody>
           <tr v-for="solution in solutions.content" :key="solution.id">
             <td class="task-col">{{ solution.taskName }}</td>
-            <td class="user-col">{{ solution.username }}</td>
             <td class="status-col">
               <span :class="getStatusClass(solution.status)">{{ solution.status }}</span>
             </td>
+            <td class="user-col">
+              {{ solution.user ? solution.user.firstName + ' ' + solution.user.lastName : '-' }}
+            </td>
+            <td class="group-col">{{ solution.user?.groupName || '-' }}</td>
             <td class="date-col">{{ formatDate(solution.submittedAt) }}</td>
             <td class="code-col">
               <button @click="showCodeModal(solution.code)" class="btn-icon code-btn" title="Показать код">
@@ -211,7 +242,7 @@
 import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
-import { listSolutions, listTasksWithParams, listUsers } from "@/js/manager";
+import { listSolutions, listTasksWithParams, listUsers, fetchGroups } from "@/js/manager";
 
 export default {
   name: "StudentSolutionsPage",
@@ -228,7 +259,8 @@ export default {
       filters: {
         status: "",
         userId: "",
-        contestId: "",
+        taskId: "",
+        groupId: "",
         startTime: "",
         endTime: "",
         pageNumber: 0,
@@ -244,29 +276,30 @@ export default {
       ],
       tasks: [],
       users: [],
+      groups: [],
       selectedStatus: null,
       loading: false,
       visibleCode: null,
       modalCode: null,
       selectedUser: null,
       selectedTask: null,
+      selectedGroup: null,
     };
   },
   methods: {
     async fetchSolutions() {
       this.loading = true;
       try {
-        const params = { ...this.filters };
-
-        if (this.selectedStatus?.name) { 
-          params.status = this.selectedStatus.name;
-        }
-        if (this.selectedUser) {
-          params.userId = this.selectedUser.id;
-        }
-        if (this.selectedTask) {
-          params.taskId = this.selectedTask.id;
-        }
+        const params = {
+          pageNumber: this.filters.pageNumber,
+          pageSize: this.filters.pageSize,
+        };
+        if (this.selectedStatus?.name) params.status = this.selectedStatus.name;
+        if (this.selectedUser) params.userId = this.selectedUser.id;
+        if (this.selectedTask) params.taskId = this.selectedTask.id;
+        if (this.selectedGroup) params.groupId = this.selectedGroup.id;
+        if (this.filters.startTime) params.startTime = new Date(this.filters.startTime).toISOString();
+        if (this.filters.endTime) params.endTime = new Date(this.filters.endTime).toISOString();
 
         this.solutions = await listSolutions(params);
       } catch {
@@ -298,6 +331,13 @@ export default {
         this.$root.notify("Не удалось загрузить список пользователей", 'error');
       }
     },
+    async fetchGroups() {
+      try {
+        this.groups = await fetchGroups() || [];
+      } catch {
+        this.$root.notify("Не удалось загрузить список групп", 'error');
+      }
+    },
     userLabel(user) {
       return `${user.firstName} ${user.lastName}`;
     },
@@ -306,6 +346,7 @@ export default {
         status: "",
         userId: "",
         taskId: "",
+        groupId: "",
         startTime: "",
         endTime: "",
         pageNumber: 0,
@@ -314,6 +355,7 @@ export default {
       this.selectedUser = null;
       this.selectedTask = null;
       this.selectedStatus = null;
+      this.selectedGroup = null;
       this.fetchSolutions();
     },
     nextPage() {
@@ -362,42 +404,13 @@ export default {
   mounted() {
     this.fetchTasks();
     this.fetchUsers();
+    this.fetchGroups();
     this.fetchSolutions();
   }
 };
 </script>
 
 <style scoped>
-.page-container {
-  padding: 20px;
-  max-width: 1152px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 24px;
-}
-
-.page-header h1 {
-  color: #2c3e50;
-  font-size: 28px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  background: #f8f9fa;
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #e9ecef;
-}
-
 .filters .floating-label,
 .modal-body .floating-label {
   position: relative;
@@ -503,115 +516,6 @@ export default {
   z-index: 1000 !important; 
 }
 
-.filter-actions {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-}
-
-.apply-btn, .reset-btn {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: fit-content;
-}
-
-.apply-btn {
-  background: #2f80ed;
-  color: white;
-}
-
-.apply-btn:hover {
-  background: #256bcc;
-  transform: translateY(-1px);
-}
-
-.reset-btn {
-  background: #6c757d;
-  color: white;
-}
-
-.reset-btn:hover {
-  background: #5a6268;
-  transform: translateY(-1px);
-}
-
-.stats-container {
-  margin: 16px 0;
-  padding: 0 8px;
-}
-
-.stats {
-  font-size: 14px;
-  color: #7f8c8d;
-  font-weight: 500;
-  background: #f8f9fa;
-  padding: 8px 16px;
-  border-radius: 6px;
-  display: inline-block;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: #7f8c8d;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #7f8c8d;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  color: #bdc3c7;
-}
-
-.empty-state h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #2c3e50;
-}
-
-.empty-state p {
-  font-size: 14px;
-}
-
-.table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
 .solutions-table {
   width: 100%;
   border-collapse: collapse;
@@ -639,6 +543,7 @@ export default {
 
 .task-col { min-width: 200px; }
 .user-col { min-width: 150px; }
+.group-col { min-width: 100px; white-space: nowrap; }
 .status-col { min-width: 120px; }
 .date-col { min-width: 180px; white-space: nowrap; }
 .code-col { min-width: 80px; }
@@ -664,134 +569,6 @@ export default {
 .status-warning {
   background-color: #fff8e1;
   color: #f57f17;
-}
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  background: transparent;
-}
-
-.code-btn { 
-  color: #2f80ed; 
-}
-
-.code-btn:hover { 
-  background-color: rgba(47, 128, 237, 0.1); 
-}
-
-.copy-btn { 
-  color: #2f80ed; 
-}
-
-.copy-btn:hover { 
-  background-color: rgba(47, 128, 237, 0.1); 
-}
-
-.close-btn { 
-  color: #e74c3c; 
-}
-
-.close-btn:hover { 
-  background-color: rgba(231, 76, 60, 0.1); 
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding: 20px 0;
-  border-top: 1px solid #e9ecef;
-}
-
-.pagination-info { font-size: 14px; color: #7f8c8d; }
-.pagination-controls { display: flex; align-items: center; gap: 12px; }
-.pagination-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #ddd;
-  background: white;
-  color: #333;
-}
-
-.pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.pagination-btn:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  border-color: #3498db;
-  color: #3498db;
-}
-.page-indicator { font-size: 14px; color: #555; font-weight: 500; }
-
-.modal-backdrop {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000; backdrop-filter: blur(3px);
-  padding: 20px;
-}
-
-.modal-dialog {
-  position: relative;
-  background: #f8f9fa;
-  border-radius: 12px;
-  width: 800px; 
-  max-width: calc(100% - 40px); 
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  animation: modalFadeIn 0.3s ease;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.9) translateY(-20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-header {
-  padding: 24px;
-  border-bottom: 1px solid #e9ecef;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  background: #f8f9fa;
-  z-index: 10;
-}
-
-.modal-header h3 {
-  color: #2c3e50;
-  font-size: 20px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.modal-body { 
-  padding: 24px; 
-  box-sizing: border-box; 
-  overflow: visible !important;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 8px;
 }
 
 .custom-multiselect :deep(.multiselect) { min-height: 48px; margin-top: 0; }
@@ -846,61 +623,4 @@ export default {
   color: white; 
 }
 .multiselect-floating.active :deep(.multiselect__placeholder) { display: none; }
-
-@media (max-width: 768px) {
-  .page-container {
-    padding: 15px;
-  }
-
-  .filters {
-    grid-template-columns: 1fr;
-    padding: 20px;
-    gap: 16px;
-  }
-
-  .filter-actions {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .apply-btn, .reset-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .pagination-container {
-    flex-direction: column;
-    gap: 16px;
-    text-align: center;
-  }
-
-  .modal-dialog {
-    width: 95%;
-    margin: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .page-header h1 {
-    font-size: 24px;
-  }
-
-  .filters {
-    padding: 16px;
-  }
-
-  .solutions-table {
-    font-size: 13px;
-  }
-
-  .solutions-table th,
-  .solutions-table td {
-    padding: 12px 8px;
-  }
-
-  .btn-icon {
-    width: 32px;
-    height: 32px;
-  }
-}
 </style>

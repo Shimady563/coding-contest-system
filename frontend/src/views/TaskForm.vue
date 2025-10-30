@@ -294,20 +294,6 @@ h1 {
   background: #256bcc;
 }
 
-.btn-primary {
-  background: #27ae60;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #219653;
-}
-
-.btn-primary:disabled {
-  background: #95a5a6;
-  cursor: not-allowed;
-}
-
 .btn-danger {
   margin-top: 10px ;
   background: #e74c3c;

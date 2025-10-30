@@ -4,7 +4,6 @@ import router from './router';
 import './assets/main.css';
 import './assets/styles/shared.css';
 import './assets/styles/filters-pagination.css';
-import './assets/styles/manage.css';
 import { refreshAuth, logoutUser } from './js/auth';
 
 async function tryRefreshAuth() {

@@ -67,14 +67,15 @@ export default {
 }
 
 .close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #9ca3af;
-  cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.close-btn:hover { color: #6b7280; }
+.close-btn:hover { background-color: rgba(231, 76, 60, 0.1); }
 
 .modal-body {
   padding: 20px 24px;
