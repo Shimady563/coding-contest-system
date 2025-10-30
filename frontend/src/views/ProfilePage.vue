@@ -123,6 +123,7 @@
 
         <div 
           class="floating-label multiselect-floating" 
+          v-if="user.role !== 'teacher'"
           :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
         >
           <div class="custom-multiselect">
@@ -251,17 +252,19 @@ export default {
           firstName: this.form.firstName,
           lastName: this.form.lastName,
           email: this.form.email,
-          password: this.form.password || "", // отправляем пустую строку, если не меняем
+          password: this.form.password || "", 
         };
 
-        if (this.selectedGroup) payload.groupId = this.selectedGroup.id;
+        if (this.user.role !== 'teacher' && this.selectedGroup) {
+          payload.groupId = this.selectedGroup.id;
+        }
 
         await updateUser(this.user.id, payload);
 
-        this.user = {
+       this.user = {
           ...this.user,
           ...payload,
-          groupName: this.selectedGroup
+          groupName: (this.user.role !== 'teacher' && this.selectedGroup)
             ? this.selectedGroup.name
             : this.user.groupName,
         };
