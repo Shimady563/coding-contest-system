@@ -3,14 +3,13 @@ auth:
   dockerImageName: coding-contest-auth
   resources:
     requests:
-      cpu: 0.25
-      memory: 128
+      cpu: 250m
+      memory: 512Mi
     limits:
-      cpu: 0.5
-      memory: 256
+      memory: 2Gi
 
   profiles: prod
-  whiteList: /signup, /login, /refresh, /logout, /actuator/**
+  whiteList: /signup, /login, /refresh, /logout, /actuator, /actuator/**
   allowedOrigins: https://coding-contest.k-lab.su, http://coding-contest.k-lab.su, https://192.168.0.38:30443, http://192.168.0.38:30443
 
   server:
@@ -19,5 +18,5 @@ auth:
     externalPort: 8081
 
   logLevel:
-    base: INFO
     root: INFO
+    auth: INFO

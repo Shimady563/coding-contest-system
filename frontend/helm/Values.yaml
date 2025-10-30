@@ -6,11 +6,10 @@ frontend:
 
   resources:
     requests:
-      cpu: 0.25
-      memory: 128
+      cpu: 250m
+      memory: 512Mi
     limits:
-      cpu: 0.5
-      memory: 256
+      memory: 2Gi
 
   managerUrl: /api/v1
   authUrl: /api/v1/auth

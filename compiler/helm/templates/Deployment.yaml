@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Chart.Name }}
   labels:
-    {{ include  }}
+    {{- include "compiler.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.compiler.replicas }}
   selector:
     matchLabels:
-      {{ include  }}
+      {{- include "compiler.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{ include  }}
+        {{- include "compiler.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Release.Name }}
+        - name: {{ .Chart.Name }}
           serviceAccountName: {{ .Values.global.serviceAccount }}
           image: {{ .Values.global.dockerRepositoryName }}/{{ .Values.compiler.dockerImageName }}:{{ .Values.global.dockerTag }}
           ports:
@@ -28,25 +28,27 @@ spec:
             httpGet:
               path: {{ .Values.compiler.server.basePath }}/actuator/health/readiness
               port: {{ .Values.compiler.server.port }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 10
           livenessProbe:
             httpGet:
               path: {{ .Values.compiler.server.basePath }}/actuator/health/liveness
               port: {{ .Values.compiler.server.port }}
             initialDelaySeconds: 60
             periodSeconds: 20
+            failureThreshold: 10
           resources:
             {{- toYaml .Values.compiler.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ .Release.Name }}-config
+            - name: {{ .Chart.Name }}-config
               mountPath: {{ .Values.global.mountPath.config }}
-            - name: {{ .Release.Name }}-secret
+            - name: {{ .Chart.Name }}-secret
               mountPath: {{ .Values.global.mountPath.secret }}
       volumes:
-        - name: {{ .Release.Name }}-config
+        - name: {{ .Chart.Name }}-config
           configMap:
-            name: {{ .Release.Name }}-config
-        - name: {{ .Release.Name }}-secret
+            name: {{ .Chart.Name }}-config
+        - name: {{ .Chart.Name }}-secret
           secret:
-            secretName: {{ .Release.Name }}-secret
+            secretName: {{ .Chart.Name }}-secret

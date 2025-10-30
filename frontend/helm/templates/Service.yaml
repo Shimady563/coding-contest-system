@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Chart.Namespace }}
   labels:
-    {{ include  }}
+    {{- include "frontend.labels" . | nindent 4 }}
 spec:
   selector:
-    {{ include }}
+    {{- include "frontend.selectorLabels" . | nindent 4 }}
   ports:
     - name: Frontend
       protocol: TCP
