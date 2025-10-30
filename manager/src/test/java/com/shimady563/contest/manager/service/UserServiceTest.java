@@ -166,6 +166,31 @@ class UserServiceTest {
     }
 
     @Test
+    void shouldSkipGroupUpdateWhenGroupIdEmpty() {
+        Long newUserId = 2L;
+        UserUpdateRequestDto request = new UserUpdateRequestDto();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setEmail("new@example.com");
+        request.setPassword("");
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        given(passwordUpdateValidator.validateIfPresent("")).willReturn(false);
+        willReturn(user).given(userService).getCurrentUser();
+
+        userService.updateUserById(1L, request);
+
+        assertThat(user.getFirstName()).isEqualTo("John");
+        assertThat(user.getLastName()).isEqualTo("Doe");
+        assertThat(user.getEmail()).isEqualTo("new@example.com");
+        assertThat(user.getPassword()).isEqualTo("StrongPassword!123");
+        then(passwordEncoder).should(never()).matches(anyString(), anyString());
+        then(passwordEncoder).should(never()).encode(anyString());
+        then(groupService).should(never()).getGroupById(anyLong());
+        then(userRepository).should().save(user);
+    }
+
+    @Test
     void shouldThrowWhenPasswordInvalidOnUpdate() {
         Long newUserId = 2L;
         String invalidPassword = "weak";
