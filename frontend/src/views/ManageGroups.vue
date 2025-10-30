@@ -205,7 +205,7 @@ export default {
         this.totalPages = data.totalPages ?? (data.page?.totalPages ?? 1);
         this.totalElements = data.totalElements ?? (data.page?.totalElements ?? this.groups.length);
       } catch {
-        this.$toast?.error("Ошибка при загрузке групп");
+        this.$root.notify("Ошибка при загрузке групп", 'error');
       } finally {
         this.loading = false;
       }
@@ -240,17 +240,17 @@ export default {
     },
     async createGroup() {
       if (!this.newGroupName.trim()) {
-        this.$toast?.error('Введите название группы');
+        this.$root.notify('Введите название группы', 'error');
         return;
       }
       this.creating = true;
       try {
         await createGroup({ name: this.newGroupName.trim() });
-        this.$toast?.success('Группа создана');
+        this.$root.notify('Группа создана', 'success');
         this.closeCreateModal();
         this.fetchGroups();
       } catch {
-        this.$toast?.error('Ошибка при создании группы');
+        this.$root.notify('Ошибка при создании группы', 'error');
       } finally {
         this.creating = false;
       }
@@ -258,10 +258,10 @@ export default {
     async deleteGroup(id) {
       try {
         await deleteGroup(id);
-        this.$toast?.success('Группа удалена');
+        this.$root.notify('Группа удалена', 'success');
         this.fetchGroups();
       } catch {
-        this.$toast?.error('Ошибка при удалении группы');
+        this.$root.notify('Ошибка при удалении группы', 'error');
       }
     },
     confirmDeleteGroup(group) {
@@ -290,20 +290,20 @@ export default {
     },
     async updateGroup() {
       if (!this.editingGroup.name.trim()) {
-        this.$toast?.error('Введите название группы');
+        this.$root.notify('Введите название группы', 'error');
         return;
       }
       this.updating = true;
       try {
         await updateGroupById(this.editingGroup.id, { name: this.editingGroup.name.trim() });
-        this.$toast?.success('Группа обновлена');
+        this.$root.notify('Группа обновлена', 'success');
         this.closeEditModal();
         this.fetchGroups();
       } catch (err) {
         if (err.response?.status === 409) {
-          this.$toast?.error('Группа с таким названием уже существует');
+          this.$root.notify('Группа с таким названием уже существует', 'error');
         } else {
-          this.$toast?.error('Ошибка при обновлении группы');
+          this.$root.notify('Ошибка при обновлении группы', 'error');
         }
       } finally {
         this.updating = false;

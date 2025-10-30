@@ -270,7 +270,7 @@ export default {
 
         this.solutions = await listSolutions(params);
       } catch {
-        this.$toast.error("Не удалось загрузить данные. Пожалуйста, попробуйте позже.");
+        this.$root.notify("Не удалось загрузить данные. Пожалуйста, попробуйте позже.", 'error');
       } finally {
         this.loading = false;
       }
@@ -283,7 +283,7 @@ export default {
         });
         this.tasks = data.content || [];
       } catch {
-        this.$toast.error("Не удалось загрузить список задач");
+        this.$root.notify("Не удалось загрузить список задач", 'error');
       }
     },
     async fetchUsers() {
@@ -295,7 +295,7 @@ export default {
         });
         this.users = data.content || [];
       } catch {
-        this.$toast.error("Не удалось загрузить список пользователей");
+        this.$root.notify("Не удалось загрузить список пользователей", 'error');
       }
     },
     userLabel(user) {
@@ -332,11 +332,11 @@ export default {
     copyCode(code) {
       navigator.clipboard.writeText(code)
         .then(() => {
-          this.$toast.success('Код скопирован в буфер обмена');
+          this.$root.notify('Код скопирован в буфер обмена', 'success');
         })
         .catch(err => {
           console.error('Ошибка копирования:', err);
-          this.$toast.error('Не удалось скопировать код');
+          this.$root.notify('Не удалось скопировать код', 'error');
         });
     },
     getStatusClass(status) {

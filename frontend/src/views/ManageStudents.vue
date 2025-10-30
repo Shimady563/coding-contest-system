@@ -292,7 +292,7 @@ export default {
         this.totalPages = data.page?.totalPages || 1;
         this.totalElements = data.page?.totalElements || 0;
       } catch (err) {
-        this.$toast?.error("Ошибка при загрузке студентов");
+        this.$root.notify("Ошибка при загрузке студентов", 'error');
       } finally {
         this.loading = false;
       }
@@ -302,7 +302,7 @@ export default {
         const groups = await fetchGroups();
         this.groups = Array.isArray(groups) ? groups : (groups.content || []);
       } catch (err) {
-        this.$toast?.error("Ошибка при загрузке групп");
+        this.$root.notify("Ошибка при загрузке групп", 'error');
         this.groups = [];
       }
     },
@@ -325,11 +325,11 @@ export default {
         
         await updateUser(id, { firstName, lastName, email, groupId });
 
-        this.$toast?.success("Данные обновлены");
+        this.$root.notify("Данные обновлены", 'success');
         this.closeModal();
         this.fetchStudents();
       } catch{
-        this.$toast?.error("Ошибка при обновлении");
+        this.$root.notify("Ошибка при обновлении", 'error');
       }
     },
     onSearch() {
@@ -358,10 +358,10 @@ export default {
       try {
         await deleteUser(id);
 
-        this.$toast?.success("Студент удален");
+        this.$root.notify("Студент удален", 'success');
         this.fetchStudents();
       } catch {
-        this.$toast?.error("Ошибка при удалении");
+        this.$root.notify("Ошибка при удалении", 'error');
       }
     },
     async executeDelete() {
