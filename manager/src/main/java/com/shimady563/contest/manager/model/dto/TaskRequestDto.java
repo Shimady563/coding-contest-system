@@ -1,6 +1,7 @@
 package com.shimady563.contest.manager.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class TaskRequestDto {
     @Schema(description = "Task description", example = "Implement quick sort algorithm for soring an array of integers.")
     private String description;
 
+    @Valid
     @NotEmpty(message = "test cases cannot be empty")
     @Schema(description = "List of test cases")
     private List<TestCaseRequestDto> testCases;

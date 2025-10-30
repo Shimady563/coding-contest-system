@@ -26,5 +26,5 @@ public class UserResponseDto {
     private String groupName;
 
     @Schema(description = "Group id", example = "1")
-    private String groupId;
+    private Long groupId;
 }

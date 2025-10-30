@@ -6,7 +6,7 @@
       "lastName": "Сидорова",
       "email": "anna.sidorova@example.com",
       "groupName": "15/1",
-      "groupId": "15/1"
+      "groupId": 1
     }
   ],
   "page": {

@@ -393,6 +393,7 @@ class UserServiceTest {
         UserResponseDto response = new UserResponseDto();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
+        response.setGroupId(user.getGroup().getId());
 
         given(userRepository.findAll(any(Specification.class), eq(pageRequest))).willReturn(userPage);
 

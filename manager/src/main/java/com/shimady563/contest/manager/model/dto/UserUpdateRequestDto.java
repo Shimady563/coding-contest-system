@@ -25,7 +25,7 @@ public class UserUpdateRequestDto {
     @Schema(description = "Email", example = "student@example.com")
     private String email;
 
-    @Schema(description = "Password (empty for no changes)", example = "P@ssw0rd!")
+    @Schema(description = "Password (null or empty for no changes)", example = "P@ssw0rd!")
     private String password;
 
     @Schema(description = "Target group id (null for teachers)", example = "1")

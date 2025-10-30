@@ -1,6 +1,8 @@
 package com.shimady563.contest.manager.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,12 +22,11 @@ public class SolutionResponseDto {
     @Schema(description = "Submission time (ISO-8601)", example = "2025-01-20T09:30:00")
     private LocalDateTime submittedAt;
 
-    // following fields are for individual solution request
     @Schema(description = "Target task name", example = "Quick Sort")
     private String taskName;
 
-    @Schema(description = "Username of the submitter", example = "John Doe")
-    private String username;
+    @Schema(description = "Submitter user details")
+    private UserResponseDto user;
 
     @Schema(description = "Submitted code", example = "int main() { return 0; }")
     private String code;

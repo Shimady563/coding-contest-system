@@ -5,7 +5,14 @@
       "status": "ACCEPTED",
       "submittedAt": "2025-03-16T10:15:00",
       "taskName": "Сумма чисел",
-      "username": "Анна Сидорова",
+      "user": {
+        "id": 2,
+        "firstName": "Анна",
+        "lastName": "Сидорова",
+        "email": "anna.sidorova@example.com",
+        "groupName": "15/1",
+        "groupId": 1
+      },
       "code": "int main() { return 0; }"
     }
   ],

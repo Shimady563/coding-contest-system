@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public class PasswordUpdateValidator {
     private final Validator validator;
 
     public boolean validateIfPresent(String password) {
-        if (password == null || password.isBlank()) {
+        if (!StringUtils.hasText(password)) {
             return false;
         }
 
