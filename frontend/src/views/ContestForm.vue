@@ -12,6 +12,7 @@
         <div class="floating-label">
           <input
             id="name"
+            name="name"
             v-model="contest.name"
             type="text"
             placeholder=""
@@ -24,6 +25,7 @@
         <div class="floating-label">
           <textarea
             id="description"
+            name="description"
             v-model="contest.description"
             placeholder=""
             :class="{ 'input-error': !contest.description && submitted }"
@@ -41,6 +43,8 @@
           :class="{ invalid: !selectedGroup && submitted }"
           >
             <multiselect
+              id="group"
+              name="group"
               ref="groupSelect"
               v-model="selectedGroup"
               :options="groups"
@@ -67,6 +71,7 @@
           <div class="floating-label">
             <input
               id="start"
+              name="start"
               type="datetime-local"
               v-model="contest.startTime"
               placeholder=""
@@ -79,6 +84,7 @@
           <div class="floating-label">
             <input
               id="end"
+              name="end"
               type="datetime-local"
               v-model="contest.endTime"
               placeholder=""

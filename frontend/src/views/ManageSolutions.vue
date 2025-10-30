@@ -11,6 +11,8 @@
       >
         <div class="custom-multiselect full-width">
           <multiselect
+            id="statusSelect"
+            name="statusSelect"
             ref="statusSelect"
             v-model="selectedStatus"
             :options="statuses"
@@ -33,6 +35,8 @@
       >
         <div class="custom-multiselect full-width">
           <multiselect
+            id="userSelect"
+            name="userSelect"
             ref="userSelect"
             v-model="selectedUser"
             :options="users"
@@ -57,6 +61,8 @@
       >
         <div class="custom-multiselect full-width">
           <multiselect
+            id="taskSelect"
+            name="taskSelect"
             ref="taskSelect"
             v-model="selectedTask"
             :options="tasks"
@@ -80,6 +86,7 @@
           type="datetime-local" 
           v-model="filters.startTime" 
           id="startTime"
+          name="startTime"
           class="text-input datetime-input" 
           placeholder=""
         />
@@ -91,6 +98,7 @@
           type="datetime-local" 
           v-model="filters.endTime" 
           id="endTime"
+          name="endTime"
           class="text-input datetime-input" 
           placeholder=""
         />

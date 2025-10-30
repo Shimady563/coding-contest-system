@@ -33,8 +33,10 @@
             v-model="form.firstName" 
             type="text" 
             id="firstName"
+            name="firstName"
             required 
             placeholder=""
+            autocomplete="given-name"
             :class="{ 'input-error': !form.firstName }"
           />
           <label for="firstName">Имя</label>
@@ -45,8 +47,10 @@
             v-model="form.lastName" 
             type="text" 
             id="lastName"
+            name="lastName"
             required 
             placeholder=""
+            autocomplete="family-name"
             :class="{ 'input-error': !form.lastName }"
           />
           <label for="lastName">Фамилия</label>
@@ -57,8 +61,10 @@
             v-model="form.email" 
             type="email" 
             id="email"
+            name="email"
             required 
             placeholder=""
+            autocomplete="email"
             :class="{ 'input-error': !form.email }"
           />
           <label for="email">Email</label>
@@ -69,7 +75,9 @@
             type="password" 
             v-model="form.password" 
             id="password"
+            name="password"
             placeholder=""
+            autocomplete="new-password"
             :class="{ 'input-error': form.password && !isPasswordValid }" 
           />
           <label for="password">Новый пароль</label>
@@ -102,7 +110,9 @@
             type="password" 
             v-model="form.confirmPassword" 
             id="confirmPassword"
+            name="confirmPassword"
             placeholder=""
+            autocomplete="new-password"
             :class="{ 'input-error': form.confirmPassword && form.password !== form.confirmPassword }" 
           />
           <label for="confirmPassword">Подтверждение пароля</label>
@@ -117,6 +127,8 @@
         >
           <div class="custom-multiselect">
             <multiselect
+              id="group"
+              name="group"
               ref="groupSelect"
               v-model="selectedGroup"
               :options="groups"

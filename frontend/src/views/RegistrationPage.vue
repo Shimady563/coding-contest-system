@@ -4,17 +4,39 @@
       <h2>Регистрация</h2>
 
       <div class="floating-label">
-        <input type="text" v-model="firstName" id="firstName" required placeholder=""/>
+        <input 
+          type="text" 
+          v-model="firstName" 
+          id="firstName"
+          name="firstName"
+          required 
+          placeholder=""
+        />
         <label for="firstName">Имя</label>
       </div>
 
       <div class="floating-label">
-        <input type="text" v-model="lastName" id="lastName" required placeholder=""/>
+        <input 
+          type="text" 
+          v-model="lastName" 
+          id="lastName" 
+          name="lastName"
+          required 
+          placeholder=""
+        />
         <label for="lastName">Фамилия</label>
       </div>
 
       <div class="floating-label">
-        <input type="email" v-model="email" id="email" required autocomplete="email" placeholder="" />
+        <input 
+          type="email" 
+          v-model="email" 
+          id="email" 
+          name="email" 
+          required 
+          autocomplete="email" 
+          placeholder="" 
+        />
         <label for="email">Email</label>
       </div>
 
@@ -23,6 +45,7 @@
           type="password"
           v-model="password"
           id="password"
+          name="password"
           required
           placeholder=""
           autocomplete="new-password"
@@ -57,6 +80,7 @@
           type="password"
           v-model="confirmPassword"
           id="confirmPassword"
+          name="confirmPassword"
           required
           placeholder=""
           autocomplete="new-password"
@@ -73,6 +97,8 @@
       >
         <div class="custom-multiselect">
           <multiselect
+            id="group"
+            name="group"
             ref="groupSelect"
             v-model="groupId"
             :options="groups"
