@@ -136,6 +136,8 @@ export default {
         localStorage.setItem("seenWelcome", "true");
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
+    } catch(err){
+      this.$root.notify(err.message, "error");
     } finally {
       this.isLoading = false;
     }

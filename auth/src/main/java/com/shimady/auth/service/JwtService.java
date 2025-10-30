@@ -20,7 +20,7 @@ public class JwtService {
 
     @Transactional
     public JwtResponse generateTokens(User user) {
-        log.info("Generating tokens for user with email: {}", user.getEmail());
+        log.debug("Generating tokens for user with email: {}", user.getEmail());
         String refreshToken = provider.generateRefreshToken(user);
         tokenRepository.save(refreshToken, user.getEmail());
         return new JwtResponse(
@@ -31,7 +31,7 @@ public class JwtService {
 
     @Transactional(readOnly = true)
     public JwtResponse refreshToken(String refreshToken) {
-        log.info("Refreshing access token");
+        log.debug("Refreshing access token");
         if (!provider.validateRefreshToken(refreshToken)) {
             throw new JwtException("Invalid refresh token");
         }
@@ -54,7 +54,7 @@ public class JwtService {
 
     @Transactional
     public void deleteTokenByEmail(String email) {
-        log.info("Deleting refresh token for user with email: {}", email);
+        log.debug("Deleting refresh token for user with email: {}", email);
         tokenRepository.deleteByEmail(email);
     }
 }

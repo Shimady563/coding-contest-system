@@ -1,18 +1,19 @@
 <template>
-  <div class="manage-groups-container">
-    <div class="header">
+  <div class="page-container">
+    <div class="page-header">
       <h1><i class="fas fa-users"></i> Управление группами</h1>
-      <div class="stats" v-if="groups.length">
-        Показано {{ groups.length }} из {{ totalElements }} групп
-      </div>
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group">
-        <label>
-          <span>Название:</span>
-          <input type="text" v-model="searchParams.name" class="text-input" placeholder="Поиск по названию">
-        </label>
+      <div class="filter-group floating-label">
+        <input 
+          type="text" 
+          v-model="searchParams.name" 
+          id="groupName"
+          class="text-input" 
+          placeholder=""
+        />
+        <label for="groupName">Название</label>
       </div>
 
       <div class="filter-actions">
@@ -27,6 +28,12 @@
         </button>
       </div>
     </form>
+
+    <div class="stats-container" v-if="groups.length">
+      <div class="stats">
+        Показано {{ groups.length }} из {{ totalElements }} групп
+      </div>
+    </div>
 
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
@@ -54,6 +61,9 @@
             <td class="name-col">{{ group.name }}</td>
             <td class="actions-col">
               <div class="action-buttons">
+                <button @click="openEditModal(group)" class="btn-icon edit-btn" title="Редактировать">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
                 <button @click="confirmDeleteGroup(group)" class="btn-icon delete-btn" title="Удалить">
                   <i class="fas fa-trash-alt"></i>
                 </button>
@@ -95,9 +105,14 @@
           <h3><i class="fas fa-plus"></i> Создать группу</h3>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <label>Название группы</label>
-            <input v-model="newGroupName" class="form-input" placeholder="Введите название группы">
+          <div class="floating-label">
+            <input 
+              v-model="newGroupName" 
+              id="newGroupName"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="newGroupName">Название группы</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -109,6 +124,33 @@
         </div>
       </div>
     </div>
+
+    <div v-if="editingGroup" class="modal-backdrop">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3><i class="fas fa-pencil-alt"></i> Редактирование группы</h3>
+        </div>
+        <div class="modal-body">
+          <div class="floating-label">
+            <input 
+              v-model="editingGroup.name" 
+              id="editGroupName"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="editGroupName">Название группы</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="closeEditModal" class="btn-cancel">Отмена</button>
+          <button @click="updateGroup" class="btn-save" :disabled="updating">
+            <span v-if="updating">Сохранение...</span>
+            <span v-else>Сохранить</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <ConfirmDialog
       v-if="showConfirmDialog"
       :title="confirmDialog.title"
@@ -120,7 +162,7 @@
 </template>
 
 <script>
-import { getGroupsPage, createGroup, deleteGroup } from "@/js/manager";
+import { getGroupsPage, createGroup, deleteGroup, updateGroupById } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default {
@@ -139,7 +181,9 @@ export default {
       searchParams: { name: '' },
       showConfirmDialog: false,
       confirmDialog: { title: '', message: '' },
-      groupToDelete: null
+      groupToDelete: null,
+      editingGroup: null,
+      updating: false,
     };
   },
   async created() {
@@ -161,7 +205,7 @@ export default {
         this.totalPages = data.totalPages ?? (data.page?.totalPages ?? 1);
         this.totalElements = data.totalElements ?? (data.page?.totalElements ?? this.groups.length);
       } catch {
-        this.$toast?.error("Ошибка при загрузке групп");
+        this.$root.notify("Ошибка при загрузке групп", 'error');
       } finally {
         this.loading = false;
       }
@@ -196,17 +240,17 @@ export default {
     },
     async createGroup() {
       if (!this.newGroupName.trim()) {
-        this.$toast?.error('Введите название группы');
+        this.$root.notify('Введите название группы', 'error');
         return;
       }
       this.creating = true;
       try {
         await createGroup({ name: this.newGroupName.trim() });
-        this.$toast?.success('Группа создана');
+        this.$root.notify('Группа создана', 'success');
         this.closeCreateModal();
         this.fetchGroups();
       } catch {
-        this.$toast?.error('Ошибка при создании группы');
+        this.$root.notify('Ошибка при создании группы', 'error');
       } finally {
         this.creating = false;
       }
@@ -214,10 +258,10 @@ export default {
     async deleteGroup(id) {
       try {
         await deleteGroup(id);
-        this.$toast?.success('Группа удалена');
+        this.$root.notify('Группа удалена', 'success');
         this.fetchGroups();
       } catch {
-        this.$toast?.error('Ошибка при удалении группы');
+        this.$root.notify('Ошибка при удалении группы', 'error');
       }
     },
     confirmDeleteGroup(group) {
@@ -237,163 +281,91 @@ export default {
     cancelDelete() {
       this.showConfirmDialog = false;
       this.groupToDelete = null;
-    }
+    },
+    openEditModal(group) {
+      this.editingGroup = { ...group };
+    },
+    closeEditModal() {
+      this.editingGroup = null;
+    },
+    async updateGroup() {
+      if (!this.editingGroup.name.trim()) {
+        this.$root.notify('Введите название группы', 'error');
+        return;
+      }
+      this.updating = true;
+      try {
+        await updateGroupById(this.editingGroup.id, { name: this.editingGroup.name.trim() });
+        this.$root.notify('Группа обновлена', 'success');
+        this.closeEditModal();
+        this.fetchGroups();
+      } catch (err) {
+        if (err.response?.status === 409) {
+          this.$root.notify('Группа с таким названием уже существует', 'error');
+        } else {
+          this.$root.notify('Ошибка при обновлении группы', 'error');
+        }
+      } finally {
+        this.updating = false;
+      }
+    },
   }
 };
 </script>
 
 <style scoped>
-.manage-groups-container {
-  max-width: 1152px;
-  margin: 20px auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+.filters .floating-label,
+.modal-body .floating-label {
+  position: relative;
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.stats {
-  font-size: 14px;
-  color: #7f8c8d;
-}
-
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-group label span {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.text-input {
-  padding: 10px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
+.filters .floating-label input,
+.modal-body .floating-label input {
   width: 100%;
-  box-sizing: border-box;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.filter-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.apply-btn,
-.reset-btn,
-.create-btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  align-self: flex-end;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.apply-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-}
-
-.apply-btn:hover {
-  background-color: #2980b9;
-}
-
-.reset-btn {
-  background-color: transparent;
-  color: #7f8c8d;
+  padding: 14px 16px;
   border: 1px solid #ddd;
-}
-
-.reset-btn:hover {
-  background-color: #f1f1f1;
-}
-
-.create-btn {
-  background-color: #34d399;
-  color: white;
-  border: none;
-}
-
-.create-btn:hover {
-  background-color: #10b981;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #7f8c8d;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  color: #bdc3c7;
-}
-
-.empty-state h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #2c3e50;
-}
-
-.empty-state p {
+  border-radius: 8px;
+  outline: none;
   font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  transition: all 0.25s ease;
 }
 
-.table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid #eee;
+.filters .floating-label label,
+.modal-body .floating-label label {
+  position: absolute;
+  left: 16px;
+  top: 14px; 
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+.filters .floating-label input:focus + label,
+.filters .floating-label input:not(:placeholder-shown) + label,
+.modal-body .floating-label input:focus + label,
+.modal-body .floating-label input:not(:placeholder-shown) + label {
+  top: -8px; 
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: #f8f9fa;
+  padding: 0 4px;
+  z-index: 3;
+}
+
+.filters .floating-label input:focus,
+.modal-body .floating-label input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
 }
 
 .groups-table {
@@ -407,13 +379,13 @@ export default {
   color: #555;
   font-weight: 600;
   text-align: left;
-  padding: 14px 16px;
-  border-bottom: 2px solid #eee;
+  padding: 16px;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .groups-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e9ecef;
   vertical-align: middle;
 }
 
@@ -421,224 +393,8 @@ export default {
   background-color: #f8f9fa;
 }
 
-.id-col {
-  min-width: 80px;
-  color: #7f8c8d;
-}
-
-.name-col {
-  min-width: 200px;
-}
-
-.actions-col {
-  min-width: 120px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  background: transparent;
-}
-
-.delete-btn {
-  color: #e74c3c;
-}
-
-.delete-btn:hover {
-  background-color: rgba(231, 76, 60, 0.1);
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
-}
-
-.pagination-info {
-  font-size: 14px;
-  color: #7f8c8d;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.pagination-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #ddd;
-  background: white;
-  color: #333;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #f8f9fa;
-}
-
-.page-indicator {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-}
-
-.modal-dialog {
-  background: white;
-  border-radius: 12px;
-  width: 420px;
-  max-width: calc(100% - 40px);
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  animation: modalFadeIn 0.3s ease;
-}
-
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  box-sizing: border-box;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
-  max-width: 100%;
-}
-
-.form-input:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-  outline: none;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  position: sticky;
-  bottom: 0;
-  background: white;
-}
-
-.btn-cancel, .btn-save {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel {
-  background-color: #f8f9fa;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-.btn-cancel:hover {
-  background-color: #e9ecef;
-}
-
-.btn-save {
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-}
-
-.btn-save:hover {
-  background-color: #27ae60;
-}
-
-@media (max-width: 768px) {
-  .manage-groups-container {
-    padding: 15px;
-  }
-
-  .filters {
-    grid-template-columns: 1fr;
-    padding: 15px;
-    gap: 12px;
-  }
-
-  .filter-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .apply-btn,
-  .reset-btn,
-  .create-btn {
-    width: 100%;
-  }
-}
+.id-col { min-width: 80px; color: #7f8c8d; }
+.name-col { min-width: 200px; }
+.actions-col { min-width: 120px; }
+.action-buttons { display: flex; gap: 8px; }
 </style>

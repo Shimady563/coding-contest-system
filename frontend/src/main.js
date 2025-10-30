@@ -4,51 +4,42 @@ import router from './router';
 import './assets/main.css';
 import './assets/styles/shared.css';
 import './assets/styles/filters-pagination.css';
-import './assets/styles/manage.css';
 import { refreshAuth, logoutUser } from './js/auth';
 
-async function initAuth() {
+async function tryRefreshAuth() {
   try {
-    await refreshAuth();
-  } catch {
-}
+    return await refreshAuth();
+  } catch (e) {
+    return false;
+  }
 }
 
 function setupFetchInterceptor() {
-  const _fetch = window.fetch.bind(window);
+  const originalFetch = window.fetch;
 
   window.fetch = async (input, init = {}) => {
-    init = {
-      ...init,
+    const url = typeof input === 'string' ? input : input.url;
+
+    const options = {
       credentials: 'include',
       headers: {
-        ...(init.headers || {}),
         'Content-Type': 'application/json',
+        ...(init.headers || {}),
       },
+      ...init,
     };
 
-    let response = await _fetch(input, init);
+    let response = await originalFetch(input, options);
 
-     if (response.status === 401) {
-      const url = typeof input === 'string' ? input : input.url;
+    if (response.status === 401 && !/\/(login|refresh|logout)/.test(url)) {
+      const refreshed = await tryRefreshAuth();
 
-      if (url.includes('/logout') || url.includes('/refresh') || url.includes('/login')) {
-        return response;
-      }
-
-      try {
-        const refreshed = await refreshAuth();
-
-        if (!refreshed) throw new Error('Refresh не удался');
-
-        return await _fetch(input, init);
-      } catch (err) {
-        console.error('Ошибка обновления сессии:', err);
-
+      if (refreshed) {
+        response = await originalFetch(input, options);
+      } else {
         await logoutUser();
-
         router.push({ name: 'Login' }).catch(() => {});
-        return Promise.reject(err);
+        throw new Error('Сессия истекла, требуется повторный вход');
       }
     }
 
@@ -57,7 +48,7 @@ function setupFetchInterceptor() {
 }
 
 (async () => {
-  await initAuth();
+  await tryRefreshAuth();
   setupFetchInterceptor();
 
   const app = createApp(App);

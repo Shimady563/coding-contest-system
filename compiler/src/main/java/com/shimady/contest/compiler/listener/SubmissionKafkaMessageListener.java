@@ -2,6 +2,7 @@ package com.shimady.contest.compiler.listener;
 
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.service.SubmissionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -18,7 +19,7 @@ public class SubmissionKafkaMessageListener {
 
     @KafkaListener(topics = "${kafka.topics.submission.name}", groupId = "${spring.kafka.consumer.group-id}")
     public void listenSubmission(
-            @Payload CodeSubmission submission,
+            @Valid @Payload CodeSubmission submission,
             @Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition
     ) {
         log.debug("Received submission message: {}, from partition: {}",

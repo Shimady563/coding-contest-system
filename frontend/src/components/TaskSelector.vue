@@ -1,20 +1,32 @@
 <template>
   <div class="task-selector">
-    <label>Выберите задание:</label>
-    <multiselect
-      v-model="selectedTaskId"
-      :options="tasksArray"
-      :searchable="true"
-      :allow-empty="false"
-      :multiple="false"
-      :select-label="''"
-      :selected-label="''"
-      :deselect-label="''"
-      placeholder="-- Задание --"
-      label="name"
-      track-by="id"
-      class="custom-multiselect"
-    ></multiselect>
+    <div
+      class="floating-label multiselect-floating"
+      :class="{ active: isActive }"
+    >
+      <div class="custom-multiselect">
+        <multiselect
+          ref="taskSelect"
+          v-model="selectedTaskId"
+          :options="tasksArray"
+          :searchable="true"
+          :allow-empty="false"
+          :multiple="false"
+          :select-label="''"
+          :selected-label="''"
+          :deselect-label="''"
+          :append-to-body="true"
+          open-direction="below"
+          placeholder=""
+          label="name"
+          track-by="id"
+          class="custom-multiselect-inner"
+          @open="isOpen = true"
+          @close="isOpen = false"
+        />
+      </div>
+      <label>Задание</label>
+    </div>
 
     <button
       class="btn-add"
@@ -48,6 +60,7 @@ export default {
   data() {
     return {
       selectedTaskId: null,
+      isOpen: false,
     };
   },
   computed: {
@@ -58,6 +71,9 @@ export default {
       return this.selectedTaskId
         ? this.tasksArray.find((t) => t.id === this.selectedTaskId.id)
         : null;
+    },
+    isActive() {
+      return this.selectedTaskId || this.isOpen;
     },
   },
   methods: {
@@ -74,10 +90,12 @@ export default {
 <style scoped>
 .task-selector {
   margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .btn-add {
-  background-color: #60a5fa;
+  background-color: #2f80ed;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -95,57 +113,78 @@ export default {
 .task-preview {
   padding: 12px;
   background: #e7f3ff;
-  border-left: 4px solid #60a5fa;
+  border-left: 4px solid #2f80ed;
   border-radius: 8px;
+}
+
+.floating-label {
+  position: relative;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.floating-label label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  padding: 0 4px;
+  color: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  font-size: 16px;
+  transition: all 0.25s ease;
+  z-index: 2;
+}
+
+.floating-label.active label {
+  top: -8px;
+  font-size: 12px;
+  color: #2f80ed;
+  transform: none;
 }
 
 .custom-multiselect :deep(.multiselect) {
-  min-height: 38px;
-  margin-top: 6px;
+  min-height: 44px;
+  margin-top: 0;
+  border-radius: 8px;
 }
 
 .custom-multiselect :deep(.multiselect__tags) {
-  min-height: 38px;
-  padding: 8px 30px 8px 12px;
+  min-height: 44px;
+  padding: 8px 36px 8px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: white;
-  font-size: 16px;
+  background: #fff;
+  font-size: 15px;
+  transition: all 0.25s ease;
 }
 
 .custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
   outline: none;
 }
 
 .custom-multiselect :deep(.multiselect__input),
 .custom-multiselect :deep(.multiselect__single) {
-  font-size: 16px;
-  padding: 0;
+  font-size: 15px;
+  padding: 3px;
   margin: 0;
   background: transparent;
   border: none;
 }
 
-.custom-multiselect :deep(.multiselect__input:focus) {
-  outline: none;
-  box-shadow: none;
-}
-
 .custom-multiselect :deep(.multiselect__placeholder) {
-  color: #999;
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
 }
 
 .custom-multiselect :deep(.multiselect__select) {
-  height: 36px;
-  right: 1px;
+  height: 42px;
+  right: 6px;
   top: 1px;
   width: 30px;
-  padding: 0;
   background: transparent;
   border-radius: 0 8px 8px 0;
 }
@@ -190,23 +229,22 @@ export default {
 
 .custom-multiselect :deep(.multiselect__option) {
   padding: 8px 12px;
-  font-size: 16px;
+  font-size: 15px;
   min-height: 36px;
 }
 
 .custom-multiselect :deep(.multiselect__option--selected) {
   background-color: #d0ebff;
   color: #333;
-  font-weight: normal;
 }
 
 .custom-multiselect :deep(.multiselect__option--highlight) {
-  background: #60a5fa;
+  background: #2f80ed;
   color: white;
 }
 
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) {
-  background: #3b82f6;
-  color: white;
+.multiselect-floating :deep(.multiselect),
+.multiselect-floating :deep(.multiselect__tags) {
+  z-index: auto !important;    
 }
 </style>

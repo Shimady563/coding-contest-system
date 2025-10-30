@@ -1,4 +1,3 @@
-/* Layout */
 .page {
   max-width: 800px;
   margin: auto;
@@ -17,7 +16,6 @@
   animation: fadeIn 0.4s ease-in-out;
 }
 
-/* Forms */
 .form-group {
   margin-bottom: 1rem;
   display: flex;
@@ -159,6 +157,7 @@ select {
   align-items: center; 
   justify-content: center; 
   padding: 40px 0; 
+  color: #7f8c8d;
 }
 
 .spinner { 
@@ -169,6 +168,61 @@ select {
   border-radius: 50%; 
   animation: spin 1s linear infinite; 
   margin-bottom: 16px; 
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  color: #bdc3c7;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+.stats-container {
+  margin: 16px 0;
+  padding: 0 8px;
+  text-align: left;
+}
+
+.stats {
+  font-size: 14px;
+  color: #7f8c8d;
+  font-weight: 500;
+  background: #f8f9fa;
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
 }
 
 @keyframes spin { 
@@ -194,10 +248,10 @@ select {
 @keyframes modalFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: scale(0.9) translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }

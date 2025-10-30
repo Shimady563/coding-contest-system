@@ -1,8 +1,18 @@
 package com.shimady563.contest.manager.exception;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
-public record ValidationError(List<Violation> violations, int statusCode) {
+@Schema(description = "Validation error details")
+public record ValidationError(
+
+        @Schema(description = "List of violations")
+        List<Violation> violations,
+
+        @Schema(description = "HTTP status code", example = "400")
+        int statusCode
+) {
     public record Violation(String field, String message) {
     }
 }

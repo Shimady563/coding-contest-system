@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+
+    <changeSet id="2025-10-17-add-tag-v1.1" author="Shimady">
+        <tagDatabase tag="v1.1.0"/>
+    </changeSet>
+
+    <include file="2025-03-15-create-table-group.xml" relativeToChangelogFile="true"/>
+    <include file="2026-10-17-add-group-name-unique-constraint.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>

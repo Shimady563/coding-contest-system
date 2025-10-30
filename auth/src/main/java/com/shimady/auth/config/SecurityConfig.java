@@ -1,7 +1,9 @@
 package com.shimady.auth.config;
 
 import com.shimady.auth.config.props.AuthProperties;
-import com.shimady.auth.filter.JwtFilter;
+import com.shimady.auth.security.Http403ForbiddenAccessDeniedHandler;
+import com.shimady.auth.security.Http403ForbiddenAuthenticationEntryPoint;
+import com.shimady.auth.security.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +30,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final AuthProperties authProperties;
     private final JwtFilter jwtFilter;
+    private final Http403ForbiddenAuthenticationEntryPoint entryPoint;
+    private final Http403ForbiddenAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,6 +66,9 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(handling ->
+                        handling.authenticationEntryPoint(entryPoint)
+                                .accessDeniedHandler(accessDeniedHandler))
                 .build();
     }
 

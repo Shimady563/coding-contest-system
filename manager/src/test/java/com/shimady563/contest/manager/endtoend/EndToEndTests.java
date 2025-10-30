@@ -57,7 +57,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 
 @Slf4j
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @Import(TestcontainersConfiguration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -506,6 +506,7 @@ public class EndToEndTests {
                                 "Submitting solution",
                                 EndToEndKafkaTestCase.builder()
                                         .filePathPostfix("/submitSolution")
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(POST)
                                         .path("/submissions")
                                         .statusCode(202)
@@ -798,6 +799,7 @@ public class EndToEndTests {
                                 "Submitting solution with task from other contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/submitSolution/task")
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(POST)
                                         .path("/submissions")
                                         .statusCode(403)

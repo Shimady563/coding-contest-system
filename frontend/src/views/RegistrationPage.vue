@@ -3,58 +3,127 @@
     <form @submit.prevent="register" class="auth-form">
       <h2>Регистрация</h2>
 
-      <div>
-        <label>Имя:</label>
-        <input type="text" v-model="firstName" required />
+      <div class="floating-label">
+        <input 
+          type="text" 
+          v-model="firstName" 
+          id="firstName"
+          name="firstName"
+          required 
+          placeholder=""
+        />
+        <label for="firstName">Имя</label>
       </div>
 
-      <div>
-        <label>Фамилия:</label>
-        <input type="text" v-model="lastName" required />
+      <div class="floating-label">
+        <input 
+          type="text" 
+          v-model="lastName" 
+          id="lastName" 
+          name="lastName"
+          required 
+          placeholder=""
+        />
+        <label for="lastName">Фамилия</label>
       </div>
 
-      <div>
-        <label>Email:</label>
-        <input type="email" v-model="email" required autocomplete="email" />
+      <div class="floating-label">
+        <input 
+          type="email" 
+          v-model="email" 
+          id="email" 
+          name="email" 
+          required 
+          autocomplete="email" 
+          placeholder="" 
+        />
+        <label for="email">Email</label>
       </div>
 
-      <div>
-        <label>Пароль:</label>
-        <input type="password" v-model="password" required autocomplete="new-password" />
-        <small v-if="password && !isPasswordValid" class="error-message">
-          Пароль должен содержать минимум 8 символов, одну заглавную, одну строчную букву, цифру и спецсимвол
-        </small>
+      <div class="floating-label">
+        <input
+          type="password"
+          v-model="password"
+          id="password"
+          name="password"
+          required
+          placeholder=""
+          autocomplete="new-password"
+        />
+        <label for="password">Пароль</label>
+        <div class="password-hints" v-if="password">
+          <div :class="{ valid: hasMinLength }">
+            <span class="hint-icon">✓</span>
+            <span class="hint-text">Минимум 8 символов</span>
+          </div>
+          <div :class="{ valid: hasUpperCase }">
+            <span class="hint-icon">✓</span>
+            <span class="hint-text">Заглавная буква</span>
+          </div>
+          <div :class="{ valid: hasLowerCase }">
+            <span class="hint-icon">✓</span>
+            <span class="hint-text">Строчная буква</span>
+          </div>
+          <div :class="{ valid: hasDigit }">
+            <span class="hint-icon">✓</span>
+            <span class="hint-text">Цифра</span>
+          </div>
+          <div :class="{ valid: hasSpecialChar }">
+            <span class="hint-icon">✓</span>
+            <span class="hint-text">Спецсимвол @#$%^&+=!?*</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label>Повторите пароль:</label>
-        <input type="password" v-model="confirmPassword" required autocomplete="new-password" />
+      <div class="floating-label">
+        <input
+          type="password"
+          v-model="confirmPassword"
+          id="confirmPassword"
+          name="confirmPassword"
+          required
+          placeholder=""
+          autocomplete="new-password"
+        />
+        <label for="confirmPassword">Повторите пароль</label>
         <small v-if="password && confirmPassword && password !== confirmPassword" class="error-message">
           Пароли не совпадают
         </small>
       </div>
 
-      <div>
-        <label>Группа:</label>
-        <multiselect
-          v-model="groupId"
-          :options="groups"
-          :searchable="true"
-          :allow-empty="false"
-          :multiple="false"
-          :select-label="''"
-          :selected-label="''"
-          :deselect-label="''"
-          placeholder="Выберите группу"
-          label="name"
-          track-by="id"
-          class="custom-multiselect"
-          required
-        >
-        </multiselect>
+      <div 
+        class="floating-label multiselect-floating" 
+        :class="{ active: groupId || $refs.groupSelect?.isOpen }"
+      >
+        <div class="custom-multiselect">
+          <multiselect
+            id="group"
+            name="group"
+            ref="groupSelect"
+            v-model="groupId"
+            :options="groups"
+            :searchable="true"
+            :allow-empty="false"
+            :multiple="false"
+            :select-label="''"
+            :selected-label="''"
+            :deselect-label="''"
+            :append-to-body="true"
+            open-direction="below"
+            placeholder=""
+            label="name"
+            track-by="id"
+            required
+            @open="$forceUpdate()"
+            @close="$forceUpdate()"
+          />
+        </div>
+        <label for="group">Группа</label>
       </div>
 
-      <button type="submit" class="btn primary" :disabled="isSubmitDisabled">Зарегистрироваться</button>
+      <button type="submit" class="btn primary" :disabled="isSubmitDisabled">
+        Зарегистрироваться
+      </button>
 
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
@@ -88,8 +157,13 @@ export default {
     };
   },
   computed: {
+    hasMinLength() { return this.password.length >= 8; },
+    hasUpperCase() { return /[A-Z]/.test(this.password); },
+    hasLowerCase() { return /[a-z]/.test(this.password); },
+    hasDigit() { return /\d/.test(this.password); },
+    hasSpecialChar() { return /[@#$%^&+=!?*]/.test(this.password); },
     isPasswordValid() {
-      return this.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=]).{8,}$/);
+      return !this.password || (this.hasMinLength && this.hasUpperCase && this.hasLowerCase && this.hasDigit && this.hasSpecialChar);
     },
     isSubmitDisabled() {
       return (
@@ -135,45 +209,147 @@ export default {
 </script>
 
 <style scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  padding: 20px;
 }
 
 .auth-form {
   background-color: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 2rem 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   animation: fadeIn 0.4s ease-in-out;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 28px;
+  color: #2f3640;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
-form > div {
-  margin-bottom: 1rem;
+.floating-label {
+  position: relative;
+  margin-bottom: 1.8rem;
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-input {
+.floating-label input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  outline: none;
+  transition: all 0.25s ease;
+  background: #fff;
+  font-size: 15px;
+  color: #333;
   box-sizing: border-box;
+}
+
+.floating-label label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: transparent;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label,
+.floating-label.active label,
+.floating-label:focus-within label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.floating-label input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
+}
+
+.floating-label input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #f44336;
+}
+
+.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label {
+  color: #f44336;
+}
+
+.password-hints {
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.password-hints div {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  font-size: 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.password-hints .valid {
+  color: #27ae60;
+}
+
+.password-hints .valid .hint-icon {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.hint-text {
+  flex: 1;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 6px;
+  text-align: center;
+  line-height: 1.4;
 }
 
 button {
@@ -181,99 +357,78 @@ button {
   padding: 12px;
   background-color: #2f80ed;
   color: white;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.25s ease, transform 0.1s ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #1366d6;
+  transform: translateY(-1px);
 }
 
 button:disabled {
-  background-color: #ccc;
+  background-color: #cfcfcf;
   cursor: not-allowed;
 }
 
-p {
-  margin-top: 1rem;
-  text-align: center;
-}
-
 .footer-link {
+  text-align: center;
   margin-top: 20px;
+  font-size: 14px;
 }
-
 .footer-link a {
-  color: #007bff;
+  color: #2f80ed;
   text-decoration: none;
+  font-weight: 500;
 }
-
 .footer-link a:hover {
   text-decoration: underline;
 }
 
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 8px;
-}
-
-form > div {
-  margin-bottom: 1rem;
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
 .custom-multiselect :deep(.multiselect) {
-  min-height: 38px;
+  min-height: 44px;
   margin-top: 6px;
+  border-radius: 8px;
 }
 
 .custom-multiselect :deep(.multiselect__tags) {
-  min-height: 38px;
-  padding: 8px 30px 8px 12px;
+  min-height: 44px;
+  padding: 8px 36px 8px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: white;
-  font-size: 16px;
+  background: #fff;
+  font-size: 15px;
+  transition: all 0.25s ease;
 }
 
 .custom-multiselect :deep(.multiselect__tags:focus-within) {
   border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
   outline: none;
 }
 
 .custom-multiselect :deep(.multiselect__input),
 .custom-multiselect :deep(.multiselect__single) {
-  font-size: 16px;
-  padding: 0;
+  font-size: 15px;
+  padding: 3px;
   margin: 0;
   background: transparent;
   border: none;
 }
 
-.custom-multiselect :deep(.multiselect__input:focus) {
-  outline: none;
-  box-shadow: none;
-}
-
 .custom-multiselect :deep(.multiselect__placeholder) {
-  color: #999;
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
 }
 
 .custom-multiselect :deep(.multiselect__select) {
-  height: 36px;
-  right: 1px;
+  height: 42px;
+  right: 6px;
   top: 1px;
   width: 30px;
-  padding: 0;
   background: transparent;
   border-radius: 0 8px 8px 0;
 }
@@ -318,14 +473,13 @@ form > div {
 
 .custom-multiselect :deep(.multiselect__option) {
   padding: 8px 12px;
-  font-size: 16px;
+  font-size: 15px;
   min-height: 36px;
 }
 
 .custom-multiselect :deep(.multiselect__option--selected) {
   background-color: #d0ebff;
   color: #333;
-  font-weight: normal;
 }
 
 .custom-multiselect :deep(.multiselect__option--highlight) {
@@ -333,8 +487,50 @@ form > div {
   color: white;
 }
 
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) {
-  background: #1366d6;
-  color: white;
+.floating-label.active label,
+.floating-label:focus-within label {
+  top: -8px !important;
+  left: 10px !important;
+  font-size: 12px !important;
+  color: #2f80ed !important;
+  background: #fff;
+  transform: none;
+}
+
+.multiselect-floating {
+  position: relative;
+}
+
+.multiselect-floating label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: #fff;
+  z-index: 3;
+}
+
+.multiselect-floating.active label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #2f80ed;
+  background: #fff;
+  transform: none;
+}
+
+.multiselect-floating.active :deep(.multiselect__placeholder) {
+  display: none;
+}
+
+.multiselect-floating :deep(.multiselect),
+.multiselect-floating :deep(.multiselect__tags),
+.multiselect-floating :deep(.multiselect__content-wrapper) {
+  z-index: auto !important;
 }
 </style>
