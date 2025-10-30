@@ -3,7 +3,6 @@ package com.shimady563.contest.manager.model.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,7 +28,6 @@ public class UserUpdateRequestDto {
     @Schema(description = "Password (empty for no changes)", example = "P@ssw0rd!")
     private String password;
 
-    @NotNull(message = "group id cannot be null")
-    @Schema(description = "Target group id", example = "1")
+    @Schema(description = "Target group id (null for teachers)", example = "1")
     private Long groupId;
 }
