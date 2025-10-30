@@ -67,20 +67,6 @@
         <div class="floating-label">
           <input 
             type="password" 
-            v-model="form.oldPassword" 
-            id="oldPassword"
-            placeholder=""
-            :class="{ 'input-error': !form.oldPassword && form.password }" 
-          />
-          <label for="oldPassword">Старый пароль</label>
-          <small v-if="form.password && !form.oldPassword" class="error-message">
-            Для смены пароля требуется старый пароль
-          </small>
-        </div>
-
-        <div class="floating-label">
-          <input 
-            type="password" 
             v-model="form.password" 
             id="password"
             placeholder=""
@@ -183,7 +169,6 @@ export default {
         email: "",
         password: "",
         confirmPassword: "",
-        oldPassword: "",
       },
       groups: [],
       selectedGroup: null,
@@ -196,19 +181,27 @@ export default {
     hasDigit() { return /\d/.test(this.form.password); },
     hasSpecialChar() { return /[@#$%^&+=!?*]/.test(this.form.password); },
     isPasswordValid() {
-      return !this.form.password || (this.hasMinLength && this.hasUpperCase && this.hasLowerCase && this.hasDigit && this.hasSpecialChar);
+      return !this.form.password || (
+        this.hasMinLength &&
+        this.hasUpperCase &&
+        this.hasLowerCase &&
+        this.hasDigit &&
+        this.hasSpecialChar
+      );
     },
     isSubmitDisabled() {
-      const passwordsMatch = !this.form.password || this.form.password === this.form.confirmPassword;
-      const passwordFieldsValid = !this.form.password || (this.form.oldPassword && this.isPasswordValid && passwordsMatch);
-      
+      const passwordsMatch =
+        !this.form.password || this.form.password === this.form.confirmPassword;
+      const passwordFieldsValid =
+        this.isPasswordValid && passwordsMatch;
+
       return (
         !this.form.firstName ||
         !this.form.lastName ||
         !this.form.email ||
         !passwordFieldsValid
       );
-    }
+    },
   },
   async created() {
     try {
@@ -223,7 +216,8 @@ export default {
     async fetchGroupsList() {
       this.groups = await fetchGroups();
       if (this.user && this.user.groupName) {
-        this.selectedGroup = this.groups.find(g => g.name === this.user.groupName) || null;
+        this.selectedGroup =
+          this.groups.find((g) => g.name === this.user.groupName) || null;
       }
     },
     startEditing() {
@@ -233,7 +227,6 @@ export default {
         email: this.user.email,
         password: "",
         confirmPassword: "",
-        oldPassword: "",
       };
       this.isEditing = true;
     },
@@ -246,23 +239,19 @@ export default {
           firstName: this.form.firstName,
           lastName: this.form.lastName,
           email: this.form.email,
+          password: this.form.password || "", // отправляем пустую строку, если не меняем
         };
 
         if (this.selectedGroup) payload.groupId = this.selectedGroup.id;
-        
-        // Если указан новый пароль, используем его, иначе оставляем старый
-        if (this.form.password) {
-          payload.password = this.form.password;
-        } else if (this.form.oldPassword) {
-          payload.password = this.form.oldPassword;
-        }
 
         await updateUser(this.user.id, payload);
 
         this.user = {
           ...this.user,
           ...payload,
-          groupName: this.selectedGroup ? this.selectedGroup.name : this.user.groupName,
+          groupName: this.selectedGroup
+            ? this.selectedGroup.name
+            : this.user.groupName,
         };
 
         this.isEditing = false;
