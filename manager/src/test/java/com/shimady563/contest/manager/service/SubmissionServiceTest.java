@@ -88,6 +88,8 @@ class SubmissionServiceTest {
         submission.setSubmittedAt(dto.getSubmittedAt());
         String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 
+        String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
+
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
         given(taskService.getTaskByIdInternal(taskId)).willReturn(task);

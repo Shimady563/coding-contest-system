@@ -2,8 +2,7 @@ package com.shimady563.contest.manager.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,15 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "User update request")
 public class UserUpdateRequestDto {
-    @NotEmpty(message = "first name cannot be blank")
-    @Size(min = 4, max = 64,
-            message = "name length should be between 4 and 64 characters")
+    @NotBlank(message = "first name cannot be blank")
     @Schema(description = "First name", example = "John")
     private String firstName;
 
-    @NotEmpty(message = "first name cannot be blank")
-    @Size(min = 4, max = 64,
-            message = "second name length should be between 4 and 64 characters")
+    @NotBlank(message = "last name cannot be blank")
     @Schema(description = "Last name", example = "Doe")
     private String lastName;
 

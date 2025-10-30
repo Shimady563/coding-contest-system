@@ -1,24 +1,24 @@
 package com.shimady.auth.model.dto;
 
 import com.shimady.auth.validation.Password;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Sign up request payload to create a new user and receive JWT tokens")
 public class SignUpJwtRequest {
-    @NotEmpty(message = "first name cannot be blank")
+    @NotBlank(message = "first name cannot be blank")
     @Schema(description = "User first name", example = "John")
     private String firstName;
 
-    @NotEmpty(message = "last name cannot be blank")
+    @NotBlank(message = "last name cannot be blank")
     @Schema(description = "User last name", example = "Doe")
     private String lastName;
 

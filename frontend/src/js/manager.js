@@ -155,6 +155,14 @@ export async function createGroup(payload) {
   });
 }
 
+export async function updateGroupById(id, body) {
+  return fetchJson(`${MANAGER_URL}/groups/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+}
+
 export async function deleteGroup(groupId) {
   return fetchJson(`${MANAGER_URL}/groups/${groupId}`, { method: 'DELETE' });
 }
