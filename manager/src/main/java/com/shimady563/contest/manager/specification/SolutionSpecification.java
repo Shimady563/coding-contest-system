@@ -31,4 +31,9 @@ public class SolutionSpecification {
         return ((root, query, builder) ->
                 builder.equal(root.join("task").get("id"), taskId));
     }
+
+    public static Specification<Solution> hasGroupId(Long groupId) {
+        return ((root, query, builder) ->
+                builder.equal(root.join("user").join("group").get("id"), groupId));
+    }
 }
