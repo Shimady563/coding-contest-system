@@ -88,10 +88,9 @@ class SubmissionServiceTest {
         submission.setSubmittedAt(dto.getSubmittedAt());
         String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 
-        String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
-
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
+        given(userService.getCurrentUser()).willReturn(user);
         given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
 
         submissionService.submitSolution(dto);
@@ -182,13 +181,14 @@ class SubmissionServiceTest {
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
-        given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
+        given(userService.getCurrentUser()).willReturn(user);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
                 .hasMessageContaining("doesn't have the access to contest version");
 
         then(kafkaTemplate).shouldHaveNoInteractions();
+        then(taskService).shouldHaveNoInteractions();
     }
 
     @Test
@@ -221,6 +221,7 @@ class SubmissionServiceTest {
 
         given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
+        given(userService.getCurrentUser()).willReturn(user);
         given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
@@ -228,5 +229,48 @@ class SubmissionServiceTest {
                 .hasMessageContaining("not found in contest version");
 
         then(kafkaTemplate).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldThrowIfOtherUserSubmitted() {
+        Long userId = 1L;
+        Long contestVersionId = 2L;
+        Long taskId = 3L;
+        Long otherUserId = 4L;
+        CodeSubmissionDto dto = new CodeSubmissionDto();
+        dto.setUserId(userId);
+        dto.setContestVersionId(contestVersionId);
+        dto.setSubmittedAt(LocalDateTime.now());
+        dto.setTaskId(taskId);
+
+        User user = new User();
+        user.setId(userId);
+
+        User curUser = new User();
+        curUser.setId(otherUserId);
+
+        Task task = new Task();
+        task.setId(taskId);
+
+        ContestVersion contestVersion = new ContestVersion();
+        contestVersion.setId(contestVersionId);
+        contestVersion.addTask(task);
+
+        Contest contest = new Contest();
+        contest.setStartTime(LocalDateTime.now().minusMinutes(10));
+        contest.setEndTime(LocalDateTime.now().plusMinutes(10));
+
+        contestVersion.setContest(contest);
+
+        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(userService.getUserById(userId)).willReturn(user);
+        given(userService.getCurrentUser()).willReturn(curUser);
+
+        assertThatThrownBy(() -> submissionService.submitSolution(dto))
+                .isInstanceOf(SubmissionInvalidException.class)
+                .hasMessageContaining("doesn't have the access to contest version");
+
+        then(kafkaTemplate).shouldHaveNoInteractions();
+        then(taskService).shouldHaveNoInteractions();
     }
 }

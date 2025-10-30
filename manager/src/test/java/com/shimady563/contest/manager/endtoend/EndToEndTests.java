@@ -506,6 +506,7 @@ public class EndToEndTests {
                                 "Submitting solution",
                                 EndToEndKafkaTestCase.builder()
                                         .filePathPostfix("/submitSolution")
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(POST)
                                         .path("/submissions")
                                         .statusCode(202)
@@ -798,6 +799,7 @@ public class EndToEndTests {
                                 "Submitting solution with task from other contest version",
                                 EndToEndTestCase.builder()
                                         .filePathPostfix("/submitSolution/task")
+                                        .cookies(Map.of(jwtProperties.getAccess().getCookieName(), studentToken))
                                         .method(POST)
                                         .path("/submissions")
                                         .statusCode(403)
