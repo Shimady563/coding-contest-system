@@ -68,7 +68,7 @@
     background-color: #f59e0b;
   }
   
-  .close-btn {
+  .notification .close-btn {
     background: none;
     border: none;
     color: white;

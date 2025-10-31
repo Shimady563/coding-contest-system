@@ -57,7 +57,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9fafb;
+  background: #ffffff;
 }
 
 .modal-header h2 {
@@ -70,6 +70,9 @@ export default {
   border-radius: 50%;
   width: 36px;
   height: 36px;
+  font-size: 28px;
+  border: none;
+  background: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,6 +90,7 @@ export default {
 .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
+  background: #ffffff;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
