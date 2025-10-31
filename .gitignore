@@ -35,3 +35,4 @@ deploy/k8s/pvc*
 deploy/k8s/storage*
 deploy/k8s/ingress*
 deploy/k8s/deploy.sh
+deploy/vault-pass.txt
