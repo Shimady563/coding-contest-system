@@ -21,24 +21,37 @@
           <transition name="fade">
             <ul class="dropdown-menu" v-show="isDropdownOpen" 
                 @mouseenter="openDropdown" @mouseleave="closeDropdown">
-              <li v-if="user.role === 'student'">
-                <router-link to="/contests" @click="closeDropdown">Контрольные</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-contests" @click="closeDropdown">Задания</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-students" @click="closeDropdown">Студенты</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-groups" @click="closeDropdown">Группы</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-solutions" @click="closeDropdown">Оценки</router-link>
-              </li>
-              <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
-              <li><a @click.prevent="confirmLogout" style="cursor: pointer;">Выйти</a></li>
+
+              <!-- STUDENT MENU -->
+              <template v-if="user.role === 'student'">
+                <li><router-link to="/contests" @click="closeDropdown" :class="{ active: $route.path === '/contests' }">Контрольные</router-link></li>
+
+                <li class="divider"></li>
+
+                <li><router-link to="/profile" @click="closeDropdown" :class="{ active: $route.path === '/profile' }">Профиль</router-link></li>
+                <li class="logout-item"><a @click.prevent="confirmLogout">Выйти</a></li>
+              </template>
+
+              <!-- TEACHER MENU -->
+              <template v-else-if="user.role === 'teacher'">
+                <li class="menu-section">Управление</li>
+                <li><router-link to="/manage-contests" @click="closeDropdown" :class="{ active: $route.path === '/manage-contests' }">Задания</router-link></li>
+                <li><router-link to="/manage-students" @click="closeDropdown" :class="{ active: $route.path === '/manage-students' }">Студенты</router-link></li>
+                <li><router-link to="/manage-groups" @click="closeDropdown" :class="{ active: $route.path === '/manage-groups' }">Группы</router-link></li>
+
+                <li class="divider"></li>
+
+                <li class="menu-section">Проверка</li>
+                <li><router-link to="/manage-solutions" @click="closeDropdown" :class="{ active: $route.path === '/manage-solutions' }">Решения</router-link></li>
+                <!-- <li><router-link to="/" @click="closeDropdown" :class="{ active: $route.path === '/' }">Оценки</router-link></li> -->
+
+                <li class="divider"></li>
+
+                <li><router-link to="/profile" @click="closeDropdown" :class="{ active: $route.path === '/profile' }">Профиль</router-link></li>
+                <li class="logout-item"><a @click.prevent="confirmLogout">Выйти</a></li>
+              </template>
             </ul>
+
           </transition>
         </div>
 
@@ -309,15 +322,52 @@ export default {
   color: #333;
   text-decoration: none;
   font-size: 14px;
-  display: block;
-  padding: 8px 20px;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  border-radius: 6px;
 }
 
 .dropdown-menu a:hover {
-  background: #f0f4ff;
+  background: #eef4ff;
   color: #2f80ed;
+  transform: translateX(2px);
 }
+
+.dropdown-menu a.active {
+  color: #2f80ed;
+  font-weight: 600;
+  background: #f0f4ff;
+}
+
+.dropdown-menu .logout-item a {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.dropdown-menu .logout-item a:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
+.dropdown-menu .menu-section {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280; 
+  padding: 6px 20px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dropdown-menu .divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 6px 0;
+}
+
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.2s, transform 0.2s;
