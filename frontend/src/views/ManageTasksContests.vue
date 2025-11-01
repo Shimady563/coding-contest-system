@@ -10,16 +10,15 @@
     <!-- Контрольные -->
     <div v-if="isContestsActive" class="management-section">
       <form class="filters" @submit.prevent="fetchContests(0)">
-        <div class="filter-group">
-          <label>
-            <span>Название:</span>
-            <input
-              type="text"
-              v-model="contestSearchParams.name"
-              class="text-input"
-              placeholder="Поиск по названию"
-            >
-          </label>
+        <div class="filter-group floating-label">
+          <input
+            type="text"
+            v-model="contestSearchParams.name"
+            id="contestName"
+            class="text-input"
+            placeholder=""
+          >
+          <label for="contestName">Название</label>
         </div>
 
         <div class="filter-actions">
@@ -46,8 +45,10 @@
       </div>
 
       <div v-else>
-        <div class="stats" v-if="contests.length">
-          Показано {{ contests.length }} из {{ contestPage.totalElements }} контрольных
+        <div class="stats-container" v-if="contests.length">
+          <div class="stats">
+            Показано {{ contests.length }} из {{ contestPage.totalElements }} контрольных
+          </div>
         </div>
         <ul class="items-list">
           <li v-for="contest in contests" :key="contest.id" class="item">
@@ -58,18 +59,18 @@
               </div>
               <div class="item-actions">
                 <button
-                  class="edit-btn"
+                  class="btn-icon edit-btn"
                   @click="editContest(contest)"
                   title="Редактировать контрольную"
                 >
-                  <i class="fas fa-edit"></i>
+                  <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button
-                  class="delete-btn"
+                  class="btn-icon delete-btn"
                   @click="confirmDeleteContest(contest)"
                   title="Удалить контрольную"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
             </div>
@@ -105,16 +106,15 @@
     <!-- Задания -->
     <div v-else class="management-section">
       <form class="filters" @submit.prevent="fetchTasks(0)">
-        <div class="filter-group">
-          <label>
-            <span>Название:</span>
-            <input
-              type="text"
-              v-model="taskSearchParams.name"
-              class="text-input"
-              placeholder="Поиск по названию"
-            >
-          </label>
+        <div class="filter-group floating-label">
+          <input
+            type="text"
+            v-model="taskSearchParams.name"
+            id="taskName"
+            class="text-input"
+            placeholder=""
+          >
+          <label for="taskName">Название</label>
         </div>
 
         <div class="filter-actions">
@@ -141,8 +141,10 @@
       </div>
 
       <div v-else>
-        <div class="stats" v-if="tasks.length">
-          Показано {{ tasks.length }} из {{ taskPage.totalElements }} заданий
+        <div class="stats-container" v-if="tasks.length">
+          <div class="stats">
+            Показано {{ tasks.length }} из {{ taskPage.totalElements }} заданий
+          </div>
         </div>
         <ul class="items-list">
           <li v-for="task in tasks" :key="task.id" class="item">
@@ -153,18 +155,18 @@
               </div>
               <div class="item-actions">
                 <button
-                  class="edit-btn"
+                  class="btn-icon edit-btn"
                   @click="editTask(task)"
                   title="Редактировать задание"
                 >
-                  <i class="fas fa-edit"></i>
+                  <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button
-                  class="delete-btn"
+                  class="btn-icon delete-btn"
                   @click="confirmDeleteTask(task)"
                   title="Удалить задание"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
             </div>
@@ -432,117 +434,51 @@ h1 {
   margin-top: 20px;
 }
 
-.filters {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+.floating-label {
+  position: relative;
+  margin-bottom: 20px;
 }
 
-.filter-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.filter-group label span {
-  font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
-  display: block;
-  text-align: initial;
-}
-
-.text-input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  background: white;
+.floating-label input {
   width: 100%;
-  box-sizing: border-box;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
-.filter-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.apply-btn,
-.reset-btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  align-self: flex-end;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.apply-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-}
-
-.apply-btn:hover {
-  background-color: #2980b9;
-}
-
-.reset-btn {
-  background-color: transparent;
-  color: #7f8c8d;
+  padding: 14px 16px;
   border: 1px solid #ddd;
-}
-
-.reset-btn:hover {
-  background-color: #f1f1f1;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #7f8c8d;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  color: #bdc3c7;
-}
-
-.empty-state h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #2c3e50;
-}
-
-.empty-state p {
+  border-radius: 8px;
+  outline: none;
   font-size: 14px;
+  color: #333;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  transition: all 0.25s ease;
 }
 
-.stats {
+.floating-label label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
   font-size: 14px;
-  color: #7f8c8d;
-  margin-bottom: 16px;
-  text-align: left;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: #f8f9fa;
+  padding: 0 4px;
+  z-index: 3;
+}
+
+.floating-label input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
 }
 
 .create-btn {
@@ -604,49 +540,6 @@ h1 {
   flex-shrink: 0;
 }
 
-.edit-btn,
-.delete-btn {
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-}
-
-.edit-btn {
-  background-color: #3498db;
-}
-
-.edit-btn:hover {
-  background-color: #2980b9;
-  transform: scale(1.05);
-}
-
-.delete-btn {
-  background-color: #dc3545;
-}
-
-.delete-btn:hover {
-  background-color: #c82333;
-  transform: scale(1.05);
-}
-
-.edit-btn:active,
-.delete-btn:active {
-  transform: scale(0.95);
-}
-
-.edit-btn i,
-.delete-btn i {
-  font-size: 14px;
-}
-
 .item-title {
   font-size: 18px;
   font-weight: 600;
@@ -657,54 +550,6 @@ h1 {
 .item-description {
   font-size: 14px;
   color: #888;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
-}
-
-.pagination-info {
-  font-size: 14px;
-  color: #7f8c8d;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.pagination-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #ddd;
-  background: white;
-  color: #333;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #f8f9fa;
-}
-
-.page-indicator {
-  font-size: 0.9rem;
-  color: #555;
 }
 
 @media (max-width: 768px) {
@@ -732,18 +577,9 @@ h1 {
 
   .filters {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 15px;
+    gap: 16px;
+    padding: 20px;
     margin: 0 10px 20px 10px;
-  }
-
-  .filter-group label span {
-    font-size: 12px;
-  }
-
-  .text-input {
-    font-size: 13px;
-    padding: 7px 10px;
   }
 
   .filter-actions {
@@ -780,31 +616,9 @@ h1 {
     gap: 6px;
   }
 
-  .edit-btn,
-  .delete-btn {
-    min-width: 36px;
-    height: 36px;
-    padding: 6px 10px;
-  }
-
-  .edit-btn i,
-  .delete-btn i {
-    font-size: 12px;
-  }
-
-  .pagination-container {
-    padding: 0 10px;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .pagination-controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .page-indicator {
-    display: none;
+  .btn-icon {
+    width: 32px;
+    height: 32px;
   }
 
   .empty-state {
@@ -843,16 +657,13 @@ h1 {
     gap: 4px;
   }
 
-  .edit-btn,
-  .delete-btn {
-    min-width: 32px;
-    height: 32px;
-    padding: 4px 8px;
+  .btn-icon {
+    width: 28px;
+    height: 28px;
   }
 
-  .edit-btn i,
-  .delete-btn i {
-    font-size: 11px;
+  .btn-icon i {
+    font-size: 12px;
   }
 }
 </style>

@@ -7,7 +7,7 @@
     <template v-else>
       <!-- Гостевой доступ -->
       <header class="header" v-if="!user">
-        <h1>Добро пожаловать <i class="fas fa-hand-paper"></i></h1>
+        <h1>Добро пожаловать 👋</h1>
         <p class="subtitle">
           В системе контроля работ вы можете создавать и решать задания, получать мгновенную обратную связь и отслеживать свой прогресс!
         </p>
@@ -136,6 +136,8 @@ export default {
         localStorage.setItem("seenWelcome", "true");
         this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
       }
+    } catch(err){
+      this.$root.notify(err.message, "error");
     } finally {
       this.isLoading = false;
     }

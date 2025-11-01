@@ -76,6 +76,7 @@ class SolutionServiceTest {
                 Status.ACCEPTED,
                 1L,
                 2L,
+                3L,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now(),
                 pageRequest

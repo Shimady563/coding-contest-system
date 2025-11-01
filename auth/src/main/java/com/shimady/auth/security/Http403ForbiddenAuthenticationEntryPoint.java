@@ -1,7 +1,7 @@
-package com.shimady563.contest.manager.security;
+package com.shimady.auth.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shimady563.contest.manager.exception.AppError;
+import com.shimady.auth.exception.AppError;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

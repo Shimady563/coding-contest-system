@@ -3,7 +3,7 @@ package com.shimady.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.config.props.AuthProperties;
 import com.shimady.auth.config.props.JwtProperties;
-import com.shimady.auth.filter.JwtFilter;
+import com.shimady.auth.security.filter.JwtFilter;
 import com.shimady.auth.repository.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

@@ -75,7 +75,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Secured({"ROLE_TEACHER"})
+    @Secured({"ROLE_TEACHER", "ROLE_STUDENT"})
     @Operation(summary = "Update user by id", description = "Updates user information")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "User updated"),

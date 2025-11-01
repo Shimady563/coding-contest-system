@@ -18,8 +18,9 @@ export default {
       mode: "text/x-c++src",
       theme: "monokai",
       lineNumbers: true,
-      tabSize: 4,
-      indentWithTabs: true,
+      tabSize: 4,       
+      indentUnit: 4,    
+      indentWithTabs: false, 
     });
 
     this.editor.setValue(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);

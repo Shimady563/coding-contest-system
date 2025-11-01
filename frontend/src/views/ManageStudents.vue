@@ -2,42 +2,55 @@
   <div class="page-container">
     <div class="page-header">
       <h1><i class="fas fa-user-graduate"></i> Управление студентами</h1>
-      <div class="stats" v-if="students.length">
-        Показано {{ students.length }} из {{ totalElements }} студентов
-      </div>
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group">
-        <label>
-          <span>Имя:</span>
-          <input type="text" v-model="searchParams.firstName" class="text-input" placeholder="Поиск по имени">
-        </label>
+      <div class="filter-group floating-label">
+        <input 
+          type="text" 
+          v-model="searchParams.firstName" 
+          id="firstName"
+          class="text-input" 
+          placeholder=""
+        />
+        <label for="firstName">Имя</label>
       </div>
 
-      <div class="filter-group">
-        <label>
-          <span>Фамилия:</span>
-          <input type="text" v-model="searchParams.lastName" class="text-input" placeholder="Поиск по фамилии">
-        </label>
+      <div class="filter-group floating-label">
+        <input 
+          type="text" 
+          v-model="searchParams.lastName" 
+          id="lastName"
+          class="text-input" 
+          placeholder=""
+        />
+        <label for="lastName">Фамилия</label>
       </div>
 
-      <div class="filter-group">
-        <label>
-          <span>Группа:</span>
+      <div 
+        class="filter-group floating-label multiselect-floating" 
+        :class="{ active: searchParams.selectedGroup || $refs.groupSelect?.isOpen }"
+      >
+        <div class="custom-multiselect full-width">
           <multiselect
+            ref="groupSelect"
+            id="groupSelect"
             v-model="searchParams.selectedGroup"
-            :options="groupOptions"
+            :options="groups"
             :multiple="false"
             :searchable="true"
             :close-on-select="true"
             :show-labels="false"
-            placeholder="Выберите группу"
+            placeholder=""
             label="name"
-            track-by="name"
-            class="custom-multiselect"
-          ></multiselect>
-        </label>
+            track-by="id"
+            :append-to-body="true"
+            open-direction="below"
+            :allow-empty="true"
+            @select="forceCloseSelect"
+          />
+        </div>
+        <label for="groupSelect">Группа</label>
       </div>
 
       <div class="filter-actions">
@@ -49,6 +62,12 @@
         </button>
       </div>
     </form>
+
+    <div class="stats-container" v-if="students.length">
+      <div class="stats">
+        Показано {{ students.length }} из {{ totalElements }} студентов
+      </div>
+    </div>
 
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
@@ -132,32 +151,55 @@
           <h3><i class="fas fa-user-edit"></i> Редактирование студента</h3>
         </div>
         <div class="modal-body">
-          <div class="form-group">
-            <label>Имя</label>
-            <input v-model="editingStudent.firstName" class="form-input">
+          <div class="floating-label">
+            <input 
+              v-model="editingStudent.firstName" 
+              id="editFirstName"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="editFirstName">Имя</label>
           </div>
-          <div class="form-group">
-            <label>Фамилия</label>
-            <input v-model="editingStudent.lastName" class="form-input">
+          <div class="floating-label">
+            <input 
+              v-model="editingStudent.lastName" 
+              id="editLastName"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="editLastName">Фамилия</label>
           </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input v-model="editingStudent.email" type="email" class="form-input">
+          <div class="floating-label">
+            <input 
+              v-model="editingStudent.email" 
+              type="email" 
+              id="editEmail"
+              class="form-input"
+              placeholder=""
+            >
+            <label for="editEmail">Email</label>
           </div>
-          <div class="form-group">
-            <label>Группа</label>
-            <multiselect
-              v-model="editingStudent.selectedGroup"
-              :options="groups"
-              :multiple="false"
-              :searchable="true"
-              :close-on-select="true"
-              :show-labels="false"
-              placeholder="Выберите группу"
-              label="name"
-              track-by="id"
-              class="custom-multiselect"
-            ></multiselect>
+          <div 
+            class="floating-label multiselect-floating" 
+            :class="{ active: editingStudent?.selectedGroup || $refs.editGroupSelect?.isOpen }"
+          >
+            <div class="custom-multiselect full-width">
+              <multiselect
+                ref="editGroupSelect"
+                v-model="editingStudent.selectedGroup"
+                :options="groups"
+                :multiple="false"
+                :searchable="true"
+                :close-on-select="true"
+                :show-labels="false"
+                placeholder=""
+                label="name"
+                track-by="id"
+                :append-to-body="true"
+                open-direction="below"
+              />
+            </div>
+            <label for="editGroup">Группа</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -199,27 +241,36 @@ export default {
       loading: false,
       editingStudent: null,
       showConfirmDialog: false,
-      confirmDialog: {
-        title: '',
-        message: ''
-      },
+      confirmDialog: { title: "", message: "" },
       studentToDelete: null,
       searchParams: {
-        firstName: '',
-        lastName: '',
-        role: 'ROLE_STUDENT',
-        groupNames: null
+        firstName: "",
+        lastName: "",
+        role: "ROLE_STUDENT",
+        selectedGroup: null
       }
     };
+  },
+  async created() {
+    await this.fetchGroups();
+    await this.fetchStudents();
+  },
+  watch: {
+    groups(newGroups) {
+      if (this.searchParams.selectedGroup) {
+        const ref = newGroups.find(g => g.id === this.searchParams.selectedGroup.id);
+        if (ref) this.searchParams.selectedGroup = ref;
+      }
+      if (this.editingStudent && this.editingStudent.selectedGroup) {
+        const ref = newGroups.find(g => g.id === this.editingStudent.selectedGroup.id);
+        if (ref) this.editingStudent.selectedGroup = ref;
+      }
+    }
   },
   computed: {
     groupOptions() {
       return this.groups.map(group => ({ name: group.name }));
     }
-  },
-  async created() {
-    await this.fetchStudents();
-    await this.fetchGroups();
   },
   methods: {
     async fetchStudents() {
@@ -232,34 +283,96 @@ export default {
         };
         if (this.searchParams.firstName) params.firstName = this.searchParams.firstName;
         if (this.searchParams.lastName) params.lastName = this.searchParams.lastName;
-
         if (this.searchParams.selectedGroup) {
           params.groupName = this.searchParams.selectedGroup.name;
         }
-        
+
         const data = await listUsers(params);
         this.students = data.content || [];
         this.totalPages = data.page?.totalPages || 1;
         this.totalElements = data.page?.totalElements || 0;
-      } catch  {
-        this.$toast?.error("Ошибка при загрузке студентов");
+      } catch (err) {
+        this.$root.notify("Ошибка при загрузке студентов", 'error');
       } finally {
         this.loading = false;
       }
     },
     async fetchGroups() {
-      this.groups = await fetchGroups();
+      try {
+        const groups = await fetchGroups();
+        this.groups = Array.isArray(groups) ? groups : (groups.content || []);
+      } catch (err) {
+        this.$root.notify("Ошибка при загрузке групп", 'error');
+        this.groups = [];
+      }
+    },
+    forceCloseSelect() {
+          setTimeout(() => {
+        this.$refs.groupSelect?.deactivate();
+      }, 0);
+    },
+    openEditModal(student) {
+      const groupRef = this.groups.find(g => g.id === student.groupId || g.name === student.groupName) || null;
+      this.editingStudent = { ...student, selectedGroup: groupRef };
+    },
+    closeModal() {
+      this.editingStudent = null;
+    },
+    async saveStudent() {
+      try {
+        const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
+        const groupId = selectedGroup ? selectedGroup.id : null;
+        
+        await updateUser(id, { firstName, lastName, email, groupId });
+
+        this.$root.notify("Данные обновлены", 'success');
+        this.closeModal();
+        this.fetchStudents();
+      } catch{
+        this.$root.notify("Ошибка при обновлении", 'error');
+      }
     },
     onSearch() {
       this.currentPage = 0;
       this.fetchStudents();
     },
     resetSearch() {
-      this.searchParams.firstName = '';
-      this.searchParams.lastName = '';
-      this.searchParams.selectedGroup = null;
+      this.searchParams = {
+        firstName: '',
+        lastName: '',
+        selectedGroup: null,
+        role: 'ROLE_STUDENT'
+      };
       this.currentPage = 0;
       this.fetchStudents();
+    },
+    confirmDeleteStudent(student) {
+      this.studentToDelete = student;
+      this.confirmDialog = {
+        title: 'Удаление студента',
+        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
+      };
+      this.showConfirmDialog = true;
+    },
+    async deleteStudent(id) {
+      try {
+        await deleteUser(id);
+
+        this.$root.notify("Студент удален", 'success');
+        this.fetchStudents();
+      } catch {
+        this.$root.notify("Ошибка при удалении", 'error');
+      }
+    },
+    async executeDelete() {
+      if (!this.studentToDelete) return;
+      await this.deleteStudent(this.studentToDelete.id);
+      this.showConfirmDialog = false;
+      this.studentToDelete = null;
+    },
+    cancelDelete() {
+      this.showConfirmDialog = false;
+      this.studentToDelete = null;
     },
     nextPage() {
       if (this.currentPage < this.totalPages - 1) {
@@ -273,93 +386,98 @@ export default {
         this.fetchStudents();
       }
     },
-    openEditModal(student) {
-      this.editingStudent = { 
-        ...student,
-        selectedGroup: this.groups.find(g => g.id === student.groupId) || null
-      };
-    },
-    closeModal() {
-      this.editingStudent = null;
-    },
-    async saveStudent() {
-      try {
-        const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
-        const groupId = selectedGroup ? selectedGroup.id : null;
-        
-        await updateUser(id, { firstName, lastName, email, groupId });
-
-        this.$toast?.success("Данные обновлены");
-        this.closeModal();
-        this.fetchStudents();
-      } catch{
-        this.$toast?.error("Ошибка при обновлении");
-      }
-    },
-    async deleteStudent(id) {
-      try {
-        await deleteUser(id);
-
-        this.$toast?.success("Студент удален");
-        this.fetchStudents();
-      } catch {
-        this.$toast?.error("Ошибка при удалении");
-      }
-    },
-    confirmDeleteStudent(student) {
-      this.studentToDelete = student;
-      this.confirmDialog = {
-        title: 'Удаление студента',
-        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
-    },
-    async executeDelete() {
-      if (!this.studentToDelete) return;
-      await this.deleteStudent(this.studentToDelete.id);
-      this.showConfirmDialog = false;
-      this.studentToDelete = null;
-    },
-    cancelDelete() {
-      this.showConfirmDialog = false;
-      this.studentToDelete = null;
-    }
   }
 };
 </script>
 
 <style scoped>
-.stats {
+.filters .floating-label,
+.modal-body .floating-label {
+  position: relative;
+  margin-bottom: 20px;
+  background-color: #f8f9fa;
+}
+
+.filters .floating-label input,
+.modal-body .floating-label input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
   font-size: 14px;
-  color: #7f8c8d;
+  color: #333;
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+  transition: all 0.25s ease;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #7f8c8d;
-}
-
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  color: #bdc3c7;
-}
-
-.empty-state h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #2c3e50;
-}
-
-.empty-state p {
+.filters .floating-label label,
+.modal-body .floating-label label {
+  position: absolute;
+  left: 16px;
+  top: 14px; 
   font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: #f8f9fa;
+  z-index: 2;
 }
 
-.table-container {
-  overflow-x: auto;
-  border-radius: 12px;
-  border: 1px solid #eee;
+.filters .floating-label input:focus + label,
+.filters .floating-label input:not(:placeholder-shown) + label,
+.modal-body .floating-label input:focus + label,
+.modal-body .floating-label input:not(:placeholder-shown) + label {
+  top: -8px; 
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: #f8f9fa;
+  padding: 0 4px;
+  z-index: 3;
+}
+
+.filters .floating-label input:focus,
+.modal-body .floating-label input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
+}
+
+.filters .multiselect-floating,
+.modal-body .multiselect-floating {
+  position: relative;
+}
+
+.filters .multiselect-floating label,
+.modal-body .multiselect-floating label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+.filters .multiselect-floating.active label,
+.modal-body .multiselect-floating.active label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: #f8f9fa;
+  z-index: 2;
+}
+
+.multiselect-floating :deep(.multiselect),
+.multiselect-floating :deep(.multiselect__tags),
+.multiselect-floating :deep(.multiselect__content-wrapper) {
+  z-index: auto !important;    
 }
 
 .students-table {
@@ -373,13 +491,13 @@ export default {
   color: #555;
   font-weight: 600;
   text-align: left;
-  padding: 14px 16px;
-  border-bottom: 2px solid #eee;
+  padding: 16px;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .students-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e9ecef;
   vertical-align: middle;
 }
 
@@ -387,38 +505,13 @@ export default {
   background-color: #f8f9fa;
 }
 
-.id-col {
-  min-width: 80px;
-  color: #7f8c8d;
-}
-
-.name-col {
-  min-width: 200px;
-  align-items: center;
-}
-
-.email-col a {
-  color: #3498db;
-  text-decoration: none;
-}
-
-.email-col a:hover {
-  text-decoration: underline;
-}
-
-.group-col .no-group {
-  color: #95a5a6;
-  font-style: italic;
-}
-
-.actions-col {
-  min-width: 120px;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
+.id-col { min-width: 80px; color: #7f8c8d; }
+.name-col { min-width: 200px; }
+.email-col a { color: #2f80ed; text-decoration: none; }
+.email-col a:hover { text-decoration: underline; }
+.group-col .no-group { color: #95a5a6; font-style: italic; }
+.actions-col { min-width: 120px; }
+.action-buttons { display: flex; gap: 8px; }
 
 .btn-icon {
   width: 36px;
@@ -433,416 +526,160 @@ export default {
   background: transparent;
 }
 
-.edit-btn {
-  color: #3498db;
-}
-
-.edit-btn:hover {
-  background-color: rgba(52, 152, 219, 0.1);
-}
-
-.delete-btn {
-  color: #e74c3c;
-}
-
-.delete-btn:hover {
-  background-color: rgba(231, 76, 60, 0.1);
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
-}
-
-.pagination-info {
-  font-size: 14px;
-  color: #7f8c8d;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.pagination-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #ddd;
-  background: white;
-  color: #333;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #f8f9fa;
-}
-
-.page-indicator {
-  font-size: 0.9rem;
-  color: #555;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-}
-
 .modal-dialog {
+  position: relative;
   background: white;
   border-radius: 12px;
-  width: 500px;
+  width: 500px; 
   max-width: calc(100% - 40px); 
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   animation: modalFadeIn 0.3s ease;
 }
 
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  box-sizing: border-box;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #555;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-sizing: border-box; 
-  max-width: 100%; 
-}
-
-.form-input:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-  outline: none;
-}
-
-select.form-input {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1em;
+.modal-body :deep(.multiselect__content-wrapper) {
+  z-index: 10000 !important; 
+  position: fixed;
+  width: 452px !important;
+  min-width: auto !important;
+  left: auto !important;
+  right: auto !important;
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #eee;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  position: sticky;
-  bottom: 0;
-  background: white;
+  z-index: 1; 
 }
 
-.btn-cancel, .btn-save {
-  padding: 0.75rem 1.5rem;
+.modal-body .floating-label {
+  position: relative;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.modal-body .floating-label input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel {
-  background-color: #f8f9fa;
+  outline: none;
+  font-size: 14px;
   color: #333;
-  border: 1px solid #ddd;
+  box-sizing: border-box;
+  background-color: white; 
+  transition: all 0.25s ease;
 }
 
-.btn-cancel:hover {
-  background-color: #e9ecef;
-}
-
-.btn-save {
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-}
-
-.btn-save:hover {
-  background-color: #27ae60;
-}
-
-.custom-multiselect >>> .multiselect {
-  min-height: 38px;
-  margin-top: 6px;
-}
-
-.custom-multiselect >>> .multiselect__tags {
-  min-height: 38px;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: white;
-  font-size: 14px;
-}
-
-.custom-multiselect >>> .multiselect__tags:focus-within {
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-  outline: none;
-}
-
-.custom-multiselect >>> .multiselect__input,
-.custom-multiselect >>> .multiselect__single {
-  font-size: 14px;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: none;
-}
-
-.custom-multiselect >>> .multiselect__input:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.custom-multiselect >>> .multiselect__placeholder {
-  color: #999;
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-}
-
-.custom-multiselect >>> .multiselect__select {
-  height: 36px;
-  right: 1px;
-  top: 1px;
-  width: 30px;
-  padding: 0;
-  background: transparent;
-  border-radius: 0 6px 6px 0;
-}
-
-.custom-multiselect >>> .multiselect__select:before {
-  content: '';
+.modal-body .floating-label label {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent;
-  transition: transform 0.2s ease;
-}
-
-.custom-multiselect >>> .multiselect--active .multiselect__select:before {
-  transform: translate(-50%, -50%) rotate(180deg);
-}
-
-.custom-multiselect >>> .multiselect__select:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect >>> .multiselect__select:hover:before {
-  border-color: #333 transparent transparent transparent;
-}
-
-.custom-multiselect >>> .multiselect--active .multiselect__select {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect >>> .multiselect__content-wrapper {
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
-  z-index: 10;
-}
-
-.custom-multiselect >>> .multiselect__option {
-  padding: 8px 12px;
+  left: 16px;
+  top: 14px; 
   font-size: 14px;
-  min-height: 36px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: white; 
+  z-index: 2;
 }
 
-.custom-multiselect >>> .multiselect__option--selected {
-  background-color: #d0ebff;
-  color: #333;
-  font-weight: normal;
-}
-
-.custom-multiselect >>> .multiselect__option--highlight {
-  background: #3498db;
-  color: white;
-}
-
-.custom-multiselect >>> .multiselect__option--selected.multiselect__option--highlight {
-  background: #2980b9;
-  color: white;
-}
-
-.custom-multiselect >>> .multiselect__tags-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 4px;
-}
-
-.custom-multiselect >>> .multiselect__tag {
-  background: #3498db;
-  color: white;
-  font-size: 13px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin-right: 6px;
-  margin-bottom: 0;
-  display: flex;
-  align-items: center;
-}
-
-.custom-multiselect >>> .multiselect__tag-icon {
-  margin-left: 6px;
-  line-height: 1;
-}
-
-.custom-multiselect >>> .multiselect__tag-icon:after {
-  color: white;
+.modal-body .floating-label input:focus + label,
+.modal-body .floating-label input:not(:placeholder-shown) + label {
+  top: -8px; 
+  left: 12px;
   font-size: 12px;
+  color: #2f80ed;
+  background-color: white;
+  padding: 0 4px;
+  z-index: 3;
 }
 
-.custom-multiselect >>> .multiselect__tag-icon:hover {
-  background: transparent;
+.modal-body .multiselect-floating label {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  font-size: 14px;
+  color: rgba(0,0,0,0.5);
+  pointer-events: none;
+  padding: 0 4px;
+  transition: all 0.25s ease;
+  background-color: white; 
+  z-index: 2;
 }
 
-.custom-multiselect >>> .multiselect__spinner {
-  background: transparent;
+.modal-body .multiselect-floating.active label {
+  top: -8px;
+  left: 12px;
+  font-size: 12px;
+  color: #2f80ed;
+  background-color: white; 
+  z-index: 2;
 }
 
-.custom-multiselect >>> .multiselect__spinner:before,
-.custom-multiselect >>> .multiselect__spinner:after {
-  border-color: #3498db transparent transparent;
+.modal-body .custom-multiselect :deep(.multiselect__tags) {
+  min-height: 48px; 
+  padding: 12px 40px 0 16px;
+  border: 1px solid #ddd; 
+  border-radius: 8px; 
+  background: white; 
+  font-size: 14px;
 }
 
-@media (max-width: 768px) {
-  .manage-students-container {
-    padding: 15px;
-  }
+.btn-cancel { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
+.btn-cancel:hover { background-color: #e9ecef; }
+.btn-save { background-color: #2ecc71; color: white; }
+.btn-save:hover { background-color: #27ae60; }
 
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .stats {
-    text-align: left;
-    width: 100%;
-    font-size: 13px;
-  }
-  
-  .filters {
-    grid-template-columns: 1fr;
-    padding: 15px;
-    gap: 12px;
-  }
-
-  .filter-actions {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .apply-btn,
-  .reset-btn {
-    width: 100%;
-  }
-  
-  .students-table {
-    font-size: 13px;
-  }
-  
-  .students-table th,
-  .students-table td {
-    padding: 8px 12px;
-  }
-
-  .pagination-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .pagination-controls {
-    width: 100%;
-    justify-content: center;
-  }
+.custom-multiselect :deep(.multiselect) { min-height: 48px; margin-top: 0; }
+.custom-multiselect :deep(.multiselect__tags) {
+  min-height: 48px; padding: 12px 40px 0 16px;
+  border: 1px solid #ddd; border-radius: 8px; background: inherit; font-size: 14px;
 }
-
-@media (max-width: 480px) {
-  .manage-students-container {
-    padding: 10px;
-  }
-  
-  .name-col {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .header h1 {
-    font-size: 24px;
-  }
-
-  .stats {
-    font-size: 12px;
-  }
-
-  .filters {
-    padding: 12px 10px;
-  }
+.custom-multiselect :deep(.multiselect__tags:focus-within) {
+  border-color: #2f80ed; box-shadow: 0 0 0 2px rgba(47,128,237,0.1); outline: none;
 }
+.custom-multiselect :deep(.multiselect__input),
+.custom-multiselect :deep(.multiselect__single) {
+  font-size: 14px; padding: 4px 0; margin: 0; background: transparent; border: none;
+}
+.custom-multiselect :deep(.multiselect__placeholder) {
+  color: rgba(0,0,0,0.5); font-size: 14px; margin-top: 2px;
+}
+.custom-multiselect :deep(.multiselect__select) {
+  height: 46px; right: 6px; top: 1px; width: 30px; background: transparent;
+  border-radius: 0 8px 8px 0;
+}
+.custom-multiselect :deep(.multiselect__select:before) {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%); width: 0; height: 0;
+  border-style: solid; border-width: 6px 5px 0 5px;
+  border-color: #666 transparent transparent transparent; transition: transform 0.2s ease;
+}
+.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
+  transform: translate(-50%,-50%) rotate(180deg);
+}
+.custom-multiselect :deep(.multiselect__select:hover) { background: rgba(0,0,0,0.05); }
+.custom-multiselect :deep(.multiselect__select:hover:before) { border-color: #333 transparent transparent transparent; }
+.custom-multiselect :deep(.multiselect--active .multiselect__select) { 
+  background: rgba(47, 128, 237, 0.05); 
+}
+.custom-multiselect :deep(.multiselect__content-wrapper) {
+  border: 1px solid #ddd; border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; z-index: 10;
+}
+.custom-multiselect :deep(.multiselect__option) { padding: 10px 12px; font-size: 14px; min-height: 40px; }
+.custom-multiselect :deep(.multiselect__option--selected) { 
+  background-color: rgba(47, 128, 237, 0.1); 
+  color: #2f80ed; 
+  font-weight: 500;
+}
+.custom-multiselect :deep(.multiselect__option--highlight) { 
+  background: #2f80ed;
+  color: white; 
+}
+.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) { 
+  background: #256bcc; 
+  color: white; 
+}
+.multiselect-floating.active :deep(.multiselect__placeholder) { display: none; }
 </style>
