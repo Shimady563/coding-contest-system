@@ -57,9 +57,9 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TaskResponseDto> searchForTasks(PageRequest pageRequest) {
+    public Page<TaskResponseDto> searchForTasks(String name, PageRequest pageRequest) {
         log.info("Searching for tasks");
-        return taskRepository.findAll(pageRequest)
+        return taskRepository.findByNameContainingIgnoreCase(name, pageRequest)
                 .map(TaskConverter::domain2Response);
     }
 

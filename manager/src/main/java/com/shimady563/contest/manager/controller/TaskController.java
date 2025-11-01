@@ -79,10 +79,11 @@ public class TaskController {
             @ApiResponse(responseCode = "200", description = "Page of tasks")
     })
     public Page<TaskResponseDto> searchForTasks(
+            @Parameter(description = "Name filter") @RequestParam String name,
             @Parameter(description = "Page number") @RequestParam(defaultValue = "0") Integer pageNumber,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        return taskService.searchForTasks(PageRequest.of(pageNumber, pageSize));
+        return taskService.searchForTasks(name, PageRequest.of(pageNumber, pageSize));
     }
 
     @GetMapping("/{id}")
