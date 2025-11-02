@@ -37,11 +37,6 @@ export async function getTasksByContestVersion(contestVersionId) {
   return fetchJson(`${MANAGER_URL}/tasks/contest-version?contestVersionId=${encodeURIComponent(contestVersionId)}`);
 }
 
-export async function listTasksWithParams(params) {
-  const query = new URLSearchParams(params || {}).toString();
-  return fetchJson(`${MANAGER_URL}/tasks?${query}`);
-}
-
 // ==================== CONTEST MANAGEMENT ====================
 export async function createContest(payload) {
   return fetchJson(`${MANAGER_URL}/contests`, {
