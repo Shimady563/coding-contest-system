@@ -64,6 +64,17 @@
   z-index: 2;
 }
 
+.filters .floating-label input, 
+.filters .floating-label label,
+.filters .multiselect, 
+.filters .multiselect__tags {
+  background-color: #f8f9fa !important;
+}
+
+.multiselect{
+  margin-top: 0 !important;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;

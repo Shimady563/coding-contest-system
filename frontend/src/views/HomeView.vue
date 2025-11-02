@@ -21,7 +21,6 @@
       <header class="header" v-else-if="user.role === 'student'">
         <h1>Привет, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-user-graduate"></i></h1>
         <p class="subtitle">Доступные функции:</p>
-
         <div class="cards">
           <div class="card">
             <div class="card-top-line"></div>
@@ -50,7 +49,6 @@
       <header class="header" v-else-if="user.role === 'teacher'">
         <h1>Здравствуйте, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-chalkboard-teacher"></i></h1>
         <p class="subtitle">Вот что вы можете делать:</p>
-
         <div class="cards">
           <div class="card">
             <div class="card-top-line"></div>
@@ -60,9 +58,8 @@
               </svg>
             </div>
             <h3>Контрольные</h3>
-            <p>Формируйте новые задания и контрольные работы для студентов.</p>
+            <p>Создавайте контрольные работы, формируйте варианты и назначайте их студентам.</p>
           </div>
-          
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -71,9 +68,8 @@
               </svg>
             </div>
             <h3>Задания</h3>
-            <p>Редактируйте, удаляйте и обновляйте контрольные работы.</p>
+            <p>Создавайте и редактируйте задания с текстом и тест-кейсами для включения в варианты контрольных.</p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -84,7 +80,6 @@
             <h3>Студенты</h3>
             <p>Просматривайте список студентов, редактируйте и удаляйте их профили.</p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -95,7 +90,6 @@
             <h3>Группы</h3>
             <p>Просматривайте, создавайте и удаляйте учебные группы.</p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -103,8 +97,18 @@
                 <path fill="currentColor" d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
               </svg>
             </div>
+            <h3>Решения</h3>
+            <p>Просматривайте отправленный код студентов и результаты проверок.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M3 3h18v2H3V3m0 4h18v2H3V7m0 4h18v10H3V11z" />
+              </svg>
+            </div>
             <h3>Результаты</h3>
-            <p>Анализируйте успеваемость студентов по различным метрикам.</p>
+            <p>Следите за прогрессом: статистика сдачи контрольных и оценки по контрольным.</p>
           </div>
         </div>
       </header>
