@@ -11,14 +11,13 @@
     <div v-if="isContestsActive" class="management-section">
       <form class="filters" @submit.prevent="fetchContests(0)">
         <div class="filter-group floating-label">
-          <input
-            type="text"
+          <FloatingInput
             v-model="contestSearchParams.name"
             id="contestName"
-            class="text-input"
+            label="Название"
+            type="text"
             placeholder=""
-          >
-          <label for="contestName">Название</label>
+          />
         </div>
 
         <div class="filter-actions">
@@ -106,15 +105,14 @@
     <!-- Задания -->
     <div v-else class="management-section">
       <form class="filters" @submit.prevent="fetchTasks(0)">
-        <div class="filter-group floating-label">
-          <input
-            type="text"
+        <div class="filter-group">
+          <FloatingInput
             v-model="taskSearchParams.name"
             id="taskName"
-            class="text-input"
+            label="Название"
+            type="text"
             placeholder=""
-          >
-          <label for="taskName">Название</label>
+          />
         </div>
 
         <div class="filter-actions">
@@ -220,11 +218,13 @@ import {
 } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import Notification from "@/components/Notification.vue";
+import FloatingInput from "@/components/FloatingInput.vue";
 
 export default {
   components: {
     ConfirmDialog,
-    Notification
+    Notification,
+    FloatingInput
   },
   data() {
     return {
@@ -430,55 +430,16 @@ h1 {
   border-color: #2f80ed;
 }
 
+.filters :deep(.floating-label input) {
+  background-color: #f8f9fa !important;
+}
+
+.filters :deep(.floating-label label) {
+  background-color: #f8f9fa !important;
+}
+
 .management-section {
   margin-top: 20px;
-}
-
-.floating-label {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.floating-label input:focus + label,
-.floating-label input:not(:placeholder-shown) + label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
 }
 
 .create-btn {

@@ -9,31 +9,27 @@
       </div>
 
       <div v-else>
-        <div class="floating-label">
-          <input
-            id="name"
-            name="name"
-            v-model="contest.name"
-            type="text"
-            placeholder=""
-            :class="{ 'input-error': !contest.name && submitted }"
-          />
-          <label for="name">Название</label>
+        <FloatingInput
+          id="name"
+          name="name"
+          label="Название"
+          v-model="contest.name"
+          placeholder=""
+          type="text"
+          :error="!contest.name && submitted">
           <span v-if="!contest.name && submitted" class="error-message">Это поле обязательно</span>
-        </div>
-
-        <div class="floating-label">
-          <textarea
-            id="description"
-            name="description"
-            v-model="contest.description"
-            placeholder=""
-            :class="{ 'input-error': !contest.description && submitted }"
-          ></textarea>
-          <label for="description">Описание</label>
+        </FloatingInput>
+        <FloatingInput
+          id="description"
+          name="description"
+          label="Описание"
+          v-model="contest.description"
+          placeholder=""
+          type="textarea"
+          :error="!contest.description && submitted">
           <span v-if="!contest.description && submitted" class="error-message">Это поле обязательно</span>
-        </div>
-
+        </FloatingInput>
+        
         <div
           class="floating-label multiselect-floating"
           :class="{ active: selectedGroup || $refs.groupSelect?.isOpen || (!selectedGroup && submitted) }"
@@ -68,31 +64,26 @@
         </div>
 
         <div class="form-row">
-          <div class="floating-label">
-            <input
-              id="start"
-              name="start"
-              type="datetime-local"
-              v-model="contest.startTime"
-              placeholder=""
-              :class="{ 'input-error': !contest.startTime && submitted }"
-            />
-            <label for="start">Начало</label>
+          <FloatingInput
+            v-model="contest.startTime"
+            id="start"
+            name="start"
+            label="Начало"
+            type="datetime-local"
+            :error="!contest.startTime && submitted"
+            placeholder="">
             <span v-if="!contest.startTime && submitted" class="error-message">Выберите время начала</span>
-          </div>
-
-          <div class="floating-label">
-            <input
-              id="end"
-              name="end"
-              type="datetime-local"
-              v-model="contest.endTime"
-              placeholder=""
-              :class="{ 'input-error': !contest.endTime && submitted }"
-            />
-            <label for="end">Окончание</label>
-            <span v-if="!contest.endTime && submitted" class="error-message">Выберите время окончания</span>
-          </div>
+          </FloatingInput>
+          <FloatingInput
+            v-model="contest.endTime"
+            id="end"
+            name="end"
+            label="Окончание"
+            type="datetime-local"
+            :error="!contest.startTime && submitted"
+            placeholder="">
+            <span v-if="!contest.endTime && submitted" class="error-message">Выберите время начала</span>
+          </FloatingInput>
         </div>
 
         <div class="variants-section">
@@ -100,20 +91,21 @@
           <span v-if="variants.length === 0 && submitted" class="error-message">Добавьте хотя бы один вариант</span>
 
           <div v-for="(variant, index) in variants" :key="variant.id || index" class="variant-block">
-            <div class="floating-label">
-              <input
-                v-model="variant.name"
-                type="text"
-                placeholder=""
-                :class="{ 'input-error': !variant.name && submitted }"
-              />
-              <label>Название варианта</label>
+            <FloatingInput
+              id="name"
+              name="name"
+              label="Название варианта"
+              v-model="variant.name"
+              type="text"
+              placeholder=""
+              class="variant-input"
+              :error="!variant.name && submitted">
               <span v-if="!variant.name && submitted" class="error-message">Название обязательно</span>
-            </div>
+            </FloatingInput>
 
             <div class="tasks-section">
               <TaskSelector :allTasks="tasks" @add-task="task => addTaskToVariant(index, task)" />
-              <div class="selected-tasks floating-label">
+              <div class="selected-tasks">
                 <span v-for="t in variant.tasks" :key="t.id" class="task-chip">
                   {{ t.name }}
                   <button
@@ -160,6 +152,7 @@
 <script>
 import TaskSelector from '@/components/TaskSelector.vue';
 import ConfirmDialog from "@/components/ConfirmDialog.vue"
+import FloatingInput from '@/components/FloatingInput.vue';
 import { fetchGroups } from '@/js/manager';
 import { getContest, updateContest, createContest, listTasks, createContestVersion, getContestVersionsByContest, 
   deleteContestVersion } from '@/js/manager';
@@ -170,7 +163,8 @@ export default {
   components: { 
     TaskSelector,
     Multiselect,
-    ConfirmDialog
+    ConfirmDialog,
+    FloatingInput,
   },
   props: { id: { type: String, required: false } },
   data() {
@@ -221,7 +215,12 @@ export default {
     },
     async loadTasks() {
       try { 
-        const data = await listTasks(); 
+        const params = {
+          name: "",
+          pageSize: 1000000,
+        };
+        
+        const data = await listTasks(params);
         this.tasks = data.content || []; 
       } catch (_) {}
     },
@@ -420,70 +419,34 @@ export default {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
+.card > :deep(.floating-label),
+.card > .multiselect-floating,
+.card > .form-row {
+  margin-bottom: 1.25rem;
+}
+
 h1 {
   text-align: center;
   margin-bottom: 2rem;
 }
 
 .form-row {
-  display: flex;
   gap: 1.5rem;
   margin-top: 1rem;
 }
 
-.floating-label {
-  position: relative;
-  margin-top: 1.5rem;
-  width: 100%;
+.floating-label,
+.multiselect-floating {
+  margin-top: 0 !important;
 }
 
-.floating-label input,
-.floating-label textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  font-size: 15px;
-  background: #fff;
-  transition: all 0.25s ease;
-  resize: none;
+.multiselect-floating :deep(.multiselect__content-wrapper) {
+  z-index: 1000 !important; 
 }
 
-.floating-label label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #fff;
-  padding: 0 4px;
-  color: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-  font-size: 15px;
-  transition: all 0.25s ease;
-  will-change: top, font-size, color;
-}
-
-.floating-label input:focus + label,
-.floating-label input:not(:placeholder-shown) + label,
-.floating-label textarea:focus + label,
-.floating-label textarea:not(:placeholder-shown) + label,
-.floating-label.multiselect-floating.active label,
-.floating-label input.input-error + label,
-.floating-label textarea.input-error + label,
-.multiselect-floating .invalid + label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.floating-label input:focus,
-.floating-label textarea:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
+.form-row {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
 }
 
 .input-error,
@@ -498,10 +461,12 @@ h1 {
 }
 
 .error-message {
-  margin-top: 4px;
-  color: #e74c3c;
-  font-size: 13px;
-  display: block;
+  margin-top: -25px;
+  margin-bottom: 1.25rem;
+}
+
+.variant-input{
+  margin-top: 25px;
 }
 
 .variants-section {
@@ -543,156 +508,6 @@ h1 {
 
 .remove-task:hover {
   color: #ff4d4d;
-}
-
-.multiselect-floating {
-  position: relative;
-  margin-top: 1.5rem;
-  z-index: 30; 
-}
-
-.multiselect-floating label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #fff;
-  padding: 0 4px;
-  color: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-  font-size: 15px;
-  transition: all 0.25s ease;
-}
-
-.multiselect-floating.active label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.multiselect-floating :deep(.multiselect),
-.multiselect-floating :deep(.multiselect__tags),
-.multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: auto !important; 
-}
-
-.custom-multiselect :deep(.multiselect) {
-  min-height: 38px;
-  margin-top: 6px;
-}
-
-.custom-multiselect :deep(.multiselect__tags) {
-  min-height: 38px;
-  padding: 8px 30px 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: white;
-  font-size: 16px;
-}
-
-.custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-  outline: none;
-}
-
-.custom-multiselect.invalid :deep(.multiselect__tags) {
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
-}
-
-.custom-multiselect :deep(.multiselect__input),
-.custom-multiselect :deep(.multiselect__single) {
-  font-size: 16px;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: none;
-}
-
-.custom-multiselect :deep(.multiselect__input:focus) {
-  outline: none;
-  box-shadow: none;
-}
-
-.custom-multiselect :deep(.multiselect__placeholder) {
-  color: #999;
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
-}
-
-.custom-multiselect :deep(.multiselect__select) {
-  height: 36px;
-  right: 1px;
-  top: 1px;
-  width: 30px;
-  padding: 0;
-  background: transparent;
-  border-radius: 0 8px 8px 0;
-}
-
-.custom-multiselect :deep(.multiselect__select:before) {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent;
-  transition: transform 0.2s ease;
-}
-
-.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
-  transform: translate(-50%, -50%) rotate(180deg);
-}
-
-.custom-multiselect :deep(.multiselect__select:hover) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect :deep(.multiselect__select:hover:before) {
-  border-color: #333 transparent transparent transparent;
-}
-
-.custom-multiselect :deep(.multiselect--active .multiselect__select) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
-  z-index: 10;
-}
-
-.custom-multiselect :deep(.multiselect__option) {
-  padding: 8px 12px;
-  font-size: 16px;
-  min-height: 36px;
-}
-
-.custom-multiselect :deep(.multiselect__option--selected) {
-  background-color: #d0ebff;
-  color: #333;
-  font-weight: normal;
-}
-
-.custom-multiselect :deep(.multiselect__option--highlight) {
-  background: #2f80ed;
-  color: white;
-}
-
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) {
-  background: #2f80ed;
-  color: white;
 }
 
 .form-actions {
@@ -737,18 +552,6 @@ h1 {
 
   .card {
     padding: 1rem;
-  }
-
-  .floating-label label {
-    font-size: 14px;
-  }
-
-  .custom-multiselect :deep(.multiselect__option) {
-    font-size: 15px;
-  }
-
-  input[type="datetime-local"] {
-    font-size: 15px;
   }
 }
 </style>

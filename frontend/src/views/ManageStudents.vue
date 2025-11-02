@@ -5,26 +5,24 @@
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.firstName" 
-          id="firstName"
-          class="text-input" 
-          placeholder=""
-        />
-        <label for="firstName">Имя</label>
+      <div class="filter-group">
+        <FloatingInput
+            v-model="searchParams.firstName"
+            id="firstName"
+            label="Имя"
+            type="text"
+            placeholder=""
+          />
       </div>
 
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.lastName" 
-          id="lastName"
-          class="text-input" 
-          placeholder=""
-        />
-        <label for="lastName">Фамилия</label>
+      <div class="filter-group">
+        <FloatingInput
+            v-model="searchParams.lastName"
+            id="lastName"
+            label="Фамилия"
+            type="text"
+            placeholder=""
+          />
       </div>
 
       <div 
@@ -151,34 +149,49 @@
           <h3><i class="fas fa-user-edit"></i> Редактирование студента</h3>
         </div>
         <div class="modal-body">
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.firstName" 
-              id="editFirstName"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editFirstName">Имя</label>
-          </div>
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.lastName" 
-              id="editLastName"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editLastName">Фамилия</label>
-          </div>
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.email" 
-              type="email" 
-              id="editEmail"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editEmail">Email</label>
-          </div>
+          <FloatingInput
+            v-model="editingStudent.firstName" 
+            id="editFirstName"
+            name="editFirstName"
+            label="Имя"
+            type="text"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.lastName" 
+            id="editLastName"
+            name="editLastName"
+            label="Фамилия"
+            type="text"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.email" 
+            id="editEmail"
+            name="editEmail"
+            label="Email"
+            type="email"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.password"
+            id="editPassword"
+            name="editPassword"
+            label="Новый пароль"
+            type="password"
+            placeholder=""
+            class="form-input"
+            autocomplete="new-password"
+          >
+            <PasswordHints :password="editingStudent.password" />
+          </FloatingInput>
+
           <div 
             class="floating-label multiselect-floating" 
             :class="{ active: editingStudent?.selectedGroup || $refs.editGroupSelect?.isOpen }"
@@ -186,6 +199,8 @@
             <div class="custom-multiselect full-width">
               <multiselect
                 ref="editGroupSelect"
+                id="editGroup"
+                name="editGroup"
                 v-model="editingStudent.selectedGroup"
                 :options="groups"
                 :multiple="false"
@@ -195,7 +210,7 @@
                 placeholder=""
                 label="name"
                 track-by="id"
-                :append-to-body="true"
+                :append-to-body="false"
                 open-direction="below"
               />
             </div>
@@ -222,13 +237,15 @@
 <script>
 import { listUsers, updateUser, deleteUser, fetchGroups } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import FloatingInput from "@/components/FloatingInput.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 
 export default {
   components: {
     Multiselect,
-    ConfirmDialog
+    ConfirmDialog,
+    FloatingInput
   },
   data() {
     return {
@@ -248,7 +265,14 @@ export default {
         lastName: "",
         role: "ROLE_STUDENT",
         selectedGroup: null
-      }
+      },
+      passwordRules: {
+        minLength: 8,
+        upper: /[A-Z]/,
+        lower: /[a-z]/,
+        digit: /\d/,
+        special: /[@#$%^&+=!?*]/,
+      },
     };
   },
   async created() {
@@ -270,7 +294,33 @@ export default {
   computed: {
     groupOptions() {
       return this.groups.map(group => ({ name: group.name }));
-    }
+    },
+    hasMinLength() {
+      return this.editingStudent?.password?.length >= this.passwordRules.minLength;
+    },
+    hasUpperCase() {
+      return this.passwordRules.upper.test(this.editingStudent?.password || '');
+    },
+    hasLowerCase() {
+      return this.passwordRules.lower.test(this.editingStudent?.password || '');
+    },
+    hasDigit() {
+      return this.passwordRules.digit.test(this.editingStudent?.password || '');
+    },
+    hasSpecialChar() {
+      return this.passwordRules.special.test(this.editingStudent?.password || '');
+    },
+    isPasswordValid() {
+      const p = this.editingStudent?.password || '';
+      return (
+        !p ||
+        (this.hasMinLength &&
+        this.hasUpperCase &&
+        this.hasLowerCase &&
+        this.hasDigit &&
+        this.hasSpecialChar)
+      );
+    },
   },
   methods: {
     async fetchStudents() {
@@ -320,17 +370,25 @@ export default {
     },
     async saveStudent() {
       try {
-        const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
-        const groupId = selectedGroup ? selectedGroup.id : null;
-        
-        await updateUser(id, { firstName, lastName, email, groupId });
+    const { id, firstName, lastName, email, selectedGroup, password } = this.editingStudent;
+    const groupId = selectedGroup ? selectedGroup.id : null;
 
-        this.$root.notify("Данные обновлены", 'success');
-        this.closeModal();
-        this.fetchStudents();
-      } catch{
-        this.$root.notify("Ошибка при обновлении", 'error');
-      }
+    if (password && !this.isPasswordValid) {
+      this.$root.notify("Пароль не соответствует требованиям", "error");
+      return;
+    }
+
+    const payload = { firstName, lastName, email, groupId };
+    if (password) payload.password = password;
+
+    await updateUser(id, payload);
+
+    this.$root.notify("Данные обновлены", "success");
+    this.closeModal();
+    this.fetchStudents();
+  } catch {
+    this.$root.notify("Ошибка при обновлении", "error");
+  }
     },
     onSearch() {
       this.currentPage = 0;
@@ -391,95 +449,6 @@ export default {
 </script>
 
 <style scoped>
-.filters .floating-label,
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-}
-
-.filters .floating-label input,
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.filters .floating-label label,
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .floating-label input:focus + label,
-.filters .floating-label input:not(:placeholder-shown) + label,
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.filters .floating-label input:focus,
-.modal-body .floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-}
-
-.filters .multiselect-floating,
-.modal-body .multiselect-floating {
-  position: relative;
-}
-
-.filters .multiselect-floating label,
-.modal-body .multiselect-floating label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .multiselect-floating.active label,
-.modal-body .multiselect-floating.active label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.multiselect-floating :deep(.multiselect),
-.multiselect-floating :deep(.multiselect__tags),
-.multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: auto !important;    
-}
-
 .students-table {
   width: 100%;
   border-collapse: collapse;
@@ -538,6 +507,52 @@ export default {
   animation: modalFadeIn 0.3s ease;
 }
 
+.password-hints {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.password-hints div {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  font-size: 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.password-hints .valid {
+  color: #27ae60;
+}
+
+.password-hints .valid .hint-icon {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.filters .multiselect-floating label {
+  top: 21px; 
+}
+
+.modal-body :deep(.multiselect), .multiselect-floating label {
+  background-color: white !important;
+}
+
 .modal-body :deep(.multiselect__content-wrapper) {
   z-index: 10000 !important; 
   position: fixed;
@@ -547,82 +562,9 @@ export default {
   right: auto !important;
 }
 
-.modal-footer {
+.modal-footer,.modal-header {
   z-index: 1; 
-}
-
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
   background-color: white;
-}
-
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: white; 
-  transition: all 0.25s ease;
-}
-
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: white; 
-  z-index: 2;
-}
-
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: white;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.modal-body .multiselect-floating label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: white; 
-  z-index: 2;
-}
-
-.modal-body .multiselect-floating.active label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: white; 
-  z-index: 2;
-}
-
-.modal-body .custom-multiselect :deep(.multiselect__tags) {
-  min-height: 48px; 
-  padding: 12px 40px 0 16px;
-  border: 1px solid #ddd; 
-  border-radius: 8px; 
-  background: white; 
-  font-size: 14px;
 }
 
 .btn-cancel { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
@@ -630,56 +572,10 @@ export default {
 .btn-save { background-color: #2ecc71; color: white; }
 .btn-save:hover { background-color: #27ae60; }
 
-.custom-multiselect :deep(.multiselect) { min-height: 48px; margin-top: 0; }
-.custom-multiselect :deep(.multiselect__tags) {
-  min-height: 48px; padding: 12px 40px 0 16px;
-  border: 1px solid #ddd; border-radius: 8px; background: inherit; font-size: 14px;
+@media (max-width: 600px) {
+  .modal-body :deep(.multiselect__content-wrapper) {
+    position: absolute !important;
+    width: 100% !important;
+  }
 }
-.custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #2f80ed; box-shadow: 0 0 0 2px rgba(47,128,237,0.1); outline: none;
-}
-.custom-multiselect :deep(.multiselect__input),
-.custom-multiselect :deep(.multiselect__single) {
-  font-size: 14px; padding: 4px 0; margin: 0; background: transparent; border: none;
-}
-.custom-multiselect :deep(.multiselect__placeholder) {
-  color: rgba(0,0,0,0.5); font-size: 14px; margin-top: 2px;
-}
-.custom-multiselect :deep(.multiselect__select) {
-  height: 46px; right: 6px; top: 1px; width: 30px; background: transparent;
-  border-radius: 0 8px 8px 0;
-}
-.custom-multiselect :deep(.multiselect__select:before) {
-  content: ''; position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%); width: 0; height: 0;
-  border-style: solid; border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent; transition: transform 0.2s ease;
-}
-.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
-  transform: translate(-50%,-50%) rotate(180deg);
-}
-.custom-multiselect :deep(.multiselect__select:hover) { background: rgba(0,0,0,0.05); }
-.custom-multiselect :deep(.multiselect__select:hover:before) { border-color: #333 transparent transparent transparent; }
-.custom-multiselect :deep(.multiselect--active .multiselect__select) { 
-  background: rgba(47, 128, 237, 0.05); 
-}
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd; border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; z-index: 10;
-}
-.custom-multiselect :deep(.multiselect__option) { padding: 10px 12px; font-size: 14px; min-height: 40px; }
-.custom-multiselect :deep(.multiselect__option--selected) { 
-  background-color: rgba(47, 128, 237, 0.1); 
-  color: #2f80ed; 
-  font-weight: 500;
-}
-.custom-multiselect :deep(.multiselect__option--highlight) { 
-  background: #2f80ed;
-  color: white; 
-}
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) { 
-  background: #256bcc; 
-  color: white; 
-}
-.multiselect-floating.active :deep(.multiselect__placeholder) { display: none; }
 </style>

@@ -250,7 +250,7 @@ export default {
 button {
   padding: 12px 25px;
   font-size: 18px;
-  background-color: #4CAF50;
+  background-color: #34d399;
   color: white;
   border: none;
   border-radius: 5px;
@@ -259,7 +259,7 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #10b981;
 }
 
 button span {

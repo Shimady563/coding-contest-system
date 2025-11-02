@@ -78,7 +78,7 @@
             @select="forceCloseSelect('userSelect')"
           />
         </div>
-        <label for="userSelect">Пользователь</label>
+        <label for="userSelect">Студент</label>
       </div>
 
       <div 
@@ -108,28 +108,28 @@
         <label for="groupSelect">Группа</label>
       </div>
 
-      <div class="filter-group floating-label">
-        <input 
-          type="datetime-local" 
-          v-model="filters.startTime" 
-          id="startTime"
-          name="startTime"
-          class="text-input datetime-input" 
-          placeholder=""
-        />
-        <label for="startTime">С начала</label>
+      <div class="filter-group">
+        <FloatingInput
+            v-model="filters.startTime"
+            id="startTime"
+            name="startTime"
+            label="С начала"
+            type="datetime-local"
+            class="text-input" 
+            placeholder=""
+          />
       </div>
 
-      <div class="filter-group floating-label">
-        <input 
-          type="datetime-local" 
-          v-model="filters.endTime" 
-          id="endTime"
-          name="endTime"
-          class="text-input datetime-input" 
-          placeholder=""
-        />
-        <label for="endTime">До</label>
+      <div class="filter-group">
+        <FloatingInput
+            v-model="filters.endTime"
+            id="endTime"
+            name="endTime"
+            label="До"
+            type="datetime-local"
+            class="text-input" 
+            placeholder=""
+          />
       </div>
 
       <div class="filter-actions">
@@ -240,15 +240,17 @@
 
 <script>
 import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
+import FloatingInput from "@/components/FloatingInput.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
-import { listSolutions, listTasksWithParams, listUsers, fetchGroups } from "@/js/manager";
+import { listSolutions, listTasks, listUsers, fetchGroups } from "@/js/manager";
 
 export default {
   name: "StudentSolutionsPage",
   components: {
     ReadOnlyCodeMirror,
     Multiselect,
+    FloatingInput
   },
   data() {
     return {
@@ -310,10 +312,12 @@ export default {
     },
     async fetchTasks() {
       try {
-        const data = await listTasksWithParams({
-          pageSize: 1000,
-          pageNumber: 0,
-        });
+        const params = {
+          name: "",
+          pageSize: 1000000,
+        };
+        
+        const data = await listTasks(params);
         this.tasks = data.content || [];
       } catch {
         this.$root.notify("Не удалось загрузить список задач", 'error');
@@ -411,109 +415,12 @@ export default {
 </script>
 
 <style scoped>
-.filters .floating-label,
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-}
-
-.filters .floating-label input,
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.filters .floating-label label,
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .floating-label input:focus + label,
-.filters .floating-label input:not(:placeholder-shown) + label,
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.filters .floating-label input:focus,
-.modal-body .floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-}
-
-.filters .multiselect-floating,
-.modal-body .multiselect-floating {
-  position: relative;
-}
-
-.filters .multiselect-floating label,
-.modal-body .multiselect-floating label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .multiselect-floating.active label,
-.modal-body .multiselect-floating.active label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.multiselect-floating :deep(.multiselect),
-.multiselect-floating :deep(.multiselect__tags),
 .multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: auto !important;    
-}
-
-.multiselect-floating :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: 4px;
   z-index: 1000 !important; 
 }
 
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: 4px;
-  z-index: 1000 !important; 
+.filters .multiselect-floating label {
+  top: 21px; 
 }
 
 .solutions-table {
@@ -570,57 +477,4 @@ export default {
   background-color: #fff8e1;
   color: #f57f17;
 }
-
-.custom-multiselect :deep(.multiselect) { min-height: 48px; margin-top: 0; }
-.custom-multiselect :deep(.multiselect__tags) {
-  min-height: 48px; padding: 12px 40px 0 16px;
-  border: 1px solid #ddd; border-radius: 8px; background: inherit; font-size: 14px;
-}
-.custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #2f80ed; box-shadow: 0 0 0 2px rgba(47,128,237,0.1); outline: none;
-}
-.custom-multiselect :deep(.multiselect__input),
-.custom-multiselect :deep(.multiselect__single) {
-  font-size: 14px; padding: 4px 0; margin: 0; background: transparent; border: none;
-}
-.custom-multiselect :deep(.multiselect__placeholder) {
-  color: rgba(0,0,0,0.5); font-size: 14px; margin-top: 2px;
-}
-.custom-multiselect :deep(.multiselect__select) {
-  height: 46px; right: 6px; top: 1px; width: 30px; background: transparent;
-  border-radius: 0 8px 8px 0;
-}
-.custom-multiselect :deep(.multiselect__select:before) {
-  content: ''; position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%); width: 0; height: 0;
-  border-style: solid; border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent; transition: transform 0.2s ease;
-}
-.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
-  transform: translate(-50%,-50%) rotate(180deg);
-}
-.custom-multiselect :deep(.multiselect__select:hover) { background: rgba(0,0,0,0.05); }
-.custom-multiselect :deep(.multiselect__select:hover:before) { border-color: #333 transparent transparent transparent; }
-.custom-multiselect :deep(.multiselect--active .multiselect__select) { 
-  background: rgba(47, 128, 237, 0.05); 
-}
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd; border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; z-index: 10;
-}
-.custom-multiselect :deep(.multiselect__option) { padding: 10px 12px; font-size: 14px; min-height: 40px; }
-.custom-multiselect :deep(.multiselect__option--selected) { 
-  background-color: rgba(47, 128, 237, 0.1); 
-  color: #2f80ed; 
-  font-weight: 500;
-}
-.custom-multiselect :deep(.multiselect__option--highlight) { 
-  background: #2f80ed;
-  color: white; 
-}
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) { 
-  background: #256bcc; 
-  color: white; 
-}
-.multiselect-floating.active :deep(.multiselect__placeholder) { display: none; }
 </style>

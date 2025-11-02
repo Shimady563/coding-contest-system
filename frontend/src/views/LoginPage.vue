@@ -2,32 +2,27 @@
   <div class="auth-container">
     <form @submit.prevent="login" class="auth-form">
       <h2>Вход в систему</h2>
-      
-      <div class="floating-label">
-        <input 
-          name="email" 
-          type="email" 
-          v-model="email" 
-          id="email"
-          required 
-          autocomplete="email" 
-          placeholder=""
-        />
-        <label for="email">Email</label>
-      </div>
-      
-      <div class="floating-label">
-        <input 
-          name="current-password" 
-          type="password" 
-          v-model="password" 
-          id="password"
-          required 
-          autocomplete="current-password" 
-          placeholder=""
-        />
-        <label for="password">Пароль</label>
-      </div>
+
+      <FloatingInput
+        v-model="email"
+        id="email"
+        label="Email"
+        type="email"
+        required
+        placeholder=""
+        autocomplete="email" 
+      />
+
+      <FloatingInput
+        v-model="password"
+        id="current-password"
+        name="current-password"
+        label="Пароль"
+        type="password"
+        required
+        placeholder=""
+        autocomplete="current-password"
+      />
       
       <button 
         type="submit" 
@@ -48,8 +43,12 @@
 
 <script>
 import { login } from "@/js/auth";
+import FloatingInput from "@/components/FloatingInput.vue";
 
 export default {
+  components: {
+    FloatingInput,
+  },
   data() {
     return {
       email: "",

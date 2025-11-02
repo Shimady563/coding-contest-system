@@ -5,15 +5,16 @@
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.name" 
-          id="groupName"
-          class="text-input" 
-          placeholder=""
-        />
-        <label for="groupName">Название</label>
+      <div class="filter-group">
+        <FloatingInput
+            v-model="searchParams.name"
+            id="groupName"
+            name="groupName"
+            label="Название"
+            type="text"
+            class="text-input" 
+            placeholder=""
+          />
       </div>
 
       <div class="filter-actions">
@@ -106,13 +107,15 @@
         </div>
         <div class="modal-body">
           <div class="floating-label">
-            <input 
-              v-model="newGroupName" 
+            <FloatingInput
+              v-model="newGroupName"
               id="newGroupName"
-              class="form-input"
+              name="newGroupName"
+              label="Название"
+              type="text"
+              class="form-input" 
               placeholder=""
-            >
-            <label for="newGroupName">Название группы</label>
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -131,15 +134,15 @@
           <h3><i class="fas fa-pencil-alt"></i> Редактирование группы</h3>
         </div>
         <div class="modal-body">
-          <div class="floating-label">
-            <input 
-              v-model="editingGroup.name" 
+          <FloatingInput
+              v-model="editingGroup.name"
               id="editGroupName"
-              class="form-input"
+              name="editGroupName"
+              label="Название"
+              type="text"
+              class="form-input" 
               placeholder=""
-            >
-            <label for="editGroupName">Название группы</label>
-          </div>
+            />
         </div>
         <div class="modal-footer">
           <button @click="closeEditModal" class="btn-cancel">Отмена</button>
@@ -164,9 +167,13 @@
 <script>
 import { getGroupsPage, createGroup, deleteGroup, updateGroupById } from "@/js/manager";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import FloatingInput from "@/components/FloatingInput.vue";
 
 export default {
-  components: { ConfirmDialog },
+  components: { 
+    ConfirmDialog,
+    FloatingInput,
+  },
   data() {
     return {
       groups: [],
@@ -314,60 +321,6 @@ export default {
 </script>
 
 <style scoped>
-.filters .floating-label,
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-}
-
-.filters .floating-label input,
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.filters .floating-label label,
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .floating-label input:focus + label,
-.filters .floating-label input:not(:placeholder-shown) + label,
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.filters .floating-label input:focus,
-.modal-body .floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-}
-
 .groups-table {
   width: 100%;
   border-collapse: collapse;
@@ -393,8 +346,19 @@ export default {
   background-color: #f8f9fa;
 }
 
-.id-col { min-width: 80px; color: #7f8c8d; }
+.id-col { 
+  min-width: 80px; 
+  color: #7f8c8d; 
+}
 .name-col { min-width: 200px; }
 .actions-col { min-width: 120px; }
-.action-buttons { display: flex; gap: 8px; }
+.action-buttons { 
+  display: flex; 
+  gap: 8px; 
+}
+
+.modal-dialog, .modal-header,
+.modal-body, .modal-footer {
+  background: white !important;
+}
 </style>

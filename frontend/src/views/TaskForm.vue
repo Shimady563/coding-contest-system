@@ -8,28 +8,27 @@
         <span>Загрузка данных...</span>
       </div>
       <div v-else>
-        <div class="floating-label">
-          <input 
-            id="name"
-            v-model="task.name" 
-            type="text" 
-            placeholder=""
-            :class="{ 'input-error': !task.name && submitted }" 
-          />
-          <label for="name">Название задания</label>
+        <FloatingInput
+          id="name"
+          name="name"
+          label="Название"
+          v-model="task.name"
+          placeholder=""
+          type="text"
+          :error="!task.name && submitted">
           <span v-if="!task.name && submitted" class="error-message">Это поле обязательно</span>
-        </div>
+        </FloatingInput>
 
-        <div class="floating-label">
-          <textarea 
-            id="description"
-            v-model="task.description" 
-            placeholder=""
-            :class="{ 'input-error': !task.description && submitted }"
-          ></textarea>
-          <label for="description">Описание</label>
+        <FloatingInput
+          id="description"
+          name="description"
+          label="Описание"
+          v-model="task.description"
+          placeholder=""
+          type="textarea"
+          :error="!task.description && submitted">
           <span v-if="!task.description && submitted" class="error-message">Это поле обязательно</span>
-        </div>
+        </FloatingInput>
 
         <div class="testcase-section">
           <h2>Тест-кейсы</h2>
@@ -37,26 +36,29 @@
 
           <transition-group name="fade" tag="div">
             <div v-for="(testCase, index) in task.testCases" :key="index" class="testcase" :class="{ 'invalid': (!testCase.input || !testCase.output) && submitted }">
-              <div class="floating-label">
-                <textarea 
-                  :id="`input-${index}`"
-                  v-model="testCase.input" 
-                  placeholder=""
-                  :class="{ 'input-error': !testCase.input && submitted }"
-                ></textarea>
-                <label :for="`input-${index}`">Ввод</label>
+              <FloatingInput
+                :id="`input-${index}`"
+                :name="`input-${index}`"
+                label="Ввод"
+                v-model="testCase.input"
+                type="textarea"
+                placeholder=""
+                class="input-testcase"
+                :error="!testCase.input && submitted"
+              >
                 <span v-if="!testCase.input && submitted" class="error-message">Заполните поле ввода</span>
-              </div>
-              <div class="floating-label">
-                <textarea 
-                  :id="`output-${index}`"
-                  v-model="testCase.output" 
-                  placeholder=""
-                  :class="{ 'input-error': !testCase.output && submitted }"
-                ></textarea>
-                <label :for="`output-${index}`">Ожидаемый вывод</label>
+              </FloatingInput>
+              <FloatingInput
+                :id="`output-${index}`"
+                :name="`output-${index}`"
+                label="Ожидаемый вывод"
+                v-model="testCase.output"
+                type="textarea"
+                placeholder=""
+                :error="!testCase.output && submitted"
+              >
                 <span v-if="!testCase.output && submitted" class="error-message">Заполните поле вывода</span>
-              </div>
+              </FloatingInput>
               <button class="btn btn-danger" @click="removeTestCase(index)" type="button">
                 <i class="fas fa-trash"></i> 
                 Удалить
@@ -87,9 +89,13 @@
 </template>
 
 <script>
+import FloatingInput from '@/components/FloatingInput.vue';
 import { getTask, createTask, updateTask } from '@/js/manager';
 
 export default {
+  components:{
+    FloatingInput,
+  },
   props: { id: { type: String, required: false } },
   data() {
     return {
@@ -177,74 +183,13 @@ h1 {
   margin-bottom: 2rem;
 }
 
-.floating-label {
-  position: relative;
-  margin-top: 1.5rem;
-  width: 100%;
-}
-
-.floating-label input,
-.floating-label textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  font-size: 15px;
-  background: #fff;
-  transition: all 0.25s ease;
-  resize: none;
-}
-
-.floating-label label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #fff;
-  padding: 0 4px;
-  color: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-  font-size: 15px;
-  transition: all 0.25s ease;
-  will-change: top, font-size, color;
-}
-
-.floating-label input:focus + label,
-.floating-label input:not(:placeholder-shown) + label,
-.floating-label textarea:focus + label,
-.floating-label textarea:not(:placeholder-shown) + label,
-.floating-label input.input-error + label,
-.floating-label textarea.input-error + label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.floating-label input:focus,
-.floating-label textarea:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
-}
-
-.input-error {
-  border-color: #e74c3c !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15) !important;
-}
-
-.input-error:focus {
-  border-color: #e74c3c !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15) !important;
+.input-testcase{
+  margin-top: 25px;
 }
 
 .error-message {
-  margin-top: 4px;
-  color: #e74c3c;
-  font-size: 13px;
-  display: block;
+  margin-top: -25px;
+  margin-bottom: 1.5rem;
 }
 
 .testcase-section {
@@ -263,10 +208,6 @@ h1 {
 .testcase.invalid {
   border-color: #e74c3c;
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
-}
-
-.required {
-  color: #e74c3c;
 }
 
 .form-actions {
