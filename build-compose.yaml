@@ -89,7 +89,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:alpine
+    image: postgres:17-alpine
     restart: always
     user: postgres
     volumes:
@@ -107,7 +107,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:alpine
+    image: redis:8-alpine
     command:
       [
         'redis-server',
