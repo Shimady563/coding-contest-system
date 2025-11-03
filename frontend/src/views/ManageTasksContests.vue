@@ -3,8 +3,12 @@
     <h1>Управление контрольными и заданиями</h1>
 
     <div class="tabs">
-      <button :class="{ active: isContestsActive }" @click="isContestsActive = true">Контрольные</button>
-      <button :class="{ active: !isContestsActive }" @click="isContestsActive = false">Задания</button>
+      <button :class="{ active: isContestsActive }" @click="isContestsActive = true">
+        Контрольные
+      </button>
+      <button :class="{ active: !isContestsActive }" @click="isContestsActive = false">
+        Задания
+      </button>
     </div>
 
     <!-- Контрольные -->
@@ -21,9 +25,7 @@
         </div>
 
         <div class="filter-actions">
-          <button type="submit" class="apply-btn">
-            <i class="fas fa-filter"></i> Применить
-          </button>
+          <button type="submit" class="apply-btn"><i class="fas fa-filter"></i> Применить</button>
           <button type="button" @click="resetContestSearch" class="reset-btn">
             <i class="fas fa-broom"></i> Сбросить
           </button>
@@ -116,9 +118,7 @@
         </div>
 
         <div class="filter-actions">
-          <button type="submit" class="apply-btn">
-            <i class="fas fa-filter"></i> Применить
-          </button>
+          <button type="submit" class="apply-btn"><i class="fas fa-filter"></i> Применить</button>
           <button type="button" @click="resetTaskSearch" class="reset-btn">
             <i class="fas fa-broom"></i> Сбросить
           </button>
@@ -210,21 +210,16 @@
 </template>
 
 <script>
-import { 
-  listContests, 
-  deleteContest, 
-  listTasks, 
-  deleteTask 
-} from "@/js/manager";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import Notification from "@/components/Notification.vue";
-import FloatingInput from "@/components/FloatingInput.vue";
+import { listContests, deleteContest, listTasks, deleteTask } from '@/js/manager'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import Notification from '@/components/Notification.vue'
+import FloatingInput from '@/components/FloatingInput.vue'
 
 export default {
   components: {
     ConfirmDialog,
     Notification,
-    FloatingInput
+    FloatingInput,
   },
   data() {
     return {
@@ -233,158 +228,158 @@ export default {
       tasks: [],
       loading: false,
       contestSearchParams: {
-        name: ''
+        name: '',
       },
       taskSearchParams: {
-        name: ''
+        name: '',
       },
       contestPage: {
         number: 0,
         totalPages: 1,
-        totalElements: 0
+        totalElements: 0,
       },
       taskPage: {
         number: 0,
         totalPages: 1,
-        totalElements: 0
+        totalElements: 0,
       },
       showConfirmDialog: false,
       confirmDialog: {
         title: '',
-        message: ''
+        message: '',
       },
       itemToDelete: null,
-      deleteType: null
-    };
+      deleteType: null,
+    }
   },
   mounted() {
-    this.fetchContests(0);
-    this.fetchTasks(0);
+    this.fetchContests(0)
+    this.fetchTasks(0)
   },
   methods: {
     async fetchContests(pageNumber = 0) {
-      this.loading = true;
+      this.loading = true
       try {
         const params = {
           name: this.contestSearchParams.name.trim(),
           pageNumber,
           pageSize: 10,
-        };
-        
-        const data = await listContests(params);
-        this.contests = data.content || [];
+        }
+
+        const data = await listContests(params)
+        this.contests = data.content || []
         this.contestPage = {
           number: data.page.number,
           totalPages: data.page.totalPages,
-          totalElements: data.page.totalElements
-        };
+          totalElements: data.page.totalElements,
+        }
       } catch (error) {
-        console.error('Ошибка загрузки контрольных:', error);
-        this.$refs.notification.show('Не удалось загрузить контрольные', 'error');
+        console.error('Ошибка загрузки контрольных:', error)
+        this.$refs.notification.show('Не удалось загрузить контрольные', 'error')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     async fetchTasks(pageNumber = 0) {
-      this.loading = true;
+      this.loading = true
       try {
         const params = {
           name: this.taskSearchParams.name.trim(),
           pageNumber,
           pageSize: 10,
-        };
-        
-        const data = await listTasks(params);
-        this.tasks = data.content || [];
+        }
+
+        const data = await listTasks(params)
+        this.tasks = data.content || []
         this.taskPage = {
           number: data.page.number,
           totalPages: data.page.totalPages,
-          totalElements: data.page.totalElements
-        };
+          totalElements: data.page.totalElements,
+        }
       } catch (error) {
-        console.error('Ошибка загрузки заданий:', error);
-        this.$refs.notification.show('Не удалось загрузить задания', 'error');
+        console.error('Ошибка загрузки заданий:', error)
+        this.$refs.notification.show('Не удалось загрузить задания', 'error')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     resetContestSearch() {
-      this.contestSearchParams.name = '';
-      this.fetchContests(0);
+      this.contestSearchParams.name = ''
+      this.fetchContests(0)
     },
     resetTaskSearch() {
-      this.taskSearchParams.name = '';
-      this.fetchTasks(0);
+      this.taskSearchParams.name = ''
+      this.fetchTasks(0)
     },
     changeContestPage(offset) {
-      const newPage = this.contestPage.number + offset;
+      const newPage = this.contestPage.number + offset
       if (newPage >= 0 && newPage < this.contestPage.totalPages) {
-        this.fetchContests(newPage);
+        this.fetchContests(newPage)
       }
     },
     changeTaskPage(offset) {
-      const newPage = this.taskPage.number + offset;
+      const newPage = this.taskPage.number + offset
       if (newPage >= 0 && newPage < this.taskPage.totalPages) {
-        this.fetchTasks(newPage);
+        this.fetchTasks(newPage)
       }
     },
     goToCreateContest() {
-      this.$router.push("/manage-contests/create-contest");
+      this.$router.push('/manage-contests/create-contest')
     },
     goToCreateTask() {
-      this.$router.push("/manage-contests/create-task");
+      this.$router.push('/manage-contests/create-task')
     },
     editContest(contest) {
-      this.$router.push(`/manage-contests/edit-contest/${contest.id}`);
+      this.$router.push(`/manage-contests/edit-contest/${contest.id}`)
     },
     editTask(task) {
-      this.$router.push(`/manage-contests/edit-task/${task.id}`);
+      this.$router.push(`/manage-contests/edit-task/${task.id}`)
     },
     confirmDeleteContest(contest) {
-      this.itemToDelete = contest;
-      this.deleteType = 'contest';
+      this.itemToDelete = contest
+      this.deleteType = 'contest'
       this.confirmDialog = {
         title: 'Удаление контрольной',
-        message: `Вы уверены, что хотите удалить контрольную "${contest.name}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
+        message: `Вы уверены, что хотите удалить контрольную "${contest.name}"? Это действие нельзя отменить.`,
+      }
+      this.showConfirmDialog = true
     },
     confirmDeleteTask(task) {
-      this.itemToDelete = task;
-      this.deleteType = 'task';
+      this.itemToDelete = task
+      this.deleteType = 'task'
       this.confirmDialog = {
         title: 'Удаление задания',
-        message: `Вы уверены, что хотите удалить задание "${task.name}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
+        message: `Вы уверены, что хотите удалить задание "${task.name}"? Это действие нельзя отменить.`,
+      }
+      this.showConfirmDialog = true
     },
     async executeDelete() {
       try {
         if (this.deleteType === 'contest') {
-          await deleteContest(this.itemToDelete.id);
-          this.$refs.notification.show('Контрольная успешно удалена', 'success');
-          this.fetchContests(this.contestPage.number);
+          await deleteContest(this.itemToDelete.id)
+          this.$refs.notification.show('Контрольная успешно удалена', 'success')
+          this.fetchContests(this.contestPage.number)
         } else if (this.deleteType === 'task') {
-          await deleteTask(this.itemToDelete.id);
-          this.$refs.notification.show('Задание успешно удалено', 'success');
-          this.fetchTasks(this.taskPage.number);
+          await deleteTask(this.itemToDelete.id)
+          this.$refs.notification.show('Задание успешно удалено', 'success')
+          this.fetchTasks(this.taskPage.number)
         }
       } catch (error) {
-        console.error('Ошибка при удалении:', error);
-        this.$refs.notification.show('Ошибка при удалении', 'error');
+        console.error('Ошибка при удалении:', error)
+        this.$refs.notification.show('Ошибка при удалении', 'error')
       } finally {
-        this.showConfirmDialog = false;
-        this.itemToDelete = null;
-        this.deleteType = null;
+        this.showConfirmDialog = false
+        this.itemToDelete = null
+        this.deleteType = null
       }
     },
     cancelDelete() {
-      this.showConfirmDialog = false;
-      this.itemToDelete = null;
-      this.deleteType = null;
-    }
-  }
-};
+      this.showConfirmDialog = false
+      this.itemToDelete = null
+      this.deleteType = null
+    },
+  },
+}
 </script>
 
 <style scoped>

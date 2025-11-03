@@ -18,13 +18,21 @@
 <script>
 export default {
   name: 'Modal',
-  mounted() { document.addEventListener('keydown', this.onKeydown); },
-  beforeUnmount() { document.removeEventListener('keydown', this.onKeydown); },
+  mounted() {
+    document.addEventListener('keydown', this.onKeydown)
+  },
+  beforeUnmount() {
+    document.removeEventListener('keydown', this.onKeydown)
+  },
   methods: {
-    close() { this.$emit('close'); },
-    onKeydown(e) { if (e.key === 'Escape') this.close(); }
-  }
-};
+    close() {
+      this.$emit('close')
+    },
+    onKeydown(e) {
+      if (e.key === 'Escape') this.close()
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -78,7 +86,9 @@ export default {
   justify-content: center;
 }
 
-.close-btn:hover { background-color: rgba(231, 76, 60, 0.1); }
+.close-btn:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+}
 
 .modal-body {
   padding: 20px 24px;
@@ -97,14 +107,24 @@ export default {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 600px) {
   .modal-container {
     width: 95%;
   }
-  .modal-header, .modal-body, .modal-footer { padding: 12px 16px; }
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 12px 16px;
+  }
 }
 </style>

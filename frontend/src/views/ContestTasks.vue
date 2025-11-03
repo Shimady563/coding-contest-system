@@ -3,9 +3,7 @@
     <h1>Задания варианта</h1>
 
     <div v-if="loading" class="loading">Загрузка...</div>
-    <div v-else-if="tasks.length === 0" class="empty-state">
-      Задания пока не добавлены.
-    </div>
+    <div v-else-if="tasks.length === 0" class="empty-state">Задания пока не добавлены.</div>
 
     <ul v-else class="task-list">
       <li v-for="task in tasks" :key="task.id" class="task-item">
@@ -31,11 +29,11 @@
 </template>
 
 <script>
-import { getContest, getTasksByContestVersion } from "@/js/manager";
-import Modal from "@/components/Modal.vue";
+import { getContest, getTasksByContestVersion } from '@/js/manager'
+import Modal from '@/components/Modal.vue'
 
 export default {
-  name: "ContestTasks",
+  name: 'ContestTasks',
   components: { Modal },
   data() {
     return {
@@ -43,35 +41,35 @@ export default {
       loading: true,
       contest: null,
       errorModal: false,
-      errorMessage: ''
-    };
+      errorMessage: '',
+    }
   },
   async mounted() {
-    const versionId = this.$route.params.versionId;
-    const contestId = this.$route.params.contestId;
+    const versionId = this.$route.params.versionId
+    const contestId = this.$route.params.contestId
     try {
-      this.contest = await getContest(contestId);
+      this.contest = await getContest(contestId)
     } catch (e) {
-      this.showError(e?.message || 'Не удалось загрузить данные контеста');
-      return;
+      this.showError(e?.message || 'Не удалось загрузить данные контеста')
+      return
     }
 
-    const start = new Date(this?.contest.startTime);
-    const end =  new Date(this?.contest.endTime);
-    const now = new Date();
+    const start = new Date(this?.contest.startTime)
+    const end = new Date(this?.contest.endTime)
+    const now = new Date()
 
     if (now < start || now > end) {
-      this.$router.replace('/access-denied-time');
-       return;
+      this.$router.replace('/access-denied-time')
+      return
     }
 
     try {
-      const result = await getTasksByContestVersion(versionId);
-      this.tasks = result ?? [];
+      const result = await getTasksByContestVersion(versionId)
+      this.tasks = result ?? []
     } catch (e) {
-      this.showError(e?.message || 'Ошибка загрузки заданий');
+      this.showError(e?.message || 'Ошибка загрузки заданий')
     } finally {
-      this.loading = false;
+      this.loading = false
     }
   },
   methods: {
@@ -79,15 +77,15 @@ export default {
       this.$router.push({
         name: 'ContestSolving',
         params: { taskId: task.id },
-        query: { versionId: this.$route.params.id },  
-      });
+        query: { versionId: this.$route.params.id },
+      })
     },
     showError(message) {
-      this.errorMessage = message;
-      this.errorModal = true;
-    }
+      this.errorMessage = message
+      this.errorModal = true
+    },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -109,7 +107,8 @@ h1 {
   color: #333;
 }
 
-.loading, .empty-state {
+.loading,
+.empty-state {
   text-align: center;
   font-size: 18px;
   color: #777;
@@ -136,10 +135,11 @@ h1 {
   transition: background-color 0.2s ease;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.25s ease, 
-  box-shadow 0.25s ease, 
-  background-color 0.25s ease, 
-  color 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 .task-link:hover {

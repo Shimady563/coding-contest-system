@@ -18,7 +18,7 @@
     <slot />
   </div>
 </template>
-  
+
 <script>
 export default {
   props: {
@@ -33,9 +33,9 @@ export default {
     error: Boolean,
   },
   emits: ['update:modelValue'],
-};
+}
 </script>
-  
+
 <style scoped>
 .floating-label {
   position: relative;
@@ -57,7 +57,7 @@ export default {
 
 .floating-label textarea {
   width: 100%;
-  min-height: 100px; 
+  min-height: 100px;
   padding: 12px 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -66,7 +66,7 @@ export default {
   font-size: 15px;
   color: #333;
   box-sizing: border-box;
-  resize: vertical; 
+  resize: vertical;
 }
 
 .floating-label label {
@@ -104,12 +104,7 @@ export default {
 
 .floating-label input:invalid:not(:focus):not(:placeholder-shown),
 .floating-label textarea:invalid:not(:focus):not(:placeholder-shown) {
-  border-color: #f44336;  
-}
-
-.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label,
-.floating-label textarea:invalid:not(:focus):not(:placeholder-shown) + label {
-  color: #f44336; 
+  border-color: #f44336;
 }
 
 .floating-wrapper {
@@ -118,7 +113,7 @@ export default {
 }
 
 .multiselect-floating {
-  position: relative; 
+  position: relative;
 }
 
 .multiselect-floating label {

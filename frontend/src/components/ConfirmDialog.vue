@@ -16,20 +16,24 @@
 </template>
 
 <script>
-import Modal from './Modal.vue';
+import Modal from './Modal.vue'
 
 export default {
   name: 'ConfirmDialog',
   components: { Modal },
   props: {
     title: { type: String, default: 'Подтверждение' },
-    message: { type: String, required: true }
+    message: { type: String, required: true },
   },
   methods: {
-    confirm() { this.$emit('confirm'); },
-    cancel() { this.$emit('cancel'); }
-  }
-};
+    confirm() {
+      this.$emit('confirm')
+    },
+    cancel() {
+      this.$emit('cancel')
+    },
+  },
+}
 </script>
 
 <style scoped>

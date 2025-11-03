@@ -1,9 +1,6 @@
 <template>
   <div class="task-selector">
-    <div
-      class="floating-label multiselect-floating"
-      :class="{ active: isActive }"
-    >
+    <div class="floating-label multiselect-floating" :class="{ active: isActive }">
       <div class="custom-multiselect">
         <multiselect
           ref="taskSelect"
@@ -28,11 +25,7 @@
       <label>Задание</label>
     </div>
 
-    <button
-      class="btn-add"
-      :disabled="!selectedTaskId"
-      @click="addSelectedTask"
-    >
+    <button class="btn-add" :disabled="!selectedTaskId" @click="addSelectedTask">
       <i class="fas fa-plus"></i> Добавить
     </button>
 
@@ -46,8 +39,8 @@
 </template>
 
 <script>
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 export default {
   components: { Multiselect },
@@ -61,30 +54,30 @@ export default {
     return {
       selectedTaskId: null,
       isOpen: false,
-    };
+    }
   },
   computed: {
     tasksArray() {
-      return Array.isArray(this.allTasks) ? this.allTasks : [];
+      return Array.isArray(this.allTasks) ? this.allTasks : []
     },
     selectedTask() {
       return this.selectedTaskId
         ? this.tasksArray.find((t) => t.id === this.selectedTaskId.id)
-        : null;
+        : null
     },
     isActive() {
-      return this.selectedTaskId || this.isOpen;
+      return this.selectedTaskId || this.isOpen
     },
   },
   methods: {
     addSelectedTask() {
       if (this.selectedTask) {
-        this.$emit("add-task", this.selectedTask);
-        this.selectedTaskId = null;
+        this.$emit('add-task', this.selectedTask)
+        this.selectedTaskId = null
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -118,11 +111,11 @@ export default {
 }
 
 .multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: 1000 !important; 
+  z-index: 1000 !important;
 }
 
 .multiselect-floating :deep(.multiselect),
 .multiselect-floating :deep(.multiselect__tags) {
-  z-index: auto !important;    
+  z-index: auto !important;
 }
 </style>

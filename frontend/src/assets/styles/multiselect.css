@@ -86,9 +86,11 @@
   padding: 8px 12px;
   font-size: 15px;
   min-height: 36px;
-  background-color: #fff; 
+  background-color: #fff;
   color: #333;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .multiselect__option--selected {
@@ -102,13 +104,13 @@
 }
 
 .multiselect__option--selected.multiselect__option--highlight {
-    background-color: #a6d4ff;
-    color: #1a3d66;
+  background-color: #a6d4ff;
+  color: #1a3d66;
 }
-  
+
 .multiselect__option--highlight {
-    background-color: #2f80ed;
-    color: #fff;
+  background-color: #2f80ed;
+  color: #fff;
 }
 
 .multiselect-floating {

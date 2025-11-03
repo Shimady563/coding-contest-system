@@ -1,8 +1,6 @@
 <template>
   <div v-if="taskData" class="task-container">
-    <div v-if="timeLeft" class="timer">
-      Времени осталось: {{ formattedTime }}
-    </div>
+    <div v-if="timeLeft" class="timer">Времени осталось: {{ formattedTime }}</div>
     <TaskDescription :description="taskData.description" />
     <TestCases :testCases="taskData.testCases" />
     <CodeEditor ref="codeEditor" />
@@ -11,11 +9,11 @@
 
     <div class="navigation-buttons">
       <button @click="goToPrevTask" :disabled="!prevTask">
-        <i class="fas fa-arrow-left"></i> 
+        <i class="fas fa-arrow-left"></i>
         Назад
       </button>
       <button @click="goToNextTask" :disabled="!nextTask">
-        Вперед 
+        Вперед
         <i class="fas fa-arrow-right"></i>
       </button>
     </div>
@@ -23,17 +21,12 @@
 </template>
 
 <script>
-import TaskDescription from "../components/TaskDescription.vue";
-import TestCases from "../components/TestCases.vue";
-import CodeEditor from "../components/CodeEditor.vue";
-import OutputResults from "../components/OutputResults.vue";
-import { getUserInfo } from "../js/auth";
-import { 
-  getContest, 
-  getTasksByContestVersion, 
-  getTask, 
-  submitSolution 
-} from "../js/manager";
+import TaskDescription from '../components/TaskDescription.vue'
+import TestCases from '../components/TestCases.vue'
+import CodeEditor from '../components/CodeEditor.vue'
+import OutputResults from '../components/OutputResults.vue'
+import { getUserInfo } from '../js/auth'
+import { getContest, getTasksByContestVersion, getTask, submitSolution } from '../js/manager'
 
 export default {
   components: {
@@ -52,112 +45,117 @@ export default {
       timerInterval: null,
       lastSendTime: null,
       sendInterval: 5000,
-    };
+    }
   },
   computed: {
     currentIndex() {
-      return this.tasksList.findIndex(task => task.id === Number(this.taskData?.id));
+      return this.tasksList.findIndex((task) => task.id === Number(this.taskData?.id))
     },
     prevTask() {
       if (this.currentIndex > 0) {
-        return this.tasksList[this.currentIndex - 1];
+        return this.tasksList[this.currentIndex - 1]
       }
-      return null;
+      return null
     },
     nextTask() {
       if (this.currentIndex >= 0 && this.currentIndex < this.tasksList.length - 1) {
-        return this.tasksList[this.currentIndex + 1];
+        return this.tasksList[this.currentIndex + 1]
       }
-      return null;
+      return null
     },
     formattedTime() {
-      if (this.timeLeft <= 0) return "00:00:00";
-      const totalSeconds = Math.floor(this.timeLeft / 1000);
-      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-      const seconds = String(totalSeconds % 60).padStart(2, '0');
-      return `${hours}:${minutes}:${seconds}`;
+      if (this.timeLeft <= 0) return '00:00:00'
+      const totalSeconds = Math.floor(this.timeLeft / 1000)
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+      const seconds = String(totalSeconds % 60).padStart(2, '0')
+      return `${hours}:${minutes}:${seconds}`
     },
   },
   watch: {
     '$route.params.taskId': {
       immediate: true,
       handler() {
-        this.loadTask();
-      }
-    }
+        this.loadTask()
+      },
+    },
   },
   methods: {
     async loadTask() {
-      const taskId = this.$route.params.taskId;
-      const versionId = this.$route.params.versionId;
-      const contestId = this.$route.params.contestId;
+      const taskId = this.$route.params.taskId
+      const versionId = this.$route.params.versionId
+      const contestId = this.$route.params.contestId
 
       try {
-        this.contest = await getContest(contestId);
+        this.contest = await getContest(contestId)
       } catch {
-        return;
+        return
       }
 
-      const start = new Date(this?.contest.startTime);
-      const end =  new Date(this?.contest.endTime);
-      const now = new Date();
+      const start = new Date(this?.contest.startTime)
+      const end = new Date(this?.contest.endTime)
+      const now = new Date()
 
       if (now < start || now > end) {
-        this.$router.replace('/access-denied-time');
-        return;
+        this.$router.replace('/access-denied-time')
+        return
       }
 
-      this.timeLeft = end - now;
-      this.startTimer();
+      this.timeLeft = end - now
+      this.startTimer()
 
       if (!taskId || !versionId) {
-        return;
+        return
       }
 
       try {
-        this.loadingTasks = true;
+        this.loadingTasks = true
 
-        this.tasksList = await getTasksByContestVersion(versionId) ?? [];
+        this.tasksList = (await getTasksByContestVersion(versionId)) ?? []
 
-        const task = this.tasksList.find(t => t.id === parseInt(taskId));
+        const task = this.tasksList.find((t) => t.id === parseInt(taskId))
         if (task) {
-          this.taskData = task;
+          this.taskData = task
         } else {
-          this.taskData = await getTask(taskId);
+          this.taskData = await getTask(taskId)
         }
-      } catch {} 
-      finally {
-        this.loadingTasks = false;
+      } catch {
+      } finally {
+        this.loadingTasks = false
       }
     },
     async sendCode() {
-      const now = Date.now();
-      if (this.lastSendTime && (now - this.lastSendTime < this.sendInterval)) {
-        this.$root.notify(`Подождите ${this.sendInterval / 1000} секунд перед следующей отправкой`, "warning");
-        return;
+      const now = Date.now()
+      if (this.lastSendTime && now - this.lastSendTime < this.sendInterval) {
+        this.$root.notify(
+          `Подождите ${this.sendInterval / 1000} секунд перед следующей отправкой`,
+          'warning',
+        )
+        return
       }
-      this.lastSendTime = now;
-      
-      const codeEditor = this.$refs.codeEditor;
-      if (!codeEditor || !codeEditor.editor) return;
+      this.lastSendTime = now
 
-      const code = codeEditor.editor.getValue().trim();
+      const codeEditor = this.$refs.codeEditor
+      if (!codeEditor || !codeEditor.editor) return
+
+      const code = codeEditor.editor.getValue().trim()
       if (!code) {
-        this.$root.notify("Код не может быть пустым", "warning");
-        return;
+        this.$root.notify('Код не может быть пустым', 'warning')
+        return
       }
 
       try {
-        const userInfo = await getUserInfo();
-        const outputComponent = this.$refs.outputResults;
-        await outputComponent.fetchResults();
-        const initialLength = outputComponent.results.length;
+        const userInfo = await getUserInfo()
+        const outputComponent = this.$refs.outputResults
+        await outputComponent.fetchResults()
+        const initialLength = outputComponent.results.length
 
-        const moscowTime = new Date().toLocaleString('sv-SE', {
-          timeZone: 'Europe/Moscow',
-          hour12: false,
-        }).replace(' ', 'T');
+        const moscowTime = new Date()
+          .toLocaleString('sv-SE', {
+            timeZone: 'Europe/Moscow',
+            hour12: false,
+          })
+          .replace(' ', 'T')
 
         const payload = {
           code,
@@ -165,26 +163,25 @@ export default {
           userId: userInfo.id,
           contestVersionId: parseInt(this.$route.params.versionId),
           submittedAt: moscowTime,
-        };
-
-        await submitSolution(payload);
-        this.$root.notify("Код успешно отправлен", "success");
-
-        const MAX_RETRIES = 30;
-        const DELAY = 2000;
-        let retries = 0;
-        while (retries < MAX_RETRIES) {
-          await outputComponent.fetchResults();
-          if (outputComponent.results.length > initialLength) {
-            return;
-          }
-          retries++;
-          await new Promise(resolve => setTimeout(resolve, DELAY));
         }
-        this.$root.notify("Истекло время ожидания результата", "warning");
 
+        await submitSolution(payload)
+        this.$root.notify('Код успешно отправлен', 'success')
+
+        const MAX_RETRIES = 30
+        const DELAY = 2000
+        let retries = 0
+        while (retries < MAX_RETRIES) {
+          await outputComponent.fetchResults()
+          if (outputComponent.results.length > initialLength) {
+            return
+          }
+          retries++
+          await new Promise((resolve) => setTimeout(resolve, DELAY))
+        }
+        this.$root.notify('Истекло время ожидания результата', 'warning')
       } catch (e) {
-        this.$root.notify("Не удалось отправить код", "error");
+        this.$root.notify('Не удалось отправить код', 'error')
       }
     },
     goToPrevTask() {
@@ -196,7 +193,7 @@ export default {
             versionId: this.$route.params.versionId,
             taskId: this.prevTask.id,
           },
-        });
+        })
       }
     },
     goToNextTask() {
@@ -208,30 +205,30 @@ export default {
             versionId: this.$route.params.versionId,
             taskId: this.nextTask.id,
           },
-        });
+        })
       }
     },
     startTimer() {
-      if (this.timerInterval) clearInterval(this.timerInterval);
+      if (this.timerInterval) clearInterval(this.timerInterval)
       this.timerInterval = setInterval(() => {
-        this.timeLeft -= 1000;
+        this.timeLeft -= 1000
         if (this.timeLeft <= 0) {
-          clearInterval(this.timerInterval);
-          this.timeLeft = 0;
-          this.$root.notify("Время вышло. Страница будет перезагружена.", "error");
+          clearInterval(this.timerInterval)
+          this.timeLeft = 0
+          this.$root.notify('Время вышло. Страница будет перезагружена.', 'error')
           setTimeout(() => {
-            location.reload();
-          }, 2000);
+            location.reload()
+          }, 2000)
         }
-      }, 1000);
+      }, 1000)
     },
     beforeDestroy() {
       if (this.timerInterval) {
-        clearInterval(this.timerInterval);
+        clearInterval(this.timerInterval)
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>

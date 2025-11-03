@@ -1,9 +1,7 @@
 <template>
   <footer class="footer">
     <div class="container">
-      <div class="copyright">
-        &copy; {{ currentYear }} coding-contest-system
-      </div>
+      <div class="copyright">&copy; {{ currentYear }} coding-contest-system</div>
     </div>
   </footer>
 </template>
@@ -13,9 +11,9 @@ export default {
   data() {
     return {
       currentYear: new Date().getFullYear(),
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>

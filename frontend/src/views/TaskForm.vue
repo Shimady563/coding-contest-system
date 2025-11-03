@@ -15,7 +15,8 @@
           v-model="task.name"
           placeholder=""
           type="text"
-          :error="!task.name && submitted">
+          :error="!task.name && submitted"
+        >
           <span v-if="!task.name && submitted" class="error-message">Это поле обязательно</span>
         </FloatingInput>
 
@@ -26,16 +27,26 @@
           v-model="task.description"
           placeholder=""
           type="textarea"
-          :error="!task.description && submitted">
-          <span v-if="!task.description && submitted" class="error-message">Это поле обязательно</span>
+          :error="!task.description && submitted"
+        >
+          <span v-if="!task.description && submitted" class="error-message"
+            >Это поле обязательно</span
+          >
         </FloatingInput>
 
         <div class="testcase-section">
           <h2>Тест-кейсы</h2>
-          <span v-if="task.testCases.length === 0 && submitted" class="error-message">Добавьте хотя бы один тест-кейс</span>
+          <span v-if="task.testCases.length === 0 && submitted" class="error-message"
+            >Добавьте хотя бы один тест-кейс</span
+          >
 
           <transition-group name="fade" tag="div">
-            <div v-for="(testCase, index) in task.testCases" :key="index" class="testcase" :class="{ 'invalid': (!testCase.input || !testCase.output) && submitted }">
+            <div
+              v-for="(testCase, index) in task.testCases"
+              :key="index"
+              class="testcase"
+              :class="{ invalid: (!testCase.input || !testCase.output) && submitted }"
+            >
               <FloatingInput
                 :id="`input-${index}`"
                 :name="`input-${index}`"
@@ -46,7 +57,9 @@
                 class="input-testcase"
                 :error="!testCase.input && submitted"
               >
-                <span v-if="!testCase.input && submitted" class="error-message">Заполните поле ввода</span>
+                <span v-if="!testCase.input && submitted" class="error-message"
+                  >Заполните поле ввода</span
+                >
               </FloatingInput>
               <FloatingInput
                 :id="`output-${index}`"
@@ -57,10 +70,12 @@
                 placeholder=""
                 :error="!testCase.output && submitted"
               >
-                <span v-if="!testCase.output && submitted" class="error-message">Заполните поле вывода</span>
+                <span v-if="!testCase.output && submitted" class="error-message"
+                  >Заполните поле вывода</span
+                >
               </FloatingInput>
               <button class="btn btn-danger" @click="removeTestCase(index)" type="button">
-                <i class="fas fa-trash"></i> 
+                <i class="fas fa-trash"></i>
                 Удалить
               </button>
             </div>
@@ -69,12 +84,12 @@
 
         <div class="form-actions">
           <button @click="addTestCase" class="btn btn-secondary" type="button">
-            <i class="fas fa-plus"></i> 
+            <i class="fas fa-plus"></i>
             Добавить тест-кейс
           </button>
           <button @click="onSubmit" class="btn btn-primary" :disabled="saving">
             <span v-if="saving">
-              <i class="fas fa-spinner fa-spin"></i>  
+              <i class="fas fa-spinner fa-spin"></i>
               Сохранение...
             </span>
             <span v-else>
@@ -89,11 +104,11 @@
 </template>
 
 <script>
-import FloatingInput from '@/components/FloatingInput.vue';
-import { getTask, createTask, updateTask } from '@/js/manager';
+import FloatingInput from '@/components/FloatingInput.vue'
+import { getTask, createTask, updateTask } from '@/js/manager'
 
 export default {
-  components:{
+  components: {
     FloatingInput,
   },
   props: { id: { type: String, required: false } },
@@ -103,69 +118,93 @@ export default {
       submitted: false,
       loading: false,
       saving: false,
-    };
+    }
   },
   computed: {
-    isEdit() { return !!this.id; }
+    isEdit() {
+      return !!this.id
+    },
   },
   async mounted() {
     if (this.isEdit) {
-      this.loading = true;
+      this.loading = true
       try {
-        const data = await getTask(this.id);
+        const data = await getTask(this.id)
         this.task = {
           name: data.name || '',
           description: data.description || '',
-          testCases: (data.testCases && data.testCases.length ? data.testCases : [{ input: '', output: '' }]).map(tc => ({ input: tc.input || '', output: tc.output || '' }))
-        };
+          testCases: (data.testCases && data.testCases.length
+            ? data.testCases
+            : [{ input: '', output: '' }]
+          ).map((tc) => ({ input: tc.input || '', output: tc.output || '' })),
+        }
       } catch (e) {
-        this.$root.notify('Не удалось загрузить данные задания', 'error');
-        this.$router.push('/manage-contests');
+        this.$root.notify('Не удалось загрузить данные задания', 'error')
+        this.$router.push('/manage-contests')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     }
   },
   methods: {
-    addTestCase() { this.task.testCases.push({ input: '', output: '' }); },
-    removeTestCase(index) { this.task.testCases.splice(index, 1); },
+    addTestCase() {
+      this.task.testCases.push({ input: '', output: '' })
+    },
+    removeTestCase(index) {
+      this.task.testCases.splice(index, 1)
+    },
     validate() {
-      this.submitted = true;
-      if (!this.task.name.trim()) { this.$root.notify('Введите название задания', 'error'); return false; }
-      if (!this.task.description.trim()) { this.$root.notify('Введите описание задания', 'error'); return false; }
-      if (this.task.testCases.length === 0) { this.$root.notify('Добавьте хотя бы один тест-кейс', 'error'); return false; }
-      for (const [i, tc] of this.task.testCases.entries()) {
-        if (!tc.input.trim() || !tc.output.trim()) { this.$root.notify(`Заполните все поля тест-кейса #${i + 1}`, 'error'); return false; }
+      this.submitted = true
+      if (!this.task.name.trim()) {
+        this.$root.notify('Введите название задания', 'error')
+        return false
       }
-      return true;
+      if (!this.task.description.trim()) {
+        this.$root.notify('Введите описание задания', 'error')
+        return false
+      }
+      if (this.task.testCases.length === 0) {
+        this.$root.notify('Добавьте хотя бы один тест-кейс', 'error')
+        return false
+      }
+      for (const [i, tc] of this.task.testCases.entries()) {
+        if (!tc.input.trim() || !tc.output.trim()) {
+          this.$root.notify(`Заполните все поля тест-кейса #${i + 1}`, 'error')
+          return false
+        }
+      }
+      return true
     },
     async onSubmit() {
-      if (!this.validate()) return;
-      this.saving = true;
+      if (!this.validate()) return
+      this.saving = true
       try {
         const payload = {
           name: this.task.name.trim(),
           description: this.task.description.trim(),
-          testCases: this.task.testCases.map(tc => ({ input: tc.input.trim(), output: tc.output.trim() })),
-        };
+          testCases: this.task.testCases.map((tc) => ({
+            input: tc.input.trim(),
+            output: tc.output.trim(),
+          })),
+        }
         if (this.isEdit) {
-          await updateTask(this.id, payload);
-          this.$root.notify('Задание успешно обновлено!', 'success');
-          this.$router.push('/manage-contests');
+          await updateTask(this.id, payload)
+          this.$root.notify('Задание успешно обновлено!', 'success')
+          this.$router.push('/manage-contests')
         } else {
-          await createTask(payload);
-          this.$root.notify('Задание успешно создано!', 'success');
-          this.task = { name: '', description: '', testCases: [{ input: '', output: '' }] };
-          this.submitted = false;
+          await createTask(payload)
+          this.$root.notify('Задание успешно создано!', 'success')
+          this.task = { name: '', description: '', testCases: [{ input: '', output: '' }] }
+          this.submitted = false
         }
       } catch (e) {
-        this.$root.notify('Произошла ошибка при сохранении задания', 'error');
+        this.$root.notify('Произошла ошибка при сохранении задания', 'error')
       } finally {
-        this.saving = false;
+        this.saving = false
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -183,21 +222,18 @@ h1 {
   margin-bottom: 2rem;
 }
 
-.input-testcase{
+.input-testcase {
   margin-top: 25px;
 }
 
 .error-message {
   margin-top: -25px;
   margin-bottom: 1.5rem;
-}
-
-.testcase-section {
-  margin-top: 2rem;
+  text-align: left;
 }
 
 .testcase {
-  background: #ffffff; 
+  background: #ffffff;
   border: 1px solid #e5e9f0;
   border-radius: 12px;
   padding: 1rem 1.25rem;
@@ -219,63 +255,10 @@ h1 {
 
 .btn {
   padding: 12px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.btn-secondary {
-  background: #2f80ed;
-  color: #fff;
-}
-
-.btn-secondary:hover {
-  background: #256bcc;
 }
 
 .btn-danger {
-  margin-top: 10px ;
-  background: #e74c3c;
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background: #cf3b2c;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #2f80ed;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+  margin-top: 10px;
 }
 
 @media (max-width: 768px) {

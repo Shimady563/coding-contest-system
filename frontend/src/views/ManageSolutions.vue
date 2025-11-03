@@ -5,8 +5,8 @@
     </div>
 
     <form class="filters" @submit.prevent="fetchSolutions">
-      <div 
-        class="filter-group floating-label multiselect-floating" 
+      <div
+        class="filter-group floating-label multiselect-floating"
         :class="{ active: selectedStatus || $refs.statusSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
@@ -29,8 +29,8 @@
         <label for="statusSelect">Статус</label>
       </div>
 
-      <div 
-        class="filter-group floating-label multiselect-floating" 
+      <div
+        class="filter-group floating-label multiselect-floating"
         :class="{ active: selectedTask || $refs.taskSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
@@ -55,8 +55,8 @@
         <label for="taskSelect">Задача</label>
       </div>
 
-      <div 
-        class="filter-group floating-label multiselect-floating" 
+      <div
+        class="filter-group floating-label multiselect-floating"
         :class="{ active: selectedUser || $refs.userSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
@@ -81,8 +81,8 @@
         <label for="userSelect">Студент</label>
       </div>
 
-      <div 
-        class="filter-group floating-label multiselect-floating" 
+      <div
+        class="filter-group floating-label multiselect-floating"
         v-if="groups.length"
         :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
       >
@@ -110,32 +110,30 @@
 
       <div class="filter-group">
         <FloatingInput
-            v-model="filters.startTime"
-            id="startTime"
-            name="startTime"
-            label="С начала"
-            type="datetime-local"
-            class="text-input" 
-            placeholder=""
-          />
+          v-model="filters.startTime"
+          id="startTime"
+          name="startTime"
+          label="С начала"
+          type="datetime-local"
+          class="text-input"
+          placeholder=""
+        />
       </div>
 
       <div class="filter-group">
         <FloatingInput
-            v-model="filters.endTime"
-            id="endTime"
-            name="endTime"
-            label="До"
-            type="datetime-local"
-            class="text-input" 
-            placeholder=""
-          />
+          v-model="filters.endTime"
+          id="endTime"
+          name="endTime"
+          label="До"
+          type="datetime-local"
+          class="text-input"
+          placeholder=""
+        />
       </div>
 
       <div class="filter-actions">
-        <button type="submit" class="apply-btn">
-          <i class="fas fa-filter"></i> Применить
-        </button>
+        <button type="submit" class="apply-btn"><i class="fas fa-filter"></i> Применить</button>
         <button type="button" @click="resetFilters" class="reset-btn">
           <i class="fas fa-broom"></i> Сбросить
         </button>
@@ -183,7 +181,11 @@
             <td class="group-col">{{ solution.user?.groupName || '-' }}</td>
             <td class="date-col">{{ formatDate(solution.submittedAt) }}</td>
             <td class="code-col">
-              <button @click="showCodeModal(solution.code)" class="btn-icon code-btn" title="Показать код">
+              <button
+                @click="showCodeModal(solution.code)"
+                class="btn-icon code-btn"
+                title="Показать код"
+              >
                 <i class="fas fa-code"></i>
               </button>
             </td>
@@ -197,19 +199,15 @@
         Страница {{ filters.pageNumber + 1 }} из {{ solutions.page.totalPages }}
       </div>
       <div class="pagination-controls">
-        <button 
-          @click="prevPage" 
-          :disabled="filters.pageNumber === 0" 
-          class="pagination-btn"
-        >
+        <button @click="prevPage" :disabled="filters.pageNumber === 0" class="pagination-btn">
           <i class="fas fa-chevron-left"></i>
         </button>
         <div class="page-indicator">
           Страница {{ filters.pageNumber + 1 }} из {{ solutions.page.totalPages }}
         </div>
-        <button 
-          @click="nextPage" 
-          :disabled="filters.pageNumber >= solutions.page.totalPages - 1" 
+        <button
+          @click="nextPage"
+          :disabled="filters.pageNumber >= solutions.page.totalPages - 1"
           class="pagination-btn"
         >
           <i class="fas fa-chevron-right"></i>
@@ -239,18 +237,18 @@
 </template>
 
 <script>
-import ReadOnlyCodeMirror from "@/components/ReadOnlyCodeMirror.vue";
-import FloatingInput from "@/components/FloatingInput.vue";
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
-import { listSolutions, listTasks, listUsers, fetchGroups } from "@/js/manager";
+import ReadOnlyCodeMirror from '@/components/ReadOnlyCodeMirror.vue'
+import FloatingInput from '@/components/FloatingInput.vue'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
+import { listSolutions, listTasks, listUsers, fetchGroups } from '@/js/manager'
 
 export default {
-  name: "StudentSolutionsPage",
+  name: 'StudentSolutionsPage',
   components: {
     ReadOnlyCodeMirror,
     Multiselect,
-    FloatingInput
+    FloatingInput,
   },
   data() {
     return {
@@ -259,22 +257,22 @@ export default {
         page: {},
       },
       filters: {
-        status: "",
-        userId: "",
-        taskId: "",
-        groupId: "",
-        startTime: "",
-        endTime: "",
+        status: '',
+        userId: '',
+        taskId: '',
+        groupId: '',
+        startTime: '',
+        endTime: '',
         pageNumber: 0,
         pageSize: 10,
       },
       statuses: [
-        { name: "TIMED_OUT" },
-        { name: "COMPILE_ERROR" },
-        { name: "RUNTIME_ERROR" },
-        { name: "WRONG_ANSWER" },
-        { name: "ACCEPTED" },
-        { name: "INTERNAL_ERROR" },
+        { name: 'TIMED_OUT' },
+        { name: 'COMPILE_ERROR' },
+        { name: 'RUNTIME_ERROR' },
+        { name: 'WRONG_ANSWER' },
+        { name: 'ACCEPTED' },
+        { name: 'INTERNAL_ERROR' },
       ],
       tasks: [],
       users: [],
@@ -286,104 +284,106 @@ export default {
       selectedUser: null,
       selectedTask: null,
       selectedGroup: null,
-    };
+    }
   },
   methods: {
     async fetchSolutions() {
-      this.loading = true;
+      this.loading = true
       try {
         const params = {
           pageNumber: this.filters.pageNumber,
           pageSize: this.filters.pageSize,
-        };
-        if (this.selectedStatus?.name) params.status = this.selectedStatus.name;
-        if (this.selectedUser) params.userId = this.selectedUser.id;
-        if (this.selectedTask) params.taskId = this.selectedTask.id;
-        if (this.selectedGroup) params.groupId = this.selectedGroup.id;
-        if (this.filters.startTime) params.startTime = new Date(this.filters.startTime).toISOString();
-        if (this.filters.endTime) params.endTime = new Date(this.filters.endTime).toISOString();
+        }
+        if (this.selectedStatus?.name) params.status = this.selectedStatus.name
+        if (this.selectedUser) params.userId = this.selectedUser.id
+        if (this.selectedTask) params.taskId = this.selectedTask.id
+        if (this.selectedGroup) params.groupId = this.selectedGroup.id
+        if (this.filters.startTime)
+          params.startTime = new Date(this.filters.startTime).toISOString()
+        if (this.filters.endTime) params.endTime = new Date(this.filters.endTime).toISOString()
 
-        this.solutions = await listSolutions(params);
+        this.solutions = await listSolutions(params)
       } catch {
-        this.$root.notify("Не удалось загрузить данные. Пожалуйста, попробуйте позже.", 'error');
+        this.$root.notify('Не удалось загрузить данные. Пожалуйста, попробуйте позже.', 'error')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     async fetchTasks() {
       try {
         const params = {
-          name: "",
+          name: '',
           pageSize: 1000000,
-        };
-        
-        const data = await listTasks(params);
-        this.tasks = data.content || [];
+        }
+
+        const data = await listTasks(params)
+        this.tasks = data.content || []
       } catch {
-        this.$root.notify("Не удалось загрузить список задач", 'error');
+        this.$root.notify('Не удалось загрузить список задач', 'error')
       }
     },
     async fetchUsers() {
       try {
         const data = await listUsers({
-          role: "ROLE_STUDENT",
+          role: 'ROLE_STUDENT',
           pageSize: 1000,
           pageNumber: 0,
-        });
-        this.users = data.content || [];
+        })
+        this.users = data.content || []
       } catch {
-        this.$root.notify("Не удалось загрузить список пользователей", 'error');
+        this.$root.notify('Не удалось загрузить список пользователей', 'error')
       }
     },
     async fetchGroups() {
       try {
-        this.groups = await fetchGroups() || [];
+        this.groups = (await fetchGroups()) || []
       } catch {
-        this.$root.notify("Не удалось загрузить список групп", 'error');
+        this.$root.notify('Не удалось загрузить список групп', 'error')
       }
     },
     userLabel(user) {
-      return `${user.firstName} ${user.lastName}`;
+      return `${user.firstName} ${user.lastName}`
     },
     resetFilters() {
       this.filters = {
-        status: "",
-        userId: "",
-        taskId: "",
-        groupId: "",
-        startTime: "",
-        endTime: "",
+        status: '',
+        userId: '',
+        taskId: '',
+        groupId: '',
+        startTime: '',
+        endTime: '',
         pageNumber: 0,
         pageSize: 10,
-      };
-      this.selectedUser = null;
-      this.selectedTask = null;
-      this.selectedStatus = null;
-      this.selectedGroup = null;
-      this.fetchSolutions();
+      }
+      this.selectedUser = null
+      this.selectedTask = null
+      this.selectedStatus = null
+      this.selectedGroup = null
+      this.fetchSolutions()
     },
     nextPage() {
-      this.filters.pageNumber++;
-      this.fetchSolutions();
+      this.filters.pageNumber++
+      this.fetchSolutions()
     },
     prevPage() {
       if (this.filters.pageNumber > 0) {
-        this.filters.pageNumber--;
-        this.fetchSolutions();
+        this.filters.pageNumber--
+        this.fetchSolutions()
       }
     },
     formatDate(date) {
-      return new Date(date).toLocaleString();
+      return new Date(date).toLocaleString()
     },
     copyCode(code) {
-      navigator.clipboard.writeText(code)
+      navigator.clipboard
+        .writeText(code)
         .then(() => {
-          this.$root.notify('Код скопирован в буфер обмена', 'success');
+          this.$root.notify('Код скопирован в буфер обмена', 'success')
         })
-        .catch(err => {
-          console.error('Ошибка копирования:', err);
-          this.$root.notify('Не удалось скопировать код', 'error');
-        });
+        .catch((err) => {
+          console.error('Ошибка копирования:', err)
+          this.$root.notify('Не удалось скопировать код', 'error')
+        })
     },
     getStatusClass(status) {
       return {
@@ -391,36 +391,36 @@ export default {
         'status-accepted': status === 'ACCEPTED',
         'status-error': ['COMPILE_ERROR', 'RUNTIME_ERROR', 'INTERNAL_ERROR'].includes(status),
         'status-warning': ['TIMED_OUT', 'WRONG_ANSWER'].includes(status),
-      };
+      }
     },
     showCodeModal(code) {
-      this.modalCode = code;
+      this.modalCode = code
     },
     closeModal() {
-      this.modalCode = null;
+      this.modalCode = null
     },
     forceCloseSelect(selectName) {
       setTimeout(() => {
-        this.$refs[selectName]?.deactivate();
-      }, 0);
+        this.$refs[selectName]?.deactivate()
+      }, 0)
     },
   },
   mounted() {
-    this.fetchTasks();
-    this.fetchUsers();
-    this.fetchGroups();
-    this.fetchSolutions();
-  }
-};
+    this.fetchTasks()
+    this.fetchUsers()
+    this.fetchGroups()
+    this.fetchSolutions()
+  },
+}
 </script>
 
 <style scoped>
 .multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: 1000 !important; 
+  z-index: 1000 !important;
 }
 
 .filters .multiselect-floating label {
-  top: 21px; 
+  top: 21px;
 }
 
 .solutions-table {
@@ -448,12 +448,26 @@ export default {
   background-color: #f8f9fa;
 }
 
-.task-col { min-width: 200px; }
-.user-col { min-width: 150px; }
-.group-col { min-width: 100px; white-space: nowrap; }
-.status-col { min-width: 120px; }
-.date-col { min-width: 180px; white-space: nowrap; }
-.code-col { min-width: 80px; }
+.task-col {
+  min-width: 200px;
+}
+.user-col {
+  min-width: 150px;
+}
+.group-col {
+  min-width: 100px;
+  white-space: nowrap;
+}
+.status-col {
+  min-width: 120px;
+}
+.date-col {
+  min-width: 180px;
+  white-space: nowrap;
+}
+.code-col {
+  min-width: 80px;
+}
 
 .status-badge {
   display: inline-block;

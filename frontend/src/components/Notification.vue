@@ -14,7 +14,7 @@ export default {
       isVisible: false,
       message: '',
       type: 'info',
-      timeout: null
+      timeout: null,
     }
   },
   methods: {
@@ -22,7 +22,7 @@ export default {
       this.message = message
       this.type = type
       this.isVisible = true
-      
+
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         this.hide()
@@ -30,11 +30,11 @@ export default {
     },
     hide() {
       this.isVisible = false
-    }
-  }
+    },
+  },
 }
 </script>
-  
+
 <style>
 .notification {
   position: absolute;
@@ -86,10 +86,14 @@ export default {
   box-shadow: none;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s, transform 0.3s;
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateX(20px);
 }

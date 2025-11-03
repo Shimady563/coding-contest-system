@@ -22,7 +22,10 @@
         <h2>Подтверждение</h2>
       </template>
       <template #body>
-        <p>Вы уверены, что хотите выбрать вариант "{{ selectedVersion?.name }}"? После выбора изменить его будет нельзя.</p>
+        <p>
+          Вы уверены, что хотите выбрать вариант "{{ selectedVersion?.name }}"? После выбора
+          изменить его будет нельзя.
+        </p>
       </template>
       <template #footer>
         <button class="btn" @click="showConfirm = false">Отмена</button>
@@ -33,12 +36,17 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
-import { getContest, getContestVersionsByContest, getTasksByContestVersion, startContestForUser } from "../js/manager";
-import Modal from "@/components/Modal.vue";
+import { getUserInfo } from '../js/auth'
+import {
+  getContest,
+  getContestVersionsByContest,
+  getTasksByContestVersion,
+  startContestForUser,
+} from '../js/manager'
+import Modal from '@/components/Modal.vue'
 
 export default {
-  name: "ContestVersionsPage",
+  name: 'ContestVersionsPage',
   components: { Modal },
   data() {
     return {
@@ -47,64 +55,66 @@ export default {
       contest: null,
       showConfirm: false,
       selectedVersion: null,
-    };
+    }
   },
   async mounted() {
-    this.loadVersions();
+    this.loadVersions()
   },
   methods: {
     async loadVersions() {
-      const contestId = this.$route.params.contestId;
+      const contestId = this.$route.params.contestId
 
       try {
-        this.contest = await getContest(contestId);
+        this.contest = await getContest(contestId)
       } catch {
-        return;
+        return
       }
 
-      const start = new Date(this?.contest.startTime);
-      const end =  new Date(this?.contest.endTime);
-      const now = new Date();
+      const start = new Date(this?.contest.startTime)
+      const end = new Date(this?.contest.endTime)
+      const now = new Date()
 
       if (now < start || now > end) {
-        this.$router.replace('/access-denied-time');
-        return;
+        this.$router.replace('/access-denied-time')
+        return
       }
 
       try {
-        this.versions = await getContestVersionsByContest(contestId);
+        this.versions = await getContestVersionsByContest(contestId)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     async confirmStart(version) {
       try {
-        const tasks = await getTasksByContestVersion(version.id);
+        const tasks = await getTasksByContestVersion(version.id)
         if (tasks && tasks.length > 0) {
-          this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
-          return;
+          this.$router.push(
+            `/contests/${this.$route.params.contestId}/contest-version/${version.id}`,
+          )
+          return
         }
       } catch (err) {}
 
-      this.selectedVersion = version;
-      this.showConfirm = true;
+      this.selectedVersion = version
+      this.showConfirm = true
     },
     async proceedStart() {
-      const version = this.selectedVersion;
-      this.showConfirm = false;
-      const userInfo = await getUserInfo();
+      const version = this.selectedVersion
+      this.showConfirm = false
+      const userInfo = await getUserInfo()
       try {
-        await startContestForUser(userInfo.id, { 
-          contestVersionId: version.id, 
-          contestId: this.$route.params.contestId 
-        });
-        this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`);
+        await startContestForUser(userInfo.id, {
+          contestVersionId: version.id,
+          contestId: this.$route.params.contestId,
+        })
+        this.$router.push(`/contests/${this.$route.params.contestId}/contest-version/${version.id}`)
       } catch {
-        this.$root.notify('Вы уже выбрали вариант и не можете сменить его.', 'error');
+        this.$root.notify('Вы уже выбрали вариант и не можете сменить его.', 'error')
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -147,7 +157,9 @@ h1 {
   margin-bottom: 15px;
   background: #f5f7fa;
   border-radius: 10px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .version-item:hover {

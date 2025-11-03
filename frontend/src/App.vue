@@ -16,32 +16,32 @@
 </template>
 
 <script>
-import Navbar from "./components/Navbar.vue";
-import Footer from "./components/Footer.vue";
-import Notification from "@/components/Notification.vue";
-import { refreshAuth } from "./js/auth";
+import Navbar from './components/Navbar.vue'
+import Footer from './components/Footer.vue'
+import Notification from '@/components/Notification.vue'
+import { refreshAuth } from './js/auth'
 
 export default {
   components: { Navbar, Footer, Notification },
   data() {
     return {
       loading: true,
-    };
+    }
   },
   async created() {
     try {
-      await refreshAuth();
+      await refreshAuth()
     } catch {
     } finally {
-      this.loading = false;
+      this.loading = false
     }
   },
   methods: {
-    notify(message, type = "info") {
-      this.$refs.notification.show(message, type);
+    notify(message, type = 'info') {
+      this.$refs.notification.show(message, type)
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -71,7 +71,11 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

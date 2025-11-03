@@ -10,10 +10,7 @@
 
     <ul v-else class="contest-list">
       <li v-for="contest in contests" :key="contest.id">
-        <router-link
-          :to="`/contests/${contest.id}`"
-          class="contest-item"
-        >
+        <router-link :to="`/contests/${contest.id}`" class="contest-item">
           <div class="contest-info">
             <div class="contest-title">{{ contest.name }}</div>
             <p class="description">{{ contest.description }}</p>
@@ -34,65 +31,65 @@
 </template>
 
 <script>
-import { getGroupIdForCurrentUser, getContestsByGroup } from "@/js/manager";
+import { getGroupIdForCurrentUser, getContestsByGroup } from '@/js/manager'
 
 export default {
-  name: "StudentContestsPage",
+  name: 'StudentContestsPage',
   data() {
     return {
       contests: [],
       loading: true,
-    };
+    }
   },
   async mounted() {
     try {
-      const groupId = await getGroupIdForCurrentUser();
+      const groupId = await getGroupIdForCurrentUser()
 
       if (!groupId) {
-        throw new Error("groupId is null");
+        throw new Error('groupId is null')
       }
 
-      this.contests = await getContestsByGroup(groupId) || [];
+      this.contests = (await getContestsByGroup(groupId)) || []
     } catch {
-      this.contests = [];
+      this.contests = []
     } finally {
-      this.loading = false;
+      this.loading = false
     }
   },
   methods: {
     getContestStatus(startTime, endTime) {
-      const now = new Date();
-      const start = new Date(startTime);
-      const end = new Date(endTime);
+      const now = new Date()
+      const start = new Date(startTime)
+      const end = new Date(endTime)
 
-      if (now < start) return "Ожидается";
-      if (now > end) return "Завершена";
-      return "Активна";
+      if (now < start) return 'Ожидается'
+      if (now > end) return 'Завершена'
+      return 'Активна'
     },
     formatDate(dateStr) {
-      const date = new Date(dateStr);
-      return date.toLocaleString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const date = new Date(dateStr)
+      return date.toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     },
     getStatusClass(status) {
       switch (status) {
-        case "Ожидается":
-          return "status-upcoming";
-        case "Активна":
-          return "status-active";
-        case "Завершена":
-          return "status-finished";
+        case 'Ожидается':
+          return 'status-upcoming'
+        case 'Активна':
+          return 'status-active'
+        case 'Завершена':
+          return 'status-finished'
         default:
-          return "";
+          return ''
       }
-    }
+    },
   },
-};
+}
 </script>
 
 <style scoped>

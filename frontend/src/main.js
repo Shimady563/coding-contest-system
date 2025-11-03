@@ -1,26 +1,27 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
-import './assets/main.css';
-import './assets/styles/shared.css';
-import './assets/styles/filters-pagination.css';
-import "@/assets/styles/multiselect.css";
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import './assets/main.css'
+import './assets/styles/shared.css'
+import './assets/styles/filters-pagination.css'
+import '@/assets/styles/multiselect.css'
+import '@/assets/styles/auth-form.css'
 
-import { refreshAuth, logoutUser } from './js/auth';
+import { refreshAuth, logoutUser } from './js/auth'
 
 async function tryRefreshAuth() {
   try {
-    return await refreshAuth();
+    return await refreshAuth()
   } catch (e) {
-    return false;
+    return false
   }
 }
 
 function setupFetchInterceptor() {
-  const originalFetch = window.fetch;
+  const originalFetch = window.fetch
 
   window.fetch = async (input, init = {}) => {
-    const url = typeof input === 'string' ? input : input.url;
+    const url = typeof input === 'string' ? input : input.url
 
     const options = {
       credentials: 'include',
@@ -29,31 +30,31 @@ function setupFetchInterceptor() {
         ...(init.headers || {}),
       },
       ...init,
-    };
+    }
 
-    let response = await originalFetch(input, options);
+    let response = await originalFetch(input, options)
 
     if (response.status === 401 && !/\/(login|refresh|logout)/.test(url)) {
-      const refreshed = await tryRefreshAuth();
+      const refreshed = await tryRefreshAuth()
 
       if (refreshed) {
-        response = await originalFetch(input, options);
+        response = await originalFetch(input, options)
       } else {
-        await logoutUser();
-        router.push({ name: 'Login' }).catch(() => {});
-        throw new Error('Сессия истекла, требуется повторный вход');
+        await logoutUser()
+        router.push({ name: 'Login' }).catch(() => {})
+        throw new Error('Сессия истекла, требуется повторный вход')
       }
     }
 
-    return response;
-  };
+    return response
+  }
 }
 
-(async () => {
-  await tryRefreshAuth();
-  setupFetchInterceptor();
+;(async () => {
+  await tryRefreshAuth()
+  setupFetchInterceptor()
 
-  const app = createApp(App);
-  app.use(router);
-  app.mount('#app');
-})();
+  const app = createApp(App)
+  app.use(router)
+  app.mount('#app')
+})()

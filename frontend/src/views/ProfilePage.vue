@@ -40,7 +40,6 @@
           :error="!form.firstName"
         />
 
-        
         <FloatingInput
           v-model="form.lastName"
           id="lastName"
@@ -88,13 +87,16 @@
           autocomplete="new-password"
           :error="form.confirmPassword && form.password !== form.confirmPassword"
         >
-          <small v-if="form.confirmPassword && form.password !== form.confirmPassword" class="error-message">
+          <small
+            v-if="form.confirmPassword && form.password !== form.confirmPassword"
+            class="error-message"
+          >
             Пароли не совпадают
           </small>
         </FloatingInput>
 
-        <div 
-          class="floating-label multiselect-floating" 
+        <div
+          class="floating-label multiselect-floating"
           v-if="user.role !== 'teacher'"
           :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
         >
@@ -116,7 +118,7 @@
               placeholder=""
               label="name"
               track-by="id"
-              @open="$forceUpdate()" 
+              @open="$forceUpdate()"
               @close="$forceUpdate()"
             />
           </div>
@@ -137,42 +139,42 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
-import { updateUser, fetchGroups } from "../js/manager";
-import { validatePassword } from "@/js/password";
-import FloatingInput from "@/components/FloatingInput.vue";
-import PasswordHints from "@/components/PasswordHints.vue";
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
+import { getUserInfo } from '../js/auth'
+import { updateUser, fetchGroups } from '../js/manager'
+import { validatePassword } from '@/js/password'
+import FloatingInput from '@/components/FloatingInput.vue'
+import PasswordHints from '@/components/PasswordHints.vue'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 export default {
-  components: { 
+  components: {
     Multiselect,
     FloatingInput,
     PasswordHints,
- },
+  },
   data() {
     return {
       user: null,
       isEditing: false,
       form: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
       },
       groups: [],
       selectedGroup: null,
-    };
+    }
   },
   computed: {
     passwordValid() {
-      if (!this.form.password) return true;
-      return validatePassword(this.form.password).isValid;
+      if (!this.form.password) return true
+      return validatePassword(this.form.password).isValid
     },
     passwordsMatch() {
-      return !this.form.password || this.form.password === this.form.confirmPassword;
+      return !this.form.password || this.form.password === this.form.confirmPassword
     },
     isSubmitDisabled() {
       return (
@@ -181,25 +183,24 @@ export default {
         !this.form.email ||
         !this.passwordValid ||
         !this.passwordsMatch
-      );
-    }
+      )
+    },
   },
   async created() {
     try {
-      const userInfo = await getUserInfo();
-      this.user = userInfo;
-      await this.fetchGroupsList();
+      const userInfo = await getUserInfo()
+      this.user = userInfo
+      await this.fetchGroupsList()
     } catch (err) {
-      this.$root.notify(err.message, "error");
+      this.$root.notify(err.message, 'error')
     }
   },
   methods: {
     validatePassword,
     async fetchGroupsList() {
-      this.groups = await fetchGroups();
+      this.groups = await fetchGroups()
       if (this.user && this.user.groupName) {
-        this.selectedGroup =
-          this.groups.find((g) => g.name === this.user.groupName) || null;
+        this.selectedGroup = this.groups.find((g) => g.name === this.user.groupName) || null
       }
     },
     startEditing() {
@@ -207,13 +208,13 @@ export default {
         firstName: this.user.firstName,
         lastName: this.user.lastName,
         email: this.user.email,
-        password: "",
-        confirmPassword: "",
-      };
-      this.isEditing = true;
+        password: '',
+        confirmPassword: '',
+      }
+      this.isEditing = true
     },
     cancelEditing() {
-      this.isEditing = false;
+      this.isEditing = false
     },
     async saveChanges() {
       try {
@@ -221,32 +222,33 @@ export default {
           firstName: this.form.firstName,
           lastName: this.form.lastName,
           email: this.form.email,
-          password: this.form.password || "", 
-        };
-
-        if (this.user.role !== 'teacher' && this.selectedGroup) {
-          payload.groupId = this.selectedGroup.id;
+          password: this.form.password || '',
         }
 
-        await updateUser(this.user.id, payload);
+        if (this.user.role !== 'teacher' && this.selectedGroup) {
+          payload.groupId = this.selectedGroup.id
+        }
 
-       this.user = {
+        await updateUser(this.user.id, payload)
+
+        this.user = {
           ...this.user,
           ...payload,
-          groupName: (this.user.role !== 'teacher' && this.selectedGroup)
-            ? this.selectedGroup.name
-            : this.user.groupName,
-        };
+          groupName:
+            this.user.role !== 'teacher' && this.selectedGroup
+              ? this.selectedGroup.name
+              : this.user.groupName,
+        }
 
-        this.isEditing = false;
-        this.$root.notify("Данные успешно обновлены!", "success");
+        this.isEditing = false
+        this.$root.notify('Данные успешно обновлены!', 'success')
       } catch (err) {
-        console.error("Ошибка при сохранении:", err);
-        this.$root.notify("Ошибка при сохранении изменений", "error");
+        console.error('Ошибка при сохранении:', err)
+        this.$root.notify('Ошибка при сохранении изменений', 'error')
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -354,10 +356,10 @@ h1 {
   color: #fff;
 }
 
-.btn-cancel { 
+.btn-cancel {
   background-color: #f8f9fa;
-  color: #333; 
-  border: 1px solid #ddd; 
+  color: #333;
+  border: 1px solid #ddd;
 }
 
 .edit-btn:hover {
@@ -380,6 +382,7 @@ h1 {
   cursor: not-allowed;
   transform: none;
 }
+
 .error-message {
   color: #e74c3c;
   font-size: 14px;
@@ -389,6 +392,6 @@ h1 {
 }
 
 .multiselect-floating.active label {
-  top: -2px;
+  top: -7px;
 }
 </style>
