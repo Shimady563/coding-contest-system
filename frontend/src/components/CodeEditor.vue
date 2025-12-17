@@ -5,26 +5,29 @@
 </template>
 
 <script>
-import CodeMirror from "codemirror";
-import "codemirror/mode/clike/clike.js";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/dracula.css";
-import "codemirror/theme/monokai.css";
+import CodeMirror from 'codemirror'
+import 'codemirror/mode/clike/clike.js'
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/dracula.css'
+import 'codemirror/theme/monokai.css'
 
 export default {
-  name: "CodeEditor",
+  name: 'CodeEditor',
   mounted() {
     this.editor = CodeMirror.fromTextArea(this.$refs.codeEditor, {
-      mode: "text/x-c++src",
-      theme: "monokai",
+      mode: 'text/x-c++src',
+      theme: 'monokai',
       lineNumbers: true,
       tabSize: 4,
-      indentWithTabs: true,
-    });
+      indentUnit: 4,
+      indentWithTabs: false,
+    })
 
-    this.editor.setValue(`#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`);
+    this.editor.setValue(
+      `#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!";\n    return 0;\n}`,
+    )
   },
-};
+}
 </script>
 
 <style>

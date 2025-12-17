@@ -1,45 +1,31 @@
-import { AUTH_URL } from "./base";
+import { AUTH_URL } from './base'
+import { fetchJson } from './base'
 
 export async function login(payload) {
-  const res = await fetch(`${AUTH_URL}/login`, {
+  return fetchJson(`${AUTH_URL}/login`, {
     method: 'POST',
-    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error('Ошибка авторизации');
-  return true;
+  })
 }
 
 export async function signup(payload) {
-  const res = await fetch(`${AUTH_URL}/signup`, {
+  return fetchJson(`${AUTH_URL}/signup`, {
     method: 'POST',
-    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    let message = 'Ошибка регистрации';
-    try { const d = await res.json(); message = d?.message || d?.error || message; } catch { }
-    throw new Error(message);
-  }
-  return true;
+  })
 }
 
 export async function getUserInfo() {
   try {
-    const res = await fetch(`${AUTH_URL}/me`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const data = await fetchJson(`${AUTH_URL}/me`, {
+      method: 'GET',
+    })
 
-    if (!res.ok) {
-      return null;
-    }
-
-    const data = await res.json();
-
-    const role = data.groupName === "Teacher" ? "teacher" : "student";
+    const role = data.groupName === 'Teacher' ? 'teacher' : 'student'
 
     return {
       id: data.id,
@@ -48,39 +34,35 @@ export async function getUserInfo() {
       email: data.email,
       groupName: data.groupName,
       groupId: data.groupId,
-      role: role,
-    };
-  } catch {
-    return null;
+      role,
+    }
+  } catch (err) {
+    return null
   }
 }
 
 export async function logoutUser() {
   try {
-    const res = await fetch(`${AUTH_URL}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+    await fetchJson(`${AUTH_URL}/logout`, {
+      method: 'POST',
+    })
 
-    if (!res.ok) {
-      throw new Error("Не удалось выйти из аккаунта");
-    }
-
-    localStorage.removeItem("seenWelcome");
-
-    return true;
+    localStorage.removeItem('seenWelcome')
+    return true
   } catch (err) {
-    console.error("Ошибка при выходе из аккаунта:", err);
-    return false;
+    return false
   }
 }
 
 export async function refreshAuth() {
-  const response = await fetch(`${AUTH_URL}/refresh`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) throw new Error('Не удалось обновить токен');
-  return true;
+  try {
+    await fetchJson(`${AUTH_URL}/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+    return true
+  } catch {
+    return false
+  }
 }

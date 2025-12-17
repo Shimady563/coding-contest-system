@@ -30,7 +30,7 @@ public class SolutionService {
     private final TaskService taskService;
 
     @Transactional(readOnly = true)
-    public Page<SolutionResponseDto> searchForSolutions(Status status, Long userId, Long taskId, LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageRequest) {
+    public Page<SolutionResponseDto> searchForSolutions(Status status, Long userId, Long taskId, Long groupId, LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageRequest) {
         StringBuilder logMessage = new StringBuilder().append("Searching for solutions with ");
         List<Specification<Solution>> specifications = new ArrayList<>();
 
@@ -47,6 +47,11 @@ public class SolutionService {
         if (taskId != null) {
             specifications.add(SolutionSpecification.hasTaskId(taskId));
             logMessage.append("task id: ").append(taskId).append(", ");
+        }
+
+        if (groupId != null) {
+            specifications.add(SolutionSpecification.hasGroupId(groupId));
+            logMessage.append("group id: ").append(groupId).append(", ");
         }
 
         if (startDateTime != null) {

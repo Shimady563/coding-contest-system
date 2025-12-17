@@ -1,44 +1,60 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
-import './assets/main.css';
-import './assets/styles/shared.css';
-import './assets/styles/filters-pagination.css';
-import './assets/styles/manage.css';
-import { refreshAuth } from './js/auth';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import './assets/main.css'
+import './assets/styles/shared.css'
+import './assets/styles/filters-pagination.css'
+import '@/assets/styles/multiselect.css'
+import '@/assets/styles/auth-form.css'
+
+import { refreshAuth, logoutUser } from './js/auth'
+
+async function tryRefreshAuth() {
+  try {
+    return await refreshAuth()
+  } catch (e) {
+    return false
+  }
+}
 
 function setupFetchInterceptor() {
-  const _fetch = window.fetch.bind(window);
+  const originalFetch = window.fetch
 
   window.fetch = async (input, init = {}) => {
-    init = {
-      ...init,
+    const url = typeof input === 'string' ? input : input.url
+
+    const options = {
       credentials: 'include',
       headers: {
-        ...(init.headers || {}),
         'Content-Type': 'application/json',
+        ...(init.headers || {}),
       },
-    };
+      ...init,
+    }
 
-    let response = await _fetch(input, init);
+    let response = await originalFetch(input, options)
 
-    if (response.status === 401) {
-      try {
-        await refreshAuth();
+    if (response.status === 401 && !/\/(login|refresh|logout)/.test(url)) {
+      const refreshed = await tryRefreshAuth()
 
-        return _fetch(input, init);
-      } catch {
-        await router.push({ name: 'Login' });
-        return Promise.reject(new Error('Сессия истекла. Перенаправление на вход.'));
+      if (refreshed) {
+        response = await originalFetch(input, options)
+      } else {
+        await logoutUser()
+        router.push({ name: 'Login' }).catch(() => {})
+        throw new Error('Сессия истекла, требуется повторный вход')
       }
     }
 
-    return response;
-  };
+    return response
+  }
 }
-  
-setupFetchInterceptor();
 
-const app = createApp(App);
-app.use(router);
-app.mount('#app');
+;(async () => {
+  await tryRefreshAuth()
+  setupFetchInterceptor()
+
+  const app = createApp(App)
+  app.use(router)
+  app.mount('#app')
+})()

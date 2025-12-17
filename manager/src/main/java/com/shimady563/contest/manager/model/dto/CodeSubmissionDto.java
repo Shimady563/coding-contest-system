@@ -1,6 +1,6 @@
 package com.shimady563.contest.manager.model.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CodeSubmissionDto {
-    @NotEmpty(message = "code cannot be blank")
+    @NotBlank(message = "code cannot be blank")
     private String code;
 
     @NotNull(message = "task id cannot be null")

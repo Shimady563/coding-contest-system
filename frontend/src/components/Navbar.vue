@@ -3,41 +3,107 @@
     <nav class="navbar">
       <div class="container">
         <router-link to="/" class="logo">
-          <img src="../../public/paw.svg" alt="Paw" class="logo-icon"/>
+          <img src="/paw.svg" alt="Paw" class="logo-icon" />
           Coding Contest
         </router-link>
 
         <div v-if="user" class="menu-wrapper">
           <div class="hamburger-container">
-            <button class="hamburger-toggle" 
-                    :class="{ 'on': isDropdownOpen }"
-                    @click="toggleDropdown"
-                    @mouseenter="openDropdown"
-                    @mouseleave="closeDropdown">
+            <button
+              class="hamburger-toggle"
+              :class="{ on: isDropdownOpen }"
+              @click="toggleDropdown"
+              @mouseenter="openDropdown"
+              @mouseleave="closeDropdown"
+            >
               <span></span>
             </button>
           </div>
-          
+
           <transition name="fade">
-            <ul class="dropdown-menu" v-show="isDropdownOpen" 
-                @mouseenter="openDropdown" @mouseleave="closeDropdown">
-              <li v-if="user.role === 'student'">
-                <router-link to="/contests" @click="closeDropdown">Контрольные</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-contests" @click="closeDropdown">Задания</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-students" @click="closeDropdown">Студенты</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-groups" @click="closeDropdown">Группы</router-link>
-              </li>
-              <li v-if="user.role === 'teacher'">
-                <router-link to="/manage-solutions" @click="closeDropdown">Оценки</router-link>
-              </li>
-              <li><router-link to="/profile" @click="closeDropdown">Профиль</router-link></li>
-              <li><a @click.prevent="confirmLogout" style="cursor: pointer;">Выйти</a></li>
+            <ul
+              class="dropdown-menu"
+              v-show="isDropdownOpen"
+              @mouseenter="openDropdown"
+              @mouseleave="closeDropdown"
+            >
+              <!-- STUDENT MENU -->
+              <template v-if="user.role === 'student'">
+                <li>
+                  <router-link
+                    to="/contests"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/contests' }"
+                    >Контрольные</router-link
+                  >
+                </li>
+
+                <li class="divider"></li>
+
+                <li>
+                  <router-link
+                    to="/profile"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/profile' }"
+                    >Профиль</router-link
+                  >
+                </li>
+                <li class="logout-item"><a @click.prevent="confirmLogout">Выйти</a></li>
+              </template>
+
+              <!-- TEACHER MENU -->
+              <template v-else-if="user.role === 'teacher'">
+                <li class="menu-section">Управление</li>
+                <li>
+                  <router-link
+                    to="/manage-contests"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/manage-contests' }"
+                    >Задания</router-link
+                  >
+                </li>
+                <li>
+                  <router-link
+                    to="/manage-students"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/manage-students' }"
+                    >Студенты</router-link
+                  >
+                </li>
+                <li>
+                  <router-link
+                    to="/manage-groups"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/manage-groups' }"
+                    >Группы</router-link
+                  >
+                </li>
+
+                <li class="divider"></li>
+
+                <li class="menu-section">Проверка</li>
+                <li>
+                  <router-link
+                    to="/manage-solutions"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/manage-solutions' }"
+                    >Решения</router-link
+                  >
+                </li>
+                <!-- <li><router-link to="/" @click="closeDropdown" :class="{ active: $route.path === '/' }">Оценки</router-link></li> -->
+
+                <li class="divider"></li>
+
+                <li>
+                  <router-link
+                    to="/profile"
+                    @click="closeDropdown"
+                    :class="{ active: $route.path === '/profile' }"
+                    >Профиль</router-link
+                  >
+                </li>
+                <li class="logout-item"><a @click.prevent="confirmLogout">Выйти</a></li>
+              </template>
             </ul>
           </transition>
         </div>
@@ -64,8 +130,8 @@
 </template>
 
 <script>
-import { getUserInfo, logoutUser } from "../js/auth";
-import ConfirmDialog from './ConfirmDialog.vue';
+import { getUserInfo, logoutUser } from '../js/auth'
+import ConfirmDialog from './ConfirmDialog.vue'
 
 export default {
   components: { ConfirmDialog },
@@ -74,45 +140,45 @@ export default {
       user: null,
       isDropdownOpen: false,
       showLogoutConfirm: false,
-    };
+    }
   },
   async created() {
     try {
-      const userInfo = await getUserInfo();
-      this.user = userInfo;
+      const userInfo = await getUserInfo()
+      this.user = userInfo
     } catch {
-      this.user = null;
+      this.user = null
     }
   },
   methods: {
     async logout() {
-      const success = await logoutUser();
+      const success = await logoutUser()
       if (success) {
-        this.user = null;
-        this.$router.push("/login");
+        this.user = null
+        this.$router.push('/login')
       }
     },
     confirmLogout() {
-      this.showLogoutConfirm = true; 
+      this.showLogoutConfirm = true
     },
     handleLogoutConfirm() {
-      this.showLogoutConfirm = false;
-      this.logout(); 
+      this.showLogoutConfirm = false
+      this.logout()
     },
     handleLogoutCancel() {
-      this.showLogoutConfirm = false; 
+      this.showLogoutConfirm = false
     },
     toggleDropdown() {
-      this.isDropdownOpen = !this.isDropdownOpen;
+      this.isDropdownOpen = !this.isDropdownOpen
     },
     openDropdown() {
-      this.isDropdownOpen = true;
+      this.isDropdownOpen = true
     },
     closeDropdown() {
-      this.isDropdownOpen = false;
-    }
-  }
-};
+      this.isDropdownOpen = false
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -147,14 +213,16 @@ export default {
   font-weight: bold;
   color: #222;
   text-decoration: none;
-  gap: 8px; 
+  gap: 8px;
 }
 
 .logo-icon {
   width: 28px;
   height: 28px;
-  transition: transform 0.2s, color 0.2s;
-  color: #222; 
+  transition:
+    transform 0.2s,
+    color 0.2s;
+  color: #222;
 }
 
 .logo:hover .logo-icon {
@@ -207,7 +275,7 @@ export default {
 .hamburger-container {
   display: flex;
   justify-content: center;
-  width: 40px; 
+  width: 40px;
 }
 
 .hamburger-toggle {
@@ -224,7 +292,7 @@ export default {
 
 .hamburger-toggle span:after,
 .hamburger-toggle span:before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: -9px;
@@ -245,7 +313,7 @@ export default {
   display: block;
   width: 100%;
   height: 3px;
-  background-color: #333; 
+  background-color: #333;
   transition: all 0.3s;
   backface-visibility: hidden;
   border-radius: 2px;
@@ -254,18 +322,20 @@ export default {
 .hamburger-toggle.on span {
   background-color: transparent;
 }
+
 .hamburger-toggle.on span:before {
   transform: rotate(45deg) translate(5px, 5px);
-  background-color: #2f80ed; 
+  background-color: #2f80ed;
 }
+
 .hamburger-toggle.on span:after {
   transform: rotate(-45deg) translate(7px, -8px);
-  background-color: #2f80ed; 
+  background-color: #2f80ed;
 }
 
 .dropdown-menu {
   position: absolute;
-  right: -10px; 
+  right: -10px;
   top: calc(100% + 12px);
   background: white;
   border: 1px solid #ddd;
@@ -282,7 +352,7 @@ export default {
   position: absolute;
   top: -11px;
   right: 18px;
-  content: "";
+  content: '';
   display: block;
   border-left: 11px solid transparent;
   border-right: 11px solid transparent;
@@ -294,7 +364,7 @@ export default {
   position: absolute;
   top: -10px;
   right: 19px;
-  content: "";
+  content: '';
   display: block;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
@@ -309,21 +379,60 @@ export default {
   color: #333;
   text-decoration: none;
   font-size: 14px;
-  display: block;
-  padding: 8px 20px;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+  border-radius: 6px;
 }
 
 .dropdown-menu a:hover {
-  background: #f0f4ff;
+  background: #eef4ff;
   color: #2f80ed;
+  transform: translateX(2px);
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s, transform 0.2s;
+.dropdown-menu a.active {
+  color: #2f80ed;
+  font-weight: 600;
+  background: #f0f4ff;
 }
 
-.fade-enter, .fade-leave-to {
+.dropdown-menu .logout-item a {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.dropdown-menu .logout-item a:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.dropdown-menu .menu-section {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 6px 20px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dropdown-menu .divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 6px 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(-5px);
 }

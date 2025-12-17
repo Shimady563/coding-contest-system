@@ -10,6 +10,7 @@ import com.shimady563.contest.manager.model.dto.UserResponseDto;
 import com.shimady563.contest.manager.model.dto.UserUpdateRequestDto;
 import com.shimady563.contest.manager.repository.UserRepository;
 import com.shimady563.contest.manager.specification.UserSpecification;
+import com.shimady563.contest.manager.validation.PasswordUpdateValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class UserService implements UserDetailsService {
     private final GroupService groupService;
     private final ContestService contestService;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordUpdateValidator passwordUpdateValidator;
 
     protected User getUserByEmail(String email) {
         log.info("Getting user by email: {}", email);
@@ -54,45 +56,6 @@ public class UserService implements UserDetailsService {
         return UserConverter.domain2Response(getUserById(id));
     }
 
-    @Transactional(readOnly = true)
-    public Page<UserResponseDto> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
-        StringBuilder logMessage = new StringBuilder().append("Searching for all users with ");
-        List<Specification<User>> specifications = new ArrayList<>();
-
-        if (firstName != null) {
-            specifications.add(UserSpecification.hasFirstName(firstName));
-            logMessage.append("first name: ").append(firstName).append(", ");
-        }
-        if (lastName != null) {
-            specifications.add(UserSpecification.hasLastName(lastName));
-            logMessage.append("last name: ").append(lastName).append(", ");
-        }
-        if (email != null) {
-            specifications.add(UserSpecification.hasEmail(email));
-            logMessage.append("email: ").append(email).append(", ");
-        }
-        if (role != null) {
-            specifications.add(UserSpecification.hasRole(role));
-            logMessage.append("role: ").append(role).append(", ");
-        }
-        if (groupName != null) {
-            specifications.add(UserSpecification.hasGroupName(groupName));
-            logMessage.append("group name: ").append(groupName).append(", ");
-        }
-
-        int length = logMessage.length();
-
-        if (logMessage.charAt(length - 2) == ',') {
-            logMessage.delete(length - 2, length);
-        } else {
-            logMessage.delete(length - 6, length);
-        }
-
-        log.info(logMessage.toString());
-        return userRepository.findAll(Specification.allOf(specifications), pageRequest)
-                .map(UserConverter::domain2Response);
-    }
-
     @Transactional
     public void updateUserById(Long id, UserUpdateRequestDto request) {
         log.info("Updating user with id: {}", id);
@@ -101,8 +64,7 @@ public class UserService implements UserDetailsService {
         Role curUserRole = curUser.getRole();
 
         if ((curUserRole == ROLE_STUDENT && !curUser.getId().equals(user.getId()))
-                || (curUserRole == ROLE_TEACHER && user.getRole() == ROLE_TEACHER
-                && !curUser.getId().equals(user.getId()))) {
+                || (curUserRole == ROLE_TEACHER && user.getRole() == ROLE_TEACHER && !curUser.getId().equals(user.getId()))) {
             throw new AccessDeniedException("User with role " +
                     curUserRole.getValue() + " cannot update other " +
                     curUserRole.getValue() + "s. User id: " + curUser.getId());
@@ -111,33 +73,9 @@ public class UserService implements UserDetailsService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        if (user.getGroup() != null
-                && !user.getGroup().getId().equals(request.getGroupId())) {
-            Group newGroup = groupService.getGroupById(request.getGroupId());
-            user.setGroup(newGroup);
-        }
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
+        updateEmail(request, user);
+        updatePassword(request, user);
         userRepository.save(user);
-    }
-
-    private void updateTeacher(User user, Long userId, UserUpdateRequestDto request) {
-        if (!user.getId().equals(userId) && user.getRole() == Role.ROLE_TEACHER) {
-            throw new AccessDeniedException("User with role teacher cannot update other teachers. User id: " + userId);
-        }
-        updateUserInternal(user, request);
-    }
-
-    private void updateStudent(User user, Long userId, UserUpdateRequestDto request) {
-        if (!user.getId().equals(userId)) {
-            throw new AccessDeniedException("User with role student cannot update other users. User id: " + userId);
-        }
-        updateUserInternal(user, request);
-    }
-
-    private void updateUserInternal(User user, UserUpdateRequestDto request) {
-
     }
 
     @Transactional
@@ -179,6 +117,62 @@ public class UserService implements UserDetailsService {
         }
 
         user.addContestVersion(contestVersion);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponseDto> searchForUsers(String firstName, String lastName, String email, Role role, String groupName, PageRequest pageRequest) {
+        StringBuilder logMessage = new StringBuilder().append("Searching for all users with ");
+        List<Specification<User>> specifications = new ArrayList<>();
+
+        if (firstName != null) {
+            specifications.add(UserSpecification.hasFirstName(firstName));
+            logMessage.append("first name: ").append(firstName).append(", ");
+        }
+        if (lastName != null) {
+            specifications.add(UserSpecification.hasLastName(lastName));
+            logMessage.append("last name: ").append(lastName).append(", ");
+        }
+        if (email != null) {
+            specifications.add(UserSpecification.hasEmail(email));
+            logMessage.append("email: ").append(email).append(", ");
+        }
+        if (role != null) {
+            specifications.add(UserSpecification.hasRole(role));
+            logMessage.append("role: ").append(role).append(", ");
+        }
+        if (groupName != null) {
+            specifications.add(UserSpecification.hasGroupName(groupName));
+            logMessage.append("group name: ").append(groupName).append(", ");
+        }
+
+        int length = logMessage.length();
+
+        if (logMessage.charAt(length - 2) == ',') {
+            logMessage.delete(length - 2, length);
+        } else {
+            logMessage.delete(length - 6, length);
+        }
+
+        log.info(logMessage.toString());
+        return userRepository.findAll(Specification.allOf(specifications), pageRequest)
+                .map(UserConverter::domain2Response);
+    }
+
+    private void updatePassword(UserUpdateRequestDto request, User user) {
+        boolean shouldUpdatePassword = passwordUpdateValidator.validateIfPresent(request.getPassword());
+        if (shouldUpdatePassword
+                && !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+    }
+
+    private void updateEmail(UserUpdateRequestDto request, User user) {
+        if (user.getRole() == ROLE_STUDENT
+                && request.getGroupId() != null
+                && !user.getGroup().getId().equals(request.getGroupId())) {
+            Group newGroup = groupService.getGroupById(request.getGroupId());
+            user.setGroup(newGroup);
+        }
     }
 
     protected User getCurrentUser() {
