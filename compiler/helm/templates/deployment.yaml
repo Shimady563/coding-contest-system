@@ -16,39 +16,33 @@ spec:
       labels:
         {{- include "compiler.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.global.serviceAccount }}
       containers:
         - name: {{ .Chart.Name }}
-          serviceAccountName: {{ .Values.global.serviceAccount }}
-          image: {{ .Values.global.dockerRepositoryName }}/{{ .Values.compiler.dockerImageName }}:{{ .Values.global.dockerTag }}
+          image: {{ .Values.compiler.dockerImageName }}:{{ .Values.global.dockerTag }}
+          imagePullPolicy: IfNotPresent
           ports:
-            - name: Compiler
+            - name: compiler
               protocol: TCP
-              containerPort: {{ .Values.compiler.server.port }}
+              containerPort: {{ .Values.compiler.server.internalPort }}
           readinessProbe:
             httpGet:
               path: {{ .Values.compiler.server.basePath }}/actuator/health/readiness
-              port: {{ .Values.compiler.server.port }}
+              port: {{ .Values.compiler.server.externalPort }}
             initialDelaySeconds: 30
             periodSeconds: 20
             failureThreshold: 10
           livenessProbe:
             httpGet:
               path: {{ .Values.compiler.server.basePath }}/actuator/health/liveness
-              port: {{ .Values.compiler.server.port }}
+              port: {{ .Values.compiler.server.externalPort }}
             initialDelaySeconds: 60
             periodSeconds: 20
             failureThreshold: 10
           resources:
             {{- toYaml .Values.compiler.resources | nindent 12 }}
-          volumeMounts:
-            - name: {{ .Chart.Name }}-config
-              mountPath: {{ .Values.global.mountPath.config }}
-            - name: {{ .Chart.Name }}-secret
-              mountPath: {{ .Values.global.mountPath.secret }}
-      volumes:
-        - name: {{ .Chart.Name }}-config
-          configMap:
-            name: {{ .Chart.Name }}-config
-        - name: {{ .Chart.Name }}-secret
-          secret:
-            secretName: {{ .Chart.Name }}-secret
+          envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-config
+            - secretRef:
+                name: {{ .Chart.Name }}-secret

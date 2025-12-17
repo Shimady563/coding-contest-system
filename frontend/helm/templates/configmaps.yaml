@@ -5,5 +5,5 @@ metadata:
   labels:
     {{- include "frontend.labels" . | nindent 4 }}
 data:
-  VITE_APP_MANAGER_URL: {{ .Values.frontend.managerUrl }}
-  VITE_APP_AUTH_URL: {{ .Values.frontend.authUrl }}
+  VITE_APP_MANAGER_URL: {{ .Values.frontend.managerUrl | quote }}
+  VITE_APP_AUTH_URL: {{ .Values.frontend.authUrl | quote }}

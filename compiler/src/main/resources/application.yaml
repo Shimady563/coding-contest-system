@@ -1,6 +1,8 @@
 spring:
   application:
     name: Compiler
+  config:
+    import: optional:configtree:/etc/spring-config/,optional:configtree:/etc/spring-secret/
   datasource:
     driver-class-name: org.postgresql.Driver
   kafka:
@@ -37,11 +39,10 @@ compiler:
 server:
   servlet:
     context-path: /api/v1/compiler
-    port: 8082
 
 management:
   endpoints:
-    web.exposure.include: *
+    web.exposure.include: "*"
   endpoint:
     health:
       probes.enabled: true

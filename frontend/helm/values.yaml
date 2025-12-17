@@ -1,0 +1,15 @@
+frontend:
+  replicas: 1
+  dockerImageName: coding-contest-system-frontend
+  internalPort: 5173
+  externalPort: 5173
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+  managerUrl: /api/v1
+  authUrl: /api/v1/auth

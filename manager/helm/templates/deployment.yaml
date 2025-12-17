@@ -16,14 +16,15 @@ spec:
       labels:
         {{- include "manager.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ .Values.global.serviceAccount }}
       containers:
         - name: {{ .Chart.Name }}
-          serviceAccountName: {{ .Values.global.serviceAccount }}
-          image: {{ .Values.global.dockerRepositoryName }}/{{ .Values.manager.dockerImageName }}:{{ .Values.global.dockerTag }}
+          image: {{ .Values.manager.dockerImageName }}:{{ .Values.global.dockerTag }}
+          imagePullPolicy: IfNotPresent
           ports:
-            - name: Manager
+            - name: manager
               protocol: TCP
-              containerPort: {{ .Values.manager.server.externalPort }}
+              containerPort: {{ .Values.manager.server.internalPort }}
           readinessProbe:
             httpGet:
               path: {{ .Values.manager.server.basePath }}/actuator/health/readiness
@@ -39,16 +40,8 @@ spec:
             periodSeconds: 20
             failureThreshold: 10
           resources:
-            {{- toYaml .Values.manager.resources | nindent 12 }}
-          volumeMounts:
-            - name: config
-              mountPath: {{ .Values.global.mountPath.config }}
-            - name: secret
-              mountPath: {{ .Values.global.mountPath.secret }}
-      volumes:
-        - name: config
-          configMap:
-            name: {{ .Chart.Namespace }}-config
-        - name: secret
-          secret:
-            secretName: {{ .Chart.Namespace }}-secret
+          envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-config
+            - secretRef:
+                name: {{ .Chart.Name }}-secret

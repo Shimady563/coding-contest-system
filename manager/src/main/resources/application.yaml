@@ -1,6 +1,8 @@
 spring:
   application:
     name: Manager
+  config:
+    import: optional:configtree:/etc/spring-config/,optional:configtree:/etc/spring-secret/
   datasource:
     driver-class-name: org.postgresql.Driver
   liquibase:
@@ -37,7 +39,7 @@ server:
 
 management:
   endpoints:
-    web.exposure.include: *
+    web.exposure.include: "*"
   endpoint:
     health:
       probes.enabled: true

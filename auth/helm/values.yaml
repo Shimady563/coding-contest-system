@@ -1,0 +1,22 @@
+auth:
+  replicas: 1
+  dockerImageName: coding-contest-system-auth
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+  profiles: prod
+  whitelist: /signup, /login, /refresh, /logout, /actuator, /actuator/**
+  allowedOrigins:  http://192.168.49.2, http://192.168.49.2:5173, http://localhost:5173, https://coding-contest.k-lab.su, http://coding-contest.k-lab.su, https://192.168.0.38:30443, http://192.168.0.38:30443
+
+  server:
+    basePath: /api/v1/auth
+    internalPort: 8081
+    externalPort: 8081
+
+  logLevel:
+    root: INFO
+    auth: DEBUG

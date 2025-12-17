@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-config
+  labels:
+    {{- include "auth.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.auth.profiles | quote | default "prod" }}
+
+  AUTH_WHITELIST: {{ .Values.auth.whitelist | quote }}
+  AUTH_ALLOWED_ORIGINS: {{ .Values.auth.allowedOrigins | quote }}
+
+  SERVER_SERVLET_CONTEXT_PATH: {{ .Values.auth.server.basePath | quote }}
+  SERVER_PORT: {{ .Values.auth.server.internalPort | quote }}
+
+  LOGGING_LEVEL_ROOT: {{ .Values.auth.logLevel.root | quote | default "INFO" }}
+  LOGGING_LEVEL_COM_SHIMADY_AUTH: {{ .Values.auth.logLevel.auth | quote | default "INFO" }}
