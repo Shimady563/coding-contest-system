@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "auth.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.auth.replicas }}
+  selector:
+    matchLabels:
+      {{- include "auth.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "auth.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.global.serviceAccount }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: {{ .Values.auth.dockerImageName }}:{{ .Values.global.dockerTag }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: auth
+              protocol: TCP
+              containerPort: {{ .Values.auth.server.internalPort }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.auth.server.basePath }}/actuator/health/readiness
+              port: {{ .Values.auth.server.externalPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.auth.server.basePath }}/actuator/health/liveness
+              port: {{ .Values.auth.server.externalPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 10
+          resources:
+            {{- toYaml .Values.auth.resources | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-config
+            - secretRef:
+                name: {{ .Chart.Name }}-secret

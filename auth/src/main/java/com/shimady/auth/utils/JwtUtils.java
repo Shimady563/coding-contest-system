@@ -4,10 +4,12 @@ import com.shimady.auth.model.JwtAuthentication;
 import com.shimady.auth.model.Role;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 
 import java.util.Arrays;
 
+@Slf4j
 public class JwtUtils {
     public static JwtAuthentication generateAuthentication(Claims claims) {
         JwtAuthentication auth = new JwtAuthentication();
@@ -38,7 +40,7 @@ public class JwtUtils {
     private static ResponseCookie createCookie(String tokenName, String tokenValue, Long maxAgeMs) {
         return ResponseCookie.from(tokenName, tokenValue)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .maxAge(maxAgeMs / 1000L)
                 .path("/api/v1")
                 .build();

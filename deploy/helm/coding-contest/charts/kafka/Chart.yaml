@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kafka
+description: Single-node Kafka
+type: application
+version: 1.0.0
+appVersion: "8.1.0"

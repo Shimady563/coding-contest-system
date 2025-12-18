@@ -1,0 +1,141 @@
+{{- if .Values.cronjobs.enabled }}
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Chart.Name }}-cleanup
+  namespace: {{ .Release.Namespace }}
+
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.cronjobs.cleanup.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: cleanup
+              image: "{{ .Values.cronjobs.image.repository }}:{{ .Values.cronjobs.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+
+                  echo "Starting cleanup"
+
+                  export PGPASSWORD="$POSTGRES_PASSWORD"
+
+                  psql \
+                    -h "$POSTGRES_HOST" \
+                    -p "$POSTGRES_PORT" \
+                    -d "$POSTGRES_DB" \
+                    -U "$POSTGRES_USER" \
+                    -c "DELETE FROM solution WHERE submitted_at < now() - interval '180 days';"
+
+                  echo "Cleanup finished"
+              envFrom:
+                - secretRef:
+                    name: {{ .Chart.Name }}-secret
+              resources:
+                {{- toYaml .Values.cronjobs.cleanup.resources | nindent 16 }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Chart.Name }}-notifications
+  namespace: {{ .Release.Namespace }}
+
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.cronjobs.notifications.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: notifications
+              image: "{{ .Values.cronjobs.image.repository }}:{{ .Values.cronjobs.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command:
+                - sh
+                - -c
+                - |
+                  COUNT=$(psql \
+                    "host=$POSTGRES_HOST port=$POSTGRES_PORT dbname=$POSTGRES_DB user=$POSTGRES_USER password=$POSTGRES_PASSWORD" \
+                    -t -A -c "SELECT count(*) FROM solution WHERE status='INTERNAL_ERROR' AND submitted_at < now() - interval '1 day';")
+
+                  COUNT=$(echo "$COUNT" | xargs)
+
+                  if [ "$COUNT" -gt 0 ]; then
+                    echo "WARNING: $COUNT internal error submissions in the past day"
+                  else
+                    echo "No internal error submissions in the past day"
+                  fi
+              envFrom:
+                - secretRef:
+                    name: {{ .Chart.Name }}-secret
+              resources:
+                {{- toYaml .Values.cronjobs.notifications.resources | nindent 16 }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Chart.Name }}-reporting
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+spec:
+  schedule: "{{ .Values.cronjobs.reporting.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: reporting
+              image: "{{ .Values.cronjobs.image.repository }}:{{ .Values.cronjobs.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command:
+                - sh
+                - -c
+                - |
+                  echo "Starting report: number of solutions for every user (by id)"
+                  
+                  export PGPASSWORD="$POSTGRES_PASSWORD"
+
+                  psql \
+                    -h "$POSTGRES_HOST" \
+                    -p "$POSTGRES_PORT" \
+                    -d "$POSTGRES_DB" \
+                    -U "$POSTGRES_USER" \
+                    -A -F"," -t \
+                    -c "SELECT user_id, count(*) FROM solution GROUP BY user_id ORDER BY count(*) DESC;"
+
+                  echo "End of report"
+              envFrom:
+                - secretRef:
+                    name: {{ .Chart.Name }}-secret
+              resources:
+                {{- toYaml .Values.cronjobs.reporting.resources | nindent 16 }}
+
+  {{- end }}
