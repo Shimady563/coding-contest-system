@@ -31,7 +31,7 @@ public class KafkaConfig {
     @Bean
     public DefaultErrorHandler errorHandler() {
         return new DefaultErrorHandler(
-                ((record, e) -> log.error("Discarding message due to: {}", e.getCause().getMessage())),
+                ((r, e) -> log.error("Discarding message due to: {}", e.getCause().getMessage())),
                 new FixedBackOff(5000L, 5)
         );
     }

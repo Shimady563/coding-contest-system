@@ -125,11 +125,11 @@ class TaskServiceTest {
     @Test
     void shouldSearchForTasks() {
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Task task = new Task();
+        Task otherTask = new Task();
         TaskResponseDto dto = new TaskResponseDto();
         dto.setTestCases(List.of());
 
-        Page<Task> page = new PageImpl<>(List.of(task));
+        Page<Task> page = new PageImpl<>(List.of(otherTask));
 
         given(taskRepository.findAll(pageRequest)).willReturn(page);
 
@@ -147,12 +147,12 @@ class TaskServiceTest {
         User user = new User();
         user.setContestVersions(Set.of(contestVersion));
 
-        Task task = new Task();
+        Task otherTask = new Task();
         TaskResponseDto dto = new TaskResponseDto();
         dto.setTestCases(List.of());
 
         given(userService.getCurrentUser()).willReturn(user);
-        given(taskRepository.findByContestVersions(contestVersion)).willReturn(List.of(task));
+        given(taskRepository.findByContestVersions(contestVersion)).willReturn(List.of(otherTask));
 
         List<TaskResponseDto> result = taskService.getTasksByContestVersionId(contestVersionId);
 

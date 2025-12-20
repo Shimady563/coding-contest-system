@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 @Repository
 @RequiredArgsConstructor
 public class RefreshTokenRepository {
-    private final static String PREFIX = "refresh-token-";
+    private static final String PREFIX = "refresh-token-";
 
     @Value("${jwt.token.refresh.expiration}")
     private Long refreshTokenExpiration;

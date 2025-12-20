@@ -22,8 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-;
-
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Auth", description = "Authentication and session management endpoints")

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Import(TestcontainersConfiguration.class)
 @Testcontainers(disabledWithoutDocker = true)
 public class RefreshTokenRepositoryTest {
-    private final static String PREFIX = "refresh-token-";
+    private static final String PREFIX = "refresh-token-";
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;

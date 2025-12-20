@@ -1,7 +1,6 @@
 package com.shimady.contest.compiler.listener;
 
 import com.shimady.contest.compiler.config.TestcontainersConfiguration;
-import com.shimady.contest.compiler.config.props.CompilerProperties;
 import com.shimady.contest.compiler.config.props.KafkaTopicProperties;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
@@ -13,7 +12,6 @@ import com.shimady.contest.compiler.service.SubmissionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;

@@ -68,7 +68,6 @@ class ContestServiceTest {
 
         Group group = new Group();
         Contest savedContest = new Contest();
-        ContestResponseDto responseDto = new ContestResponseDto();
 
         given(groupService.getGroupById(groupId)).willReturn(group);
         given(contestRepository.save(any(Contest.class))).willReturn(savedContest);

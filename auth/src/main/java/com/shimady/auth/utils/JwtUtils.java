@@ -4,10 +4,12 @@ import com.shimady.auth.model.JwtAuthentication;
 import com.shimady.auth.model.Role;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import lombok.experimental.UtilityClass;
 import org.springframework.http.ResponseCookie;
 
 import java.util.Arrays;
 
+@UtilityClass
 public class JwtUtils {
     public static JwtAuthentication generateAuthentication(Claims claims) {
         JwtAuthentication auth = new JwtAuthentication();

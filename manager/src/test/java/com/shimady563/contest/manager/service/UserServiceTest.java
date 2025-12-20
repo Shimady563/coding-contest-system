@@ -167,7 +167,6 @@ class UserServiceTest {
 
     @Test
     void shouldSkipGroupUpdateWhenGroupIdEmpty() {
-        Long newUserId = 2L;
         UserUpdateRequestDto request = new UserUpdateRequestDto();
         request.setFirstName("John");
         request.setLastName("Doe");

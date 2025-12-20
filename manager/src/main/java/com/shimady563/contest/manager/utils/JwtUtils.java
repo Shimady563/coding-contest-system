@@ -5,9 +5,11 @@ import com.shimady563.contest.manager.model.JwtAuthentication;
 import com.shimady563.contest.manager.model.Role;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
+import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 
+@UtilityClass
 public class JwtUtils {
     public static JwtAuthentication generateAuthentication(Claims claims) {
         JwtAuthentication auth = new JwtAuthentication();
