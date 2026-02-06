@@ -29,8 +29,8 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final AuthProperties authProperties;
     private final JwtProperties jwtProperties;
-    private final JwtProvider provider;
-    private final ObjectMapper mapper;
+    private final JwtProvider jwtProvider;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(
@@ -41,13 +41,13 @@ public class JwtFilter extends OncePerRequestFilter {
         log.debug("Filtering request: {}", request.getRequestURI());
         String token = JwtUtils.getTokenFromCookies(request.getCookies(), jwtProperties.getAccess().getCookieName());
 
-        if (!provider.validateAccessToken(token)) {
+        if (!jwtProvider.validateAccessToken(token)) {
             log.warn("Jwt token is invalid or expired");
             SecurityContextHolder.clearContext();
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write(
-                    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
                             new AppError(
                                     "Jwt token is invalid or expired",
                                     HttpStatus.UNAUTHORIZED.value()
@@ -58,7 +58,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         log.debug("Jwt token validated successfully");
-        Claims claims = provider.getClaimsFromAccessToken(token);
+        Claims claims = jwtProvider.getClaimsFromAccessToken(token);
         JwtAuthentication authentication = JwtUtils.generateAuthentication(claims);
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);

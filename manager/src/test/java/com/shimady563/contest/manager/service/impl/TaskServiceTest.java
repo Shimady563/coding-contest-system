@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
@@ -39,10 +39,10 @@ class TaskServiceTest {
     private TaskRepository taskRepository;
 
     @Mock
-    private UserService userService;
+    private InternalUserService userService;
 
     @InjectMocks
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     private Task task;
     private TaskRequestDto requestDto;

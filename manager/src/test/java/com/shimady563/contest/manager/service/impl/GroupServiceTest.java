@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Group;
@@ -29,7 +29,7 @@ class GroupServiceTest {
     private GroupRepository groupRepository;
 
     @InjectMocks
-    private GroupService groupService;
+    private GroupServiceImpl groupService;
 
     @Test
     void shouldGetGroupById() {

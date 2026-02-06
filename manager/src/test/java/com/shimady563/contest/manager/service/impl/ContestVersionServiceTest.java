@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Contest;
@@ -28,13 +28,13 @@ class ContestVersionServiceTest {
     private ContestVersionRepository contestVersionRepository;
 
     @Mock
-    private ContestService contestService;
+    private InternalContestService contestService;
 
     @Mock
-    private TaskService taskService;
+    private InternalTaskService taskService;
 
     @InjectMocks
-    private ContestVersionService contestVersionService;
+    private ContestVersionServiceImpl contestVersionServiceImpl;
 
     @Test
     void shouldGetContestVersionById() {
@@ -44,7 +44,7 @@ class ContestVersionServiceTest {
 
         given(contestVersionRepository.findById(id)).willReturn(Optional.of(contestVersion));
 
-        ContestVersion result = contestVersionService.getContestVersionById(id);
+        ContestVersion result = contestVersionServiceImpl.getContestVersionById(id);
 
         assertEquals(contestVersion, result);
     }
@@ -54,7 +54,7 @@ class ContestVersionServiceTest {
         given(contestVersionRepository.findById(999L)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> contestVersionService.getContestVersionById(999L));
+                () -> contestVersionServiceImpl.getContestVersionById(999L));
     }
 
     @Test
@@ -65,7 +65,7 @@ class ContestVersionServiceTest {
 
         given(contestVersionRepository.findByIdFetchUsers(id)).willReturn(Optional.of(contestVersion));
 
-        ContestVersion result = contestVersionService.getContestVersionWithUsersById(id);
+        ContestVersion result = contestVersionServiceImpl.getContestVersionWithUsersById(id);
 
         assertEquals(contestVersion, result);
     }
@@ -75,7 +75,7 @@ class ContestVersionServiceTest {
         given(contestVersionRepository.findByIdFetchUsers(999L)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> contestVersionService.getContestVersionWithUsersById(999L));
+                () -> contestVersionServiceImpl.getContestVersionWithUsersById(999L));
     }
 
     @Test
@@ -95,7 +95,7 @@ class ContestVersionServiceTest {
         given(contestService.getContestByIdInternal(contestId)).willReturn(contest);
         given(taskService.getTasksByIds(List.of(101L, 102L))).willReturn(List.of(task1, task2));
 
-        contestVersionService.createContestVersion(request);
+        contestVersionServiceImpl.createContestVersion(request);
 
         then(contestVersionRepository).should().save(any(ContestVersion.class));
     }
@@ -110,7 +110,7 @@ class ContestVersionServiceTest {
         given(contestService.getContestByIdInternal(1L)).willReturn(contest);
         given(contestVersionRepository.findByContest(contest)).willReturn(List.of(contestVersion));
 
-        List<ContestVersionResponseDto> result = contestVersionService.getContestVersionsByContestId(1L);
+        List<ContestVersionResponseDto> result = contestVersionServiceImpl.getContestVersionsByContestId(1L);
 
         assertThat(result).hasSize(1).containsExactly(dto);
     }
@@ -123,7 +123,7 @@ class ContestVersionServiceTest {
 
         given(contestVersionRepository.findById(contestVersionId)).willReturn(Optional.of(contestVersion));
 
-        contestVersionService.deleteContestVersionById(contestVersionId);
+        contestVersionServiceImpl.deleteContestVersionById(contestVersionId);
 
         then(contestVersionRepository).should().delete(contestVersion);
     }
@@ -134,7 +134,7 @@ class ContestVersionServiceTest {
         given(contestVersionRepository.findById(contestVersionId)).willReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> contestVersionService.deleteContestVersionById(contestVersionId));
+                () -> contestVersionServiceImpl.deleteContestVersionById(contestVersionId));
 
         then(contestVersionRepository).should(never()).delete(any());
     }

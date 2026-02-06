@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Solution;
@@ -33,13 +33,13 @@ class SolutionServiceTest {
     private SolutionRepository solutionRepository;
 
     @Mock
-    private UserService userService;
+    private InternalUserService userService;
 
     @Mock
-    private TaskService taskService;
+    private InternalTaskService taskService;
 
     @InjectMocks
-    private SolutionService solutionService;
+    private SolutionServiceImpl solutionService;
 
     @Test
     void shouldReturnMappedSolutionById() {

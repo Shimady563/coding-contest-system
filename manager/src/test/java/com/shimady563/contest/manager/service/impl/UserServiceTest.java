@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.AccessDeniedException;
 import com.shimady563.contest.manager.exception.DataConflictException;
@@ -42,17 +42,17 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private GroupService groupService;
+    private InternalGroupService groupServiceImpl;
 
     @Mock
-    private ContestService contestService;
+    private InternalContestService contestService;
 
     @Mock
     private PasswordUpdateValidator passwordUpdateValidator;
 
     @Spy
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private User user;
 
@@ -119,7 +119,7 @@ class UserServiceTest {
         newGroup.setId(newUserId);
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
-        given(groupService.getGroupById(newUserId)).willReturn(newGroup);
+        given(groupServiceImpl.getGroupById(newUserId)).willReturn(newGroup);
         given(passwordUpdateValidator.validateIfPresent(newPassword)).willReturn(true);
         given(passwordEncoder.matches(eq(request.getPassword()), anyString())).willReturn(false);
         given(passwordEncoder.encode(request.getPassword())).willReturn(newPassword);
@@ -149,7 +149,7 @@ class UserServiceTest {
         newGroup.setId(newUserId);
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
-        given(groupService.getGroupById(newUserId)).willReturn(newGroup);
+        given(groupServiceImpl.getGroupById(newUserId)).willReturn(newGroup);
         given(passwordUpdateValidator.validateIfPresent("")).willReturn(false);
         willReturn(user).given(userService).getCurrentUser();
 
@@ -185,7 +185,7 @@ class UserServiceTest {
         assertThat(user.getPassword()).isEqualTo("StrongPassword!123");
         then(passwordEncoder).should(never()).matches(anyString(), anyString());
         then(passwordEncoder).should(never()).encode(anyString());
-        then(groupService).should(never()).getGroupById(anyLong());
+        then(groupServiceImpl).should(never()).getGroupById(anyLong());
         then(userRepository).should().save(user);
     }
 
@@ -234,7 +234,7 @@ class UserServiceTest {
                 userService.updateUserById(newUserId, request)
         );
 
-        then(groupService).shouldHaveNoInteractions();
+        then(groupServiceImpl).shouldHaveNoInteractions();
         then(userRepository).shouldHaveNoMoreInteractions();
     }
 
@@ -266,7 +266,7 @@ class UserServiceTest {
                 userService.updateUserById(newUserId, request)
         );
 
-        then(groupService).shouldHaveNoInteractions();
+        then(groupServiceImpl).shouldHaveNoInteractions();
         then(userRepository).shouldHaveNoMoreInteractions();
     }
 

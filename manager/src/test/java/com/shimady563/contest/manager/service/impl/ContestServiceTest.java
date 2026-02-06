@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.exception.ResourceNotFoundException;
 import com.shimady563.contest.manager.model.Contest;
@@ -31,13 +31,13 @@ import static org.mockito.Mockito.never;
 @ExtendWith(MockitoExtension.class)
 class ContestServiceTest {
     @Mock
-    private GroupService groupService;
+    private InternalGroupService groupService;
 
     @Mock
     private ContestRepository contestRepository;
 
     @InjectMocks
-    private ContestService contestService;
+    private ContestServiceImpl contestService;
 
     @Test
     void shouldGetContestsByName() {

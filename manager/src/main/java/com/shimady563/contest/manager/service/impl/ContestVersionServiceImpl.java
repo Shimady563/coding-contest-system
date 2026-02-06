@@ -1,0 +1,64 @@
+package com.shimady563.contest.manager.service.impl;
+
+import com.shimady563.contest.manager.converter.ContestVersionConverter;
+import com.shimady563.contest.manager.model.Contest;
+import com.shimady563.contest.manager.model.ContestVersion;
+import com.shimady563.contest.manager.model.Task;
+import com.shimady563.contest.manager.model.dto.ContestVersionRequestDto;
+import com.shimady563.contest.manager.model.dto.ContestVersionResponseDto;
+import com.shimady563.contest.manager.repository.ContestVersionRepository;
+import com.shimady563.contest.manager.service.ContestVersionService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Slf4j
+@Service
+public class ContestVersionServiceImpl extends InternalContestVersionService implements ContestVersionService {
+    private final InternalContestService contestService;
+    private final InternalTaskService taskService;
+
+    public ContestVersionServiceImpl(
+            ContestVersionRepository contestVersionRepository,
+            InternalContestService contestService,
+            TaskServiceImpl taskService
+    ) {
+        super(contestVersionRepository);
+        this.contestService = contestService;
+        this.taskService = taskService;
+    }
+
+    @Override
+    @Transactional
+    public void createContestVersion(ContestVersionRequestDto request) {
+        log.info("Creating contest version from request: {}", request);
+        ContestVersion contestVersion = ContestVersionConverter.request2Domain(request);
+        Contest contest = contestService.getContestByIdInternal(request.getContestId());
+        List<Task> tasks = taskService.getTasksByIds(request.getTaskIds());
+        contest.addContestVersion(contestVersion);
+        tasks.forEach(contestVersion::addTask);
+        contestVersionRepository.save(contestVersion);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContestVersionResponseDto> getContestVersionsByContestId(Long contestId) {
+        log.info("Getting contest versions by contest id: {}", contestId);
+        Contest contest = contestService.getContestByIdInternal(contestId);
+        return contestVersionRepository.findByContest(contest)
+                .stream()
+                .map(ContestVersionConverter::domain2Response)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void deleteContestVersionById(Long id) {
+        log.info("Deleting contest version with id: {}", id);
+        ContestVersion contestVersion = getContestVersionById(id);
+        contestVersion.removeUsers();
+        contestVersionRepository.delete(contestVersion);
+    }
+}

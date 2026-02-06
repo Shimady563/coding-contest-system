@@ -1,4 +1,4 @@
-package com.shimady563.contest.manager.service;
+package com.shimady563.contest.manager.service.impl;
 
 import com.shimady563.contest.manager.config.props.KafkaTopicProperties;
 import com.shimady563.contest.manager.exception.SubmissionInvalidException;
@@ -29,19 +29,19 @@ class SubmissionServiceTest {
     private static final KafkaTopicProperties PROPS = new KafkaTopicProperties();
 
     @Mock
-    private UserService userService;
+    private InternalUserService userService;
 
     @Mock
-    private ContestVersionService contestVersionService;
+    private InternalContestVersionService contestVersionServiceImpl;
 
     @Mock
-    private TaskService taskService;
+    private InternalTaskService taskService;
 
     @Mock
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @InjectMocks
-    private SubmissionService submissionService;
+    private SubmissionServiceImpl submissionService;
 
     @BeforeEach
     @SneakyThrows
@@ -88,7 +88,7 @@ class SubmissionServiceTest {
         submission.setSubmittedAt(dto.getSubmittedAt());
         String key = submission.getTaskId() + submission.getUserId() + submission.getSubmittedAt().toString();
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
         given(userService.getCurrentUser()).willReturn(user);
         given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
@@ -114,7 +114,7 @@ class SubmissionServiceTest {
 
         contestVersion.setContest(contest);
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
@@ -141,7 +141,7 @@ class SubmissionServiceTest {
 
         contestVersion.setContest(contest);
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
 
         assertThatThrownBy(() -> submissionService.submitSolution(dto))
                 .isInstanceOf(SubmissionInvalidException.class)
@@ -179,7 +179,7 @@ class SubmissionServiceTest {
 
         contestVersion.setContest(contest);
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
         given(userService.getCurrentUser()).willReturn(user);
 
@@ -219,7 +219,7 @@ class SubmissionServiceTest {
 
         user.addContestVersion(contestVersion);
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
         given(userService.getCurrentUser()).willReturn(user);
         given(taskService.getTaskByIdInternal(taskId)).willReturn(task);
@@ -262,7 +262,7 @@ class SubmissionServiceTest {
 
         contestVersion.setContest(contest);
 
-        given(contestVersionService.getContestVersionById(contestVersionId)).willReturn(contestVersion);
+        given(contestVersionServiceImpl.getContestVersionById(contestVersionId)).willReturn(contestVersion);
         given(userService.getUserById(userId)).willReturn(user);
         given(userService.getCurrentUser()).willReturn(curUser);
 

@@ -1,0 +1,65 @@
+package com.shimady563.contest.manager.service.impl;
+
+import com.shimady563.contest.manager.config.props.JwtProperties;
+import com.shimady563.contest.manager.service.JwtProvider;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+
+import javax.crypto.SecretKey;
+
+@Slf4j
+@Repository
+public class JwtProviderImpl implements JwtProvider {
+    private final SecretKey accessSecret;
+
+    public JwtProviderImpl(JwtProperties jwtProperties) {
+        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.getAccess().getSecret()));
+    }
+
+    @Override
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, accessSecret);
+    }
+
+    @Override
+    public Claims getClaimsFromAccessToken(String token) {
+        return getClaimsFromToken(token, accessSecret);
+    }
+
+    private boolean validateToken(String token, SecretKey secret) {
+        if (!StringUtils.hasText(token)) {
+            return false;
+        }
+        try {
+            Jwts.parser()
+                    .verifyWith(secret)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("Jwt token expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            log.warn("Jwt token unsupported: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.warn("Jwt token malformed: {}", e.getMessage());
+        } catch (SignatureException e) {
+            log.warn("Jwt token has wrong signature: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid jwt token: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    private Claims getClaimsFromToken(String token, SecretKey secret) {
+        return Jwts.parser()
+                .verifyWith(secret)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+}
