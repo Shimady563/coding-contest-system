@@ -1,4 +1,4 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.exception.ResourceNotFoundException;
 import com.shimady.contest.compiler.model.User;
@@ -21,7 +21,7 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Test
     void shouldGetTaskById() {

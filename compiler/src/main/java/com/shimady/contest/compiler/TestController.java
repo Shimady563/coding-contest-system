@@ -6,8 +6,8 @@ import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.model.dto.SolutionResponse;
 import com.shimady.contest.compiler.repository.TaskRepository;
 import com.shimady.contest.compiler.repository.UserRepository;
-import com.shimady.contest.compiler.service.SolutionService;
-import com.shimady.contest.compiler.service.SubmissionService;
+import com.shimady.contest.compiler.service.impl.SolutionServiceImpl;
+import com.shimady.contest.compiler.service.impl.SubmissionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +19,8 @@ import java.util.List;
 @RequestMapping("/test")
 @RequiredArgsConstructor
 public class TestController {
-    private final SubmissionService submissionService;
-    private final SolutionService solutionService;
+    private final SubmissionServiceImpl submissionService;
+    private final SolutionServiceImpl solutionService;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 

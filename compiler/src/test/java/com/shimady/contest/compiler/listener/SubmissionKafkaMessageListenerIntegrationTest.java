@@ -8,7 +8,7 @@ import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.repository.TaskRepository;
 import com.shimady.contest.compiler.repository.UserRepository;
-import com.shimady.contest.compiler.service.SubmissionService;
+import com.shimady.contest.compiler.service.impl.SubmissionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ public class SubmissionKafkaMessageListenerIntegrationTest {
     private KafkaTopicProperties properties;
 
     @MockitoSpyBean
-    private SubmissionService submissionService;
+    private SubmissionServiceImpl submissionService;
 
     @MockitoSpyBean
     private SubmissionKafkaMessageListener listener;

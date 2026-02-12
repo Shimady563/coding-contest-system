@@ -1,8 +1,9 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.exception.ResourceNotFoundException;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.repository.TaskRepository;
+import com.shimady.contest.compiler.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +22,7 @@ public class TaskServiceTest {
     private TaskRepository taskRepository;
 
     @InjectMocks
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     @Test
     void shouldGetTaskById() {

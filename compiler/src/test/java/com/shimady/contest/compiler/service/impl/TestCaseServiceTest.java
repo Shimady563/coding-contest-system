@@ -1,8 +1,9 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
 import com.shimady.contest.compiler.repository.TestCaseRepository;
+import com.shimady.contest.compiler.service.TestCaseService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ public class TestCaseServiceTest {
     private TestCaseRepository testCaseRepository;
 
     @InjectMocks
-    private TestCaseService testCaseService;
+    private TestCaseServiceImpl testCaseService;
 
     @Test
     void shouldGetAllTestCasesByTask() {

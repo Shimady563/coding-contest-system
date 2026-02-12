@@ -1,10 +1,11 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.model.dto.CodeSubmission;
 import com.shimady.contest.compiler.model.dto.CompilationResult;
+import com.shimady.contest.compiler.service.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +32,7 @@ public class SubmissionServiceTest {
     private SolutionService solutionService;
 
     @InjectMocks
-    private SubmissionService submissionService;
+    private SubmissionServiceImpl submissionService;
 
     @Test
     void shouldSubmitSolution() {
@@ -54,7 +55,7 @@ public class SubmissionServiceTest {
                 .willReturn(new CompilationResult(SolutionStatus.COMPILE_ERROR, (short) 0));
 
         submissionService.submitSolution(submission);
-        
+
         then(solutionService).should().createSolution(
                 submission.getCode(),
                 submission.getSubmittedAt(),

@@ -1,10 +1,11 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.model.Solution;
 import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.User;
 import com.shimady.contest.compiler.repository.SolutionRepository;
+import com.shimady.contest.compiler.service.SolutionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,7 @@ public class SolutionServiceTest {
     private SolutionRepository solutionRepository;
 
     @InjectMocks
-    private SolutionService solutionService;
+    private SolutionServiceImpl solutionService;
 
     @Test
     void shouldCreateSolution() {

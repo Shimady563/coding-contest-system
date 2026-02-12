@@ -1,9 +1,10 @@
-package com.shimady.contest.compiler.service;
+package com.shimady.contest.compiler.service.impl;
 
 import com.shimady.contest.compiler.config.props.CompilerProperties;
 import com.shimady.contest.compiler.model.SolutionStatus;
 import com.shimady.contest.compiler.model.Task;
 import com.shimady.contest.compiler.model.TestCase;
+import com.shimady.contest.compiler.service.TestCaseService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class CompilerServiceTest {
     @Mock
     private TestCaseService testCaseService;
 
-    private CompilerService compilerService;
+    private CompilerServiceImpl compilerService;
 
     @BeforeAll
     public static void init() {
@@ -61,7 +62,7 @@ class CompilerServiceTest {
         PROPS.setWorkdir("/cpp");
         PROPS.setMaxOutputBytes(1_000_000);
         PROPS.setTimeoutSeconds(5L);
-        compilerService = new CompilerService(
+        compilerService = new CompilerServiceImpl(
                 PROPS,
                 testCaseService
         );
