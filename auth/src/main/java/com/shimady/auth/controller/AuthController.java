@@ -7,7 +7,7 @@ import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
 import com.shimady.auth.model.dto.UserResponse;
-import com.shimady.auth.service.AuthService;
+import com.shimady.auth.service.impl.AuthServiceImpl;
 import com.shimady.auth.utils.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.*;
                         schema = @Schema(implementation = AppError.class)))
 })
 public class AuthController {
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
     private final JwtProperties jwtProperties;
 
     @GetMapping("/me")

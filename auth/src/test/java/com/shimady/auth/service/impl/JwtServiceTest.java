@@ -1,8 +1,9 @@
-package com.shimady.auth.service;
+package com.shimady.auth.service.impl;
 
 import com.shimady.auth.model.User;
-import com.shimady.auth.repository.JwtProvider;
 import com.shimady.auth.repository.RefreshTokenRepository;
+import com.shimady.auth.service.JwtProvider;
+import com.shimady.auth.service.UserService;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ class JwtServiceTest {
     private UserService userService;
 
     @InjectMocks
-    private JwtService jwtService;
+    private JwtServiceImpl jwtService;
 
     @Test
     void shouldGenerateTokens() {
@@ -40,7 +41,7 @@ class JwtServiceTest {
         given(provider.generateRefreshToken(user)).willReturn(refreshToken);
         given(provider.generateAccessToken(user)).willReturn(accessToken);
 
-        var response = jwtService.generateTokens(user);
+        var response = jwtService.generateToken(user);
 
         assertNotNull(response);
         assertEquals(accessToken, response.getAccessToken());

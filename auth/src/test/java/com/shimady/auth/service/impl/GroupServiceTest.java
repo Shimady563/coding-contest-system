@@ -1,4 +1,4 @@
-package com.shimady.auth.service;
+package com.shimady.auth.service.impl;
 
 import com.shimady.auth.model.Group;
 import com.shimady.auth.repository.GroupRepository;
@@ -21,7 +21,7 @@ public class GroupServiceTest {
     private GroupRepository groupRepository;
 
     @InjectMocks
-    private GroupService groupService;
+    private GroupServiceImpl groupService;
 
     @Test
     void shouldGetGroupById() {

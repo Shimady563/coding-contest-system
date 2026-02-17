@@ -1,10 +1,13 @@
-package com.shimady.auth.service;
+package com.shimady.auth.service.impl;
 
 import com.shimady.auth.model.Group;
 import com.shimady.auth.model.User;
 import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
+import com.shimady.auth.service.GroupService;
+import com.shimady.auth.service.JwtService;
+import com.shimady.auth.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +38,7 @@ class AuthServiceTest {
 
     @Spy
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Test
     void shouldGetCurrentUser() {
@@ -78,7 +81,7 @@ class AuthServiceTest {
         group.setName("Test Group");
 
         given(passwordEncoder.encode(request.getPassword())).willReturn("encodedPassword");
-        given(jwtService.generateTokens(any(User.class))).willReturn(new JwtResponse("token", "refreshToken"));
+        given(jwtService.generateToken(any(User.class))).willReturn(new JwtResponse("token", "refreshToken"));
         given(groupService.getGroupById(request.getGroupId())).willReturn(group);
 
         var response = authService.signUp(request);
@@ -102,7 +105,7 @@ class AuthServiceTest {
 
         given(userService.getUserByEmail(request.getEmail())).willReturn(user);
         given(passwordEncoder.matches(request.getPassword(), user.getPassword())).willReturn(true);
-        given(jwtService.generateTokens(user)).willReturn(new JwtResponse("token", "refreshToken"));
+        given(jwtService.generateToken(user)).willReturn(new JwtResponse("token", "refreshToken"));
 
         var response = authService.authenticate(request);
 

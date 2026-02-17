@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shimady.auth.config.props.AuthProperties;
 import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.security.filter.JwtFilter;
-import com.shimady.auth.repository.JwtProvider;
+import com.shimady.auth.service.impl.JwtProviderImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -73,15 +73,15 @@ public class TestSecurityConfig {
     }
 
     @Bean
-    public JwtProvider jwtProvider() {
-        return new JwtProvider(jwtProperties);
+    public JwtProviderImpl jwtProvider() {
+        return new JwtProviderImpl(jwtProperties);
     }
 
 
     // overriding the jwt filter to turn it off
     // because every other method didn't work
     private static class TestJwtFilter extends JwtFilter {
-        public TestJwtFilter(AuthProperties authProperties, JwtProperties jwtProperties, JwtProvider jwtProvider, ObjectMapper objectMapper) {
+        public TestJwtFilter(AuthProperties authProperties, JwtProperties jwtProperties, JwtProviderImpl jwtProvider, ObjectMapper objectMapper) {
             super(authProperties, jwtProperties, jwtProvider, objectMapper);
         }
 

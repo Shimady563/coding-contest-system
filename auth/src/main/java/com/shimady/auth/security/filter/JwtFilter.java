@@ -5,7 +5,7 @@ import com.shimady.auth.config.props.AuthProperties;
 import com.shimady.auth.config.props.JwtProperties;
 import com.shimady.auth.exception.AppError;
 import com.shimady.auth.model.JwtAuthentication;
-import com.shimady.auth.repository.JwtProvider;
+import com.shimady.auth.service.impl.JwtProviderImpl;
 import com.shimady.auth.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -29,7 +29,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final AuthProperties authProperties;
     private final JwtProperties jwtProperties;
-    private final JwtProvider provider;
+    private final JwtProviderImpl provider;
     private final ObjectMapper mapper;
 
     @Override

@@ -8,7 +8,7 @@ import com.shimady.auth.model.dto.JwtResponse;
 import com.shimady.auth.model.dto.SignInJwtRequest;
 import com.shimady.auth.model.dto.SignUpJwtRequest;
 import com.shimady.auth.model.dto.UserResponse;
-import com.shimady.auth.service.AuthService;
+import com.shimady.auth.service.impl.AuthServiceImpl;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({TestSecurityConfig.class, JwtProperties.class, AuthProperties.class})
 class AuthControllerTest {
     @MockitoBean
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @Autowired
     private MockMvc mockMvc;

@@ -1,4 +1,4 @@
-package com.shimady.auth.service;
+package com.shimady.auth.service.impl;
 
 import com.shimady.auth.exception.ResourceNotFoundException;
 import com.shimady.auth.model.User;
@@ -21,7 +21,7 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Test
     void shouldSaveUser() {
