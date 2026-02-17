@@ -21,11 +21,11 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class TaskServiceImpl extends InternalTaskService implements TaskService {
-    private final UserServiceImpl userService;
+    private final InternalUserService userService;
 
     public TaskServiceImpl(
             TaskRepository taskRepository,
-            UserServiceImpl userService
+            InternalUserService userService
     ) {
         super(taskRepository);
         this.userService = userService;

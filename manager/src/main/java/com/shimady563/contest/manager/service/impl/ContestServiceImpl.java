@@ -23,7 +23,7 @@ public class ContestServiceImpl extends InternalContestService implements Contes
 
     public ContestServiceImpl(
             ContestRepository contestRepository,
-            GroupServiceImpl groupService
+            InternalGroupService groupService
     ) {
         super(contestRepository);
         this.groupService = groupService;

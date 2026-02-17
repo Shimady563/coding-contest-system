@@ -23,7 +23,7 @@ public class ContestVersionServiceImpl extends InternalContestVersionService imp
     public ContestVersionServiceImpl(
             ContestVersionRepository contestVersionRepository,
             InternalContestService contestService,
-            TaskServiceImpl taskService
+            InternalTaskService taskService
     ) {
         super(contestVersionRepository);
         this.contestService = contestService;

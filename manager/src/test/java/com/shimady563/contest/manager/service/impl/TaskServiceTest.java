@@ -124,16 +124,19 @@ class TaskServiceTest {
 
     @Test
     void shouldSearchForTasks() {
+        String taskName = "name";
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Task otherTask = new Task();
+        Task task = new Task();
+        task.setName(taskName);
         TaskResponseDto dto = new TaskResponseDto();
+        dto.setName(taskName);
         dto.setTestCases(List.of());
 
-        Page<Task> page = new PageImpl<>(List.of(otherTask));
+        Page<Task> page = new PageImpl<>(List.of(task));
 
-        given(taskRepository.findAll(pageRequest)).willReturn(page);
+        given(taskRepository.findByNameContainingIgnoreCase(taskName, pageRequest)).willReturn(page);
 
-        Page<TaskResponseDto> result = taskService.searchForTasks(pageRequest);
+        Page<TaskResponseDto> result = taskService.searchForTasks(taskName, pageRequest);
 
         assertThat(result.getContent()).hasSize(1).containsExactly(dto);
     }
