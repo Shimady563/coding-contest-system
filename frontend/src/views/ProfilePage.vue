@@ -28,101 +28,75 @@
       </div>
 
       <form v-else class="edit-form" @submit.prevent="saveChanges">
-        <div class="floating-label">
-          <input 
-            v-model="form.firstName" 
-            type="text" 
-            id="firstName"
-            name="firstName"
-            required 
-            placeholder=""
-            autocomplete="given-name"
-            :class="{ 'input-error': !form.firstName }"
-          />
-          <label for="firstName">Имя</label>
-        </div>
+        <FloatingInput
+          v-model="form.firstName"
+          id="firstName"
+          name="firstName"
+          label="Имя"
+          type="text"
+          required
+          placeholder=""
+          autocomplete="given-name"
+          :error="!form.firstName"
+        />
 
-        <div class="floating-label">
-          <input 
-            v-model="form.lastName" 
-            type="text" 
-            id="lastName"
-            name="lastName"
-            required 
-            placeholder=""
-            autocomplete="family-name"
-            :class="{ 'input-error': !form.lastName }"
-          />
-          <label for="lastName">Фамилия</label>
-        </div>
+        <FloatingInput
+          v-model="form.lastName"
+          id="lastName"
+          name="lastName"
+          label="Фамилия"
+          type="text"
+          required
+          placeholder=""
+          autocomplete="family-name"
+          :error="!form.lastName"
+        />
 
-        <div class="floating-label">
-          <input 
-            v-model="form.email" 
-            type="email" 
-            id="email"
-            name="email"
-            required 
-            placeholder=""
-            autocomplete="email"
-            :class="{ 'input-error': !form.email }"
-          />
-          <label for="email">Email</label>
-        </div>
+        <FloatingInput
+          v-model="form.email"
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          required
+          placeholder=""
+          autocomplete="email"
+          :error="!form.email"
+        />
 
-        <div class="floating-label">
-          <input 
-            type="password" 
-            v-model="form.password" 
-            id="password"
-            name="password"
-            placeholder=""
-            autocomplete="new-password"
-            :class="{ 'input-error': form.password && !isPasswordValid }" 
-          />
-          <label for="password">Новый пароль</label>
-          <div class="password-hints" v-if="form.password">
-            <div :class="{ valid: hasMinLength }">
-              <span class="hint-icon">✓</span>
-              <span class="hint-text">Минимум 8 символов</span>
-            </div>
-            <div :class="{ valid: hasUpperCase }">
-              <span class="hint-icon">✓</span>
-              <span class="hint-text">Заглавная буква</span>
-            </div>
-            <div :class="{ valid: hasLowerCase }">
-              <span class="hint-icon">✓</span>
-              <span class="hint-text">Строчная буква</span>
-            </div>
-            <div :class="{ valid: hasDigit }">
-              <span class="hint-icon">✓</span>
-              <span class="hint-text">Цифра</span>
-            </div>
-            <div :class="{ valid: hasSpecialChar }">
-              <span class="hint-icon">✓</span>
-              <span class="hint-text">Спецсимвол @#$%^&+=!?*</span>
-            </div>
-          </div>
-        </div>
+        <FloatingInput
+          v-model="form.password"
+          id="password"
+          name="password"
+          label="Новый пароль"
+          type="password"
+          placeholder=""
+          autocomplete="new-password"
+          :error="form.password !== '' && !passwordValid"
+        >
+          <PasswordHints :password="form.password" />
+        </FloatingInput>
 
-        <div class="floating-label" v-if="form.password">
-          <input 
-            type="password" 
-            v-model="form.confirmPassword" 
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder=""
-            autocomplete="new-password"
-            :class="{ 'input-error': form.confirmPassword && form.password !== form.confirmPassword }" 
-          />
-          <label for="confirmPassword">Подтверждение пароля</label>
-          <small v-if="form.confirmPassword && form.password !== form.confirmPassword" class="error-message">
+        <FloatingInput
+          v-if="form.password"
+          v-model="form.confirmPassword"
+          id="confirmPassword"
+          name="confirmPassword"
+          label="Подтверждение пароля"
+          type="password"
+          autocomplete="new-password"
+          :error="form.confirmPassword && form.password !== form.confirmPassword"
+        >
+          <small
+            v-if="form.confirmPassword && form.password !== form.confirmPassword"
+            class="error-message"
+          >
             Пароли не совпадают
           </small>
-        </div>
+        </FloatingInput>
 
-        <div 
-          class="floating-label multiselect-floating" 
+        <div
+          class="floating-label multiselect-floating"
           v-if="user.role !== 'teacher'"
           :class="{ active: selectedGroup || $refs.groupSelect?.isOpen }"
         >
@@ -144,7 +118,7 @@
               placeholder=""
               label="name"
               track-by="id"
-              @open="$forceUpdate()" 
+              @open="$forceUpdate()"
               @close="$forceUpdate()"
             />
           </div>
@@ -165,72 +139,68 @@
 </template>
 
 <script>
-import { getUserInfo } from "../js/auth";
-import { updateUser, fetchGroups } from "../js/manager";
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
+import { getUserInfo } from '../js/auth'
+import { updateUser, fetchGroups } from '../js/manager'
+import { validatePassword } from '@/js/password'
+import FloatingInput from '@/components/FloatingInput.vue'
+import PasswordHints from '@/components/PasswordHints.vue'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 export default {
-  components: { Multiselect },
+  components: {
+    Multiselect,
+    FloatingInput,
+    PasswordHints,
+  },
   data() {
     return {
       user: null,
       isEditing: false,
       form: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
       },
       groups: [],
       selectedGroup: null,
-    };
+    }
   },
   computed: {
-    hasMinLength() { return this.form.password.length >= 8; },
-    hasUpperCase() { return /[A-Z]/.test(this.form.password); },
-    hasLowerCase() { return /[a-z]/.test(this.form.password); },
-    hasDigit() { return /\d/.test(this.form.password); },
-    hasSpecialChar() { return /[@#$%^&+=!?*]/.test(this.form.password); },
-    isPasswordValid() {
-      return !this.form.password || (
-        this.hasMinLength &&
-        this.hasUpperCase &&
-        this.hasLowerCase &&
-        this.hasDigit &&
-        this.hasSpecialChar
-      );
+    passwordValid() {
+      if (!this.form.password) return true
+      return validatePassword(this.form.password).isValid
+    },
+    passwordsMatch() {
+      return !this.form.password || this.form.password === this.form.confirmPassword
     },
     isSubmitDisabled() {
-      const passwordsMatch =
-        !this.form.password || this.form.password === this.form.confirmPassword;
-      const passwordFieldsValid =
-        this.isPasswordValid && passwordsMatch;
-
       return (
         !this.form.firstName ||
         !this.form.lastName ||
         !this.form.email ||
-        !passwordFieldsValid
-      );
+        !this.passwordValid ||
+        !this.passwordsMatch
+      )
     },
   },
   async created() {
     try {
-      const userInfo = await getUserInfo();
-      this.user = userInfo;
-      await this.fetchGroupsList();
+      const userInfo = await getUserInfo()
+      this.user = userInfo
+      await this.fetchGroupsList()
     } catch (err) {
-      this.$root.notify(err.message, "error");
+      this.$root.notify(err.message, 'error')
     }
   },
   methods: {
+    validatePassword,
     async fetchGroupsList() {
-      this.groups = await fetchGroups();
+      this.groups = await fetchGroups()
       if (this.user && this.user.groupName) {
-        this.selectedGroup =
-          this.groups.find((g) => g.name === this.user.groupName) || null;
+        this.selectedGroup = this.groups.find((g) => g.name === this.user.groupName) || null
       }
     },
     startEditing() {
@@ -238,13 +208,13 @@ export default {
         firstName: this.user.firstName,
         lastName: this.user.lastName,
         email: this.user.email,
-        password: "",
-        confirmPassword: "",
-      };
-      this.isEditing = true;
+        password: '',
+        confirmPassword: '',
+      }
+      this.isEditing = true
     },
     cancelEditing() {
-      this.isEditing = false;
+      this.isEditing = false
     },
     async saveChanges() {
       try {
@@ -252,32 +222,33 @@ export default {
           firstName: this.form.firstName,
           lastName: this.form.lastName,
           email: this.form.email,
-          password: this.form.password || "", 
-        };
-
-        if (this.user.role !== 'teacher' && this.selectedGroup) {
-          payload.groupId = this.selectedGroup.id;
+          password: this.form.password || '',
         }
 
-        await updateUser(this.user.id, payload);
+        if (this.user.role !== 'teacher' && this.selectedGroup) {
+          payload.groupId = this.selectedGroup.id
+        }
 
-       this.user = {
+        await updateUser(this.user.id, payload)
+
+        this.user = {
           ...this.user,
           ...payload,
-          groupName: (this.user.role !== 'teacher' && this.selectedGroup)
-            ? this.selectedGroup.name
-            : this.user.groupName,
-        };
+          groupName:
+            this.user.role !== 'teacher' && this.selectedGroup
+              ? this.selectedGroup.name
+              : this.user.groupName,
+        }
 
-        this.isEditing = false;
-        this.$root.notify("Данные успешно обновлены!", "success");
+        this.isEditing = false
+        this.$root.notify('Данные успешно обновлены!', 'success')
       } catch (err) {
-        console.error("Ошибка при сохранении:", err);
-        this.$root.notify("Ошибка при сохранении изменений", "error");
+        console.error('Ошибка при сохранении:', err)
+        this.$root.notify('Ошибка при сохранении изменений', 'error')
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -341,7 +312,6 @@ h1 {
 
 .edit-form {
   display: grid;
-  gap: 1.8rem;
 }
 
 .info-item {
@@ -353,119 +323,6 @@ h1 {
   border-radius: 12px;
   font-size: 0.97rem;
   color: #34495e;
-}
-
-.floating-label {
-  position: relative;
-  margin-bottom: 0;
-}
-
-.floating-label input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  transition: all 0.25s ease;
-  background: #fff;
-  font-size: 15px;
-  color: #333;
-  box-sizing: border-box;
-}
-
-.floating-label label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  font-size: 15px;
-  transition: all 0.25s ease;
-  background: transparent;
-}
-
-.floating-label input:focus + label,
-.floating-label input:not(:placeholder-shown) + label,
-.floating-label.multiselect-floating.active label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
-}
-
-.floating-label input:invalid:not(:focus):not(:placeholder-shown) {
-  border-color: #f44336;
-}
-
-.floating-label input:invalid:not(:focus):not(:placeholder-shown) + label {
-  color: #f44336;
-}
-
-.password-hints {
-  margin-top: 8px;
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-
-.password-hints div {
-  display: flex;
-  align-items: center;
-  margin: 4px 0;
-  color: #888;
-  transition: color 0.2s ease;
-}
-
-.hint-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  font-size: 12px;
-  border: 1.5px solid #ddd;
-  border-radius: 50%;
-  color: transparent;
-  transition: all 0.2s ease;
-}
-
-.password-hints .valid {
-  color: #27ae60;
-}
-
-.password-hints .valid .hint-icon {
-  background-color: #27ae60;
-  border-color: #27ae60;
-  color: white;
-}
-
-.hint-text {
-  flex: 1;
-}
-
-.error-message {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: 6px;
-  display: block;
-}
-
-.input-error {
-  border-color: #e74c3c !important;
-}
-
-.input-error:focus {
-  border-color: #e74c3c !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.12) !important;
 }
 
 .button-group {
@@ -495,14 +352,14 @@ h1 {
 }
 
 .save-btn {
-  background-color: #27ae60;
+  background-color: #34d399;
   color: #fff;
 }
 
-.btn-cancel { 
+.btn-cancel {
   background-color: #f8f9fa;
-  color: #333; 
-  border: 1px solid #ddd; 
+  color: #333;
+  border: 1px solid #ddd;
 }
 
 .edit-btn:hover {
@@ -511,7 +368,7 @@ h1 {
 }
 
 .save-btn:hover:not(:disabled) {
-  background-color: #219150;
+  background-color: #10b981;
   transform: translateY(-1px);
 }
 
@@ -526,139 +383,15 @@ h1 {
   transform: none;
 }
 
-.multiselect-floating {
-  position: relative;
-}
-
-.multiselect-floating label {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  font-size: 15px;
-  transition: all 0.25s ease;
-  background: #fff; 
-  z-index: 3; 
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: -20px;
+  text-align: center;
+  line-height: 1.4;
 }
 
 .multiselect-floating.active label {
-  top: -8px;
-  left: 10px;
-  font-size: 12px;
-  color: #2f80ed;
-  background: #fff;
-  transform: none;
-}
-
-.multiselect-floating.active :deep(.multiselect__placeholder) {
-  display: none;
-}
-
-.multiselect-floating :deep(.multiselect),
-.multiselect-floating :deep(.multiselect__tags),
-.multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: auto !important;    
-}
-
-.custom-multiselect :deep(.multiselect) {
-  min-height: 44px;
-  margin-top: 0;
-  border-radius: 8px;
-}
-
-.custom-multiselect :deep(.multiselect__tags) {
-  min-height: 44px;
-  padding: 8px 36px 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background: #fff;
-  font-size: 15px;
-  transition: all 0.25s ease;
-}
-
-.custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.12);
-  outline: none;
-}
-
-.custom-multiselect :deep(.multiselect__input),
-.custom-multiselect :deep(.multiselect__single) {
-  font-size: 15px;
-  padding: 3px;
-  margin: 0;
-  background: transparent;
-  border: none;
-}
-
-.custom-multiselect :deep(.multiselect__placeholder) {
-  color: rgba(0, 0, 0, 0.5);
-  font-size: 15px;
-}
-
-.custom-multiselect :deep(.multiselect__select) {
-  height: 42px;
-  right: 6px;
-  top: 1px;
-  width: 30px;
-  background: transparent;
-  border-radius: 0 8px 8px 0;
-}
-
-.custom-multiselect :deep(.multiselect__select:before) {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent;
-  transition: transform 0.2s ease;
-}
-
-.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
-  transform: translate(-50%, -50%) rotate(180deg);
-}
-
-.custom-multiselect :deep(.multiselect__select:hover) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect :deep(.multiselect__select:hover:before) {
-  border-color: #333 transparent transparent transparent;
-}
-
-.custom-multiselect :deep(.multiselect--active .multiselect__select) {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
-  z-index: 10;
-}
-
-.custom-multiselect :deep(.multiselect__option) {
-  padding: 8px 12px;
-  font-size: 15px;
-  min-height: 36px;
-}
-
-.custom-multiselect :deep(.multiselect__option--selected) {
-  background-color: #d0ebff;
-  color: #333;
-}
-
-.custom-multiselect :deep(.multiselect__option--highlight) {
-  background: #2f80ed;
-  color: white;
+  top: -7px;
 }
 </style>

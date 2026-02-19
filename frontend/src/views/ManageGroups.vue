@@ -5,21 +5,20 @@
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.name" 
+      <div class="filter-group">
+        <FloatingInput
+          v-model="searchParams.name"
           id="groupName"
-          class="text-input" 
+          name="groupName"
+          label="Название"
+          type="text"
+          class="text-input"
           placeholder=""
         />
-        <label for="groupName">Название</label>
       </div>
 
       <div class="filter-actions">
-        <button type="submit" class="apply-btn">
-          <i class="fas fa-filter"></i> Применить
-        </button>
+        <button type="submit" class="apply-btn"><i class="fas fa-filter"></i> Применить</button>
         <button type="button" @click="resetSearch" class="reset-btn">
           <i class="fas fa-broom"></i> Сбросить
         </button>
@@ -30,9 +29,7 @@
     </form>
 
     <div class="stats-container" v-if="groups.length">
-      <div class="stats">
-        Показано {{ groups.length }} из {{ totalElements }} групп
-      </div>
+      <div class="stats">Показано {{ groups.length }} из {{ totalElements }} групп</div>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -61,10 +58,18 @@
             <td class="name-col">{{ group.name }}</td>
             <td class="actions-col">
               <div class="action-buttons">
-                <button @click="openEditModal(group)" class="btn-icon edit-btn" title="Редактировать">
+                <button
+                  @click="openEditModal(group)"
+                  class="btn-icon edit-btn"
+                  title="Редактировать"
+                >
                   <i class="fas fa-pencil-alt"></i>
                 </button>
-                <button @click="confirmDeleteGroup(group)" class="btn-icon delete-btn" title="Удалить">
+                <button
+                  @click="confirmDeleteGroup(group)"
+                  class="btn-icon delete-btn"
+                  title="Удалить"
+                >
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
@@ -75,25 +80,13 @@
     </div>
 
     <div class="pagination-container" v-if="totalPages > 1">
-      <div class="pagination-info">
-        Страница {{ currentPage + 1 }} из {{ totalPages }}
-      </div>
+      <div class="pagination-info">Страница {{ currentPage + 1 }} из {{ totalPages }}</div>
       <div class="pagination-controls">
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 0"
-          class="pagination-btn"
-        >
+        <button @click="prevPage" :disabled="currentPage === 0" class="pagination-btn">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="page-indicator">
-          Страница {{ currentPage + 1 }} из {{ totalPages }}
-        </div>
-        <button
-          @click="nextPage"
-          :disabled="currentPage >= totalPages - 1"
-          class="pagination-btn"
-        >
+        <div class="page-indicator">Страница {{ currentPage + 1 }} из {{ totalPages }}</div>
+        <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="pagination-btn">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -106,13 +99,15 @@
         </div>
         <div class="modal-body">
           <div class="floating-label">
-            <input 
-              v-model="newGroupName" 
+            <FloatingInput
+              v-model="newGroupName"
               id="newGroupName"
+              name="newGroupName"
+              label="Название"
+              type="text"
               class="form-input"
               placeholder=""
-            >
-            <label for="newGroupName">Название группы</label>
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -131,15 +126,15 @@
           <h3><i class="fas fa-pencil-alt"></i> Редактирование группы</h3>
         </div>
         <div class="modal-body">
-          <div class="floating-label">
-            <input 
-              v-model="editingGroup.name" 
-              id="editGroupName"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editGroupName">Название группы</label>
-          </div>
+          <FloatingInput
+            v-model="editingGroup.name"
+            id="editGroupName"
+            name="editGroupName"
+            label="Название"
+            type="text"
+            class="form-input"
+            placeholder=""
+          />
         </div>
         <div class="modal-footer">
           <button @click="closeEditModal" class="btn-cancel">Отмена</button>
@@ -162,11 +157,15 @@
 </template>
 
 <script>
-import { getGroupsPage, createGroup, deleteGroup, updateGroupById } from "@/js/manager";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import { getGroupsPage, createGroup, deleteGroup, updateGroupById } from '@/js/manager'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import FloatingInput from '@/components/FloatingInput.vue'
 
 export default {
-  components: { ConfirmDialog },
+  components: {
+    ConfirmDialog,
+    FloatingInput,
+  },
   data() {
     return {
       groups: [],
@@ -184,190 +183,136 @@ export default {
       groupToDelete: null,
       editingGroup: null,
       updating: false,
-    };
+    }
   },
   async created() {
-    await this.fetchGroups();
+    await this.fetchGroups()
   },
   methods: {
     async fetchGroups() {
-      this.loading = true;
+      this.loading = true
       try {
         const params = {
           pageNumber: this.currentPage,
           pageSize: this.pageSize,
-          ...(this.searchParams.name ? { name: this.searchParams.name } : {})
-        };
+          ...(this.searchParams.name ? { name: this.searchParams.name } : {}),
+        }
 
-        const data = await getGroupsPage(params);
+        const data = await getGroupsPage(params)
 
-        this.groups = data.content || [];
-        this.totalPages = data.totalPages ?? (data.page?.totalPages ?? 1);
-        this.totalElements = data.totalElements ?? (data.page?.totalElements ?? this.groups.length);
+        this.groups = data.content || []
+        this.totalPages = data.totalPages ?? data.page?.totalPages ?? 1
+        this.totalElements = data.totalElements ?? data.page?.totalElements ?? this.groups.length
       } catch {
-        this.$root.notify("Ошибка при загрузке групп", 'error');
+        this.$root.notify('Ошибка при загрузке групп', 'error')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     onSearch() {
-      this.currentPage = 0;
-      this.fetchGroups();
+      this.currentPage = 0
+      this.fetchGroups()
     },
     resetSearch() {
-      this.searchParams.name = '';
-      this.currentPage = 0;
-      this.fetchGroups();
+      this.searchParams.name = ''
+      this.currentPage = 0
+      this.fetchGroups()
     },
     nextPage() {
       if (this.currentPage < this.totalPages - 1) {
-        this.currentPage++;
-        this.fetchGroups();
+        this.currentPage++
+        this.fetchGroups()
       }
     },
     prevPage() {
       if (this.currentPage > 0) {
-        this.currentPage--;
-        this.fetchGroups();
+        this.currentPage--
+        this.fetchGroups()
       }
     },
     openCreateModal() {
-      this.newGroupName = '';
-      this.showCreateModal = true;
+      this.newGroupName = ''
+      this.showCreateModal = true
     },
     closeCreateModal() {
-      this.showCreateModal = false;
+      this.showCreateModal = false
     },
     async createGroup() {
       if (!this.newGroupName.trim()) {
-        this.$root.notify('Введите название группы', 'error');
-        return;
+        this.$root.notify('Введите название группы', 'error')
+        return
       }
-      this.creating = true;
+      this.creating = true
       try {
-        await createGroup({ name: this.newGroupName.trim() });
-        this.$root.notify('Группа создана', 'success');
-        this.closeCreateModal();
-        this.fetchGroups();
+        await createGroup({ name: this.newGroupName.trim() })
+        this.$root.notify('Группа создана', 'success')
+        this.closeCreateModal()
+        this.fetchGroups()
       } catch {
-        this.$root.notify('Ошибка при создании группы', 'error');
+        this.$root.notify('Ошибка при создании группы', 'error')
       } finally {
-        this.creating = false;
+        this.creating = false
       }
     },
     async deleteGroup(id) {
       try {
-        await deleteGroup(id);
-        this.$root.notify('Группа удалена', 'success');
-        this.fetchGroups();
+        await deleteGroup(id)
+        this.$root.notify('Группа удалена', 'success')
+        this.fetchGroups()
       } catch {
-        this.$root.notify('Ошибка при удалении группы', 'error');
+        this.$root.notify('Ошибка при удалении группы', 'error')
       }
     },
     confirmDeleteGroup(group) {
-      this.groupToDelete = group;
+      this.groupToDelete = group
       this.confirmDialog = {
         title: 'Удаление группы',
-        message: `Вы уверены, что хотите удалить группу "${group.name}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
+        message: `Вы уверены, что хотите удалить группу "${group.name}"? Это действие нельзя отменить.`,
+      }
+      this.showConfirmDialog = true
     },
     async executeDelete() {
-      if (!this.groupToDelete) return;
-      await this.deleteGroup(this.groupToDelete.id);
-      this.showConfirmDialog = false;
-      this.groupToDelete = null;
+      if (!this.groupToDelete) return
+      await this.deleteGroup(this.groupToDelete.id)
+      this.showConfirmDialog = false
+      this.groupToDelete = null
     },
     cancelDelete() {
-      this.showConfirmDialog = false;
-      this.groupToDelete = null;
+      this.showConfirmDialog = false
+      this.groupToDelete = null
     },
     openEditModal(group) {
-      this.editingGroup = { ...group };
+      this.editingGroup = { ...group }
     },
     closeEditModal() {
-      this.editingGroup = null;
+      this.editingGroup = null
     },
     async updateGroup() {
       if (!this.editingGroup.name.trim()) {
-        this.$root.notify('Введите название группы', 'error');
-        return;
+        this.$root.notify('Введите название группы', 'error')
+        return
       }
-      this.updating = true;
+      this.updating = true
       try {
-        await updateGroupById(this.editingGroup.id, { name: this.editingGroup.name.trim() });
-        this.$root.notify('Группа обновлена', 'success');
-        this.closeEditModal();
-        this.fetchGroups();
+        await updateGroupById(this.editingGroup.id, { name: this.editingGroup.name.trim() })
+        this.$root.notify('Группа обновлена', 'success')
+        this.closeEditModal()
+        this.fetchGroups()
       } catch (err) {
         if (err.response?.status === 409) {
-          this.$root.notify('Группа с таким названием уже существует', 'error');
+          this.$root.notify('Группа с таким названием уже существует', 'error')
         } else {
-          this.$root.notify('Ошибка при обновлении группы', 'error');
+          this.$root.notify('Ошибка при обновлении группы', 'error')
         }
       } finally {
-        this.updating = false;
+        this.updating = false
       }
     },
-  }
-};
+  },
+}
 </script>
 
 <style scoped>
-.filters .floating-label,
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-}
-
-.filters .floating-label input,
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.filters .floating-label label,
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .floating-label input:focus + label,
-.filters .floating-label input:not(:placeholder-shown) + label,
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.filters .floating-label input:focus,
-.modal-body .floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-}
-
 .groups-table {
   width: 100%;
   border-collapse: collapse;
@@ -393,8 +338,25 @@ export default {
   background-color: #f8f9fa;
 }
 
-.id-col { min-width: 80px; color: #7f8c8d; }
-.name-col { min-width: 200px; }
-.actions-col { min-width: 120px; }
-.action-buttons { display: flex; gap: 8px; }
+.id-col {
+  min-width: 80px;
+  color: #7f8c8d;
+}
+.name-col {
+  min-width: 200px;
+}
+.actions-col {
+  min-width: 120px;
+}
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-dialog,
+.modal-header,
+.modal-body,
+.modal-footer {
+  background: white !important;
+}
 </style>

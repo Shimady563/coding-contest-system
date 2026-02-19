@@ -10,7 +10,7 @@ export default {
   props: {
     description: String,
   },
-};
+}
 </script>
 
 <style scoped>
@@ -22,6 +22,7 @@ export default {
 }
 
 .task-description h2 {
+  text-align: left;
   font-size: 22px;
   margin-bottom: 12px;
   color: #333;

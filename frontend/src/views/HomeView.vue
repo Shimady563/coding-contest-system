@@ -9,7 +9,8 @@
       <header class="header" v-if="!user">
         <h1>Добро пожаловать 👋</h1>
         <p class="subtitle">
-          В системе контроля работ вы можете создавать и решать задания, получать мгновенную обратную связь и отслеживать свой прогресс!
+          В системе контроля работ вы можете создавать и решать задания, получать мгновенную
+          обратную связь и отслеживать свой прогресс!
         </p>
         <div class="actions">
           <router-link to="/login" class="btn primary">Войти</router-link>
@@ -19,15 +20,19 @@
 
       <!-- Студент -->
       <header class="header" v-else-if="user.role === 'student'">
-        <h1>Привет, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-user-graduate"></i></h1>
+        <h1>
+          Привет, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-user-graduate"></i>
+        </h1>
         <p class="subtitle">Доступные функции:</p>
-
         <div class="cards">
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
               <svg class="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,7V9H17V7H7M7,11V13H17V11H7M7,15V17H14V15H7Z" />
+                <path
+                  fill="currentColor"
+                  d="M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,7V9H17V7H7M7,11V13H17V11H7M7,15V17H14V15H7Z"
+                />
               </svg>
             </div>
             <h3>Контрольные</h3>
@@ -48,9 +53,11 @@
 
       <!-- Преподаватель -->
       <header class="header" v-else-if="user.role === 'teacher'">
-        <h1>Здравствуйте, {{ user.firstName }} {{ user.lastName }} <i class="fas fa-chalkboard-teacher"></i></h1>
+        <h1>
+          Здравствуйте, {{ user.firstName }} {{ user.lastName }}
+          <i class="fas fa-chalkboard-teacher"></i>
+        </h1>
         <p class="subtitle">Вот что вы можете делать:</p>
-
         <div class="cards">
           <div class="card">
             <div class="card-top-line"></div>
@@ -60,42 +67,50 @@
               </svg>
             </div>
             <h3>Контрольные</h3>
-            <p>Формируйте новые задания и контрольные работы для студентов.</p>
+            <p>Создавайте контрольные работы, формируйте варианты и назначайте их студентам.</p>
           </div>
-          
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
               <svg class="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" />
+                <path
+                  fill="currentColor"
+                  d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"
+                />
               </svg>
             </div>
             <h3>Задания</h3>
-            <p>Редактируйте, удаляйте и обновляйте контрольные работы.</p>
+            <p>
+              Создавайте и редактируйте задания с текстом и тест-кейсами для включения в варианты
+              контрольных.
+            </p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
               <svg class="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+                <path
+                  fill="currentColor"
+                  d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+                />
               </svg>
             </div>
             <h3>Студенты</h3>
             <p>Просматривайте список студентов, редактируйте и удаляйте их профили.</p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
               <svg class="icon" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12,5A3.5,3.5 0 0,1 15.5,8.5A3.5,3.5 0 0,1 12,12A3.5,3.5 0 0,1 8.5,8.5A3.5,3.5 0 0,1 12,5M4,8.5A2.5,2.5 0 0,1 6.5,11A2.5,2.5 0 0,1 4,13.5A2.5,2.5 0 0,1 1.5,11A2.5,2.5 0 0,1 4,8.5M20,8.5A2.5,2.5 0 0,1 22.5,11A2.5,2.5 0 0,1 20,13.5A2.5,2.5 0 0,1 17.5,11A2.5,2.5 0 0,1 20,8.5M12,14C14.67,14 20,15.34 20,18V20H4V18C4,15.34 9.33,14 12,14Z" />
+                <path
+                  fill="currentColor"
+                  d="M12,5A3.5,3.5 0 0,1 15.5,8.5A3.5,3.5 0 0,1 12,12A3.5,3.5 0 0,1 8.5,8.5A3.5,3.5 0 0,1 12,5M4,8.5A2.5,2.5 0 0,1 6.5,11A2.5,2.5 0 0,1 4,13.5A2.5,2.5 0 0,1 1.5,11A2.5,2.5 0 0,1 4,8.5M20,8.5A2.5,2.5 0 0,1 22.5,11A2.5,2.5 0 0,1 20,13.5A2.5,2.5 0 0,1 17.5,11A2.5,2.5 0 0,1 20,8.5M12,14C14.67,14 20,15.34 20,18V20H4V18C4,15.34 9.33,14 12,14Z"
+                />
               </svg>
             </div>
             <h3>Группы</h3>
             <p>Просматривайте, создавайте и удаляйте учебные группы.</p>
           </div>
-
           <div class="card">
             <div class="card-top-line"></div>
             <div class="icon-container">
@@ -103,8 +118,18 @@
                 <path fill="currentColor" d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
               </svg>
             </div>
+            <h3>Решения</h3>
+            <p>Просматривайте отправленный код студентов и результаты проверок.</p>
+          </div>
+          <div class="card">
+            <div class="card-top-line"></div>
+            <div class="icon-container">
+              <svg class="icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M3 3h18v2H3V3m0 4h18v2H3V7m0 4h18v10H3V11z" />
+              </svg>
+            </div>
             <h3>Результаты</h3>
-            <p>Анализируйте успеваемость студентов по различным метрикам.</p>
+            <p>Следите за прогрессом: статистика сдачи контрольных и оценки по контрольным.</p>
           </div>
         </div>
       </header>
@@ -113,36 +138,36 @@
 </template>
 
 <script>
-import { getUserInfo } from "@/js/auth";
+import { getUserInfo } from '@/js/auth'
 
 export default {
-  name: "HomePage",
+  name: 'HomePage',
   data() {
     return {
       user: null,
       isLoading: true,
       error: null,
       showWelcome: false,
-    };
+    }
   },
   async created() {
     try {
-      this.user = await getUserInfo();
-    
-      const hasSeenWelcome = localStorage.getItem("seenWelcome") === "true";
+      this.user = await getUserInfo()
+
+      const hasSeenWelcome = localStorage.getItem('seenWelcome') === 'true'
 
       if (!hasSeenWelcome && this.user) {
-        this.showWelcome = true;
-        localStorage.setItem("seenWelcome", "true");
-        this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success');
+        this.showWelcome = true
+        localStorage.setItem('seenWelcome', 'true')
+        this.$root.notify(`Добро пожаловать, ${this.user.firstName}!`, 'success')
       }
-    } catch(err){
-      this.$root.notify(err.message, "error");
+    } catch (err) {
+      this.$root.notify(err.message, 'error')
     } finally {
-      this.isLoading = false;
+      this.isLoading = false
     }
-  }
-};
+  },
+}
 </script>
 
 <style scoped>
@@ -245,9 +270,9 @@ h1 {
 .actions {
   display: flex;
   justify-content: center;
-  flex-direction: row; 
-  gap: 10px; 
-  padding: 0 10px; 
+  flex-direction: row;
+  gap: 10px;
+  padding: 0 10px;
   flex-wrap: wrap;
   margin-top: 2rem;
   max-width: 100%;
@@ -261,9 +286,9 @@ h1 {
   text-decoration: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; 
-  flex: 1; 
-  min-width: 120px; 
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 120px;
   text-align: center;
 }
 
@@ -310,7 +335,7 @@ h1 {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .card {
     padding: 20px;
   }
@@ -318,7 +343,7 @@ h1 {
 
 @media (max-width: 600px) {
   .header {
-    padding: 20px 15px; 
+    padding: 20px 15px;
   }
 
   h1 {
@@ -326,7 +351,7 @@ h1 {
   }
 
   .btn {
-    padding: 0.7rem 1rem; 
+    padding: 0.7rem 1rem;
     font-size: 0.9rem;
   }
 }
@@ -335,7 +360,7 @@ h1 {
   .actions {
     flex-direction: column;
   }
-  
+
   .btn {
     width: 100%;
   }

@@ -5,30 +5,28 @@
     </div>
 
     <form class="filters" @submit.prevent="onSearch">
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.firstName" 
+      <div class="filter-group">
+        <FloatingInput
+          v-model="searchParams.firstName"
           id="firstName"
-          class="text-input" 
+          label="Имя"
+          type="text"
           placeholder=""
         />
-        <label for="firstName">Имя</label>
       </div>
 
-      <div class="filter-group floating-label">
-        <input 
-          type="text" 
-          v-model="searchParams.lastName" 
+      <div class="filter-group">
+        <FloatingInput
+          v-model="searchParams.lastName"
           id="lastName"
-          class="text-input" 
+          label="Фамилия"
+          type="text"
           placeholder=""
         />
-        <label for="lastName">Фамилия</label>
       </div>
 
-      <div 
-        class="filter-group floating-label multiselect-floating" 
+      <div
+        class="filter-group floating-label multiselect-floating"
         :class="{ active: searchParams.selectedGroup || $refs.groupSelect?.isOpen }"
       >
         <div class="custom-multiselect full-width">
@@ -54,9 +52,7 @@
       </div>
 
       <div class="filter-actions">
-        <button type="submit" class="apply-btn">
-          <i class="fas fa-filter"></i> Применить
-        </button>
+        <button type="submit" class="apply-btn"><i class="fas fa-filter"></i> Применить</button>
         <button type="button" @click="resetSearch" class="reset-btn">
           <i class="fas fa-broom"></i> Сбросить
         </button>
@@ -64,9 +60,7 @@
     </form>
 
     <div class="stats-container" v-if="students.length">
-      <div class="stats">
-        Показано {{ students.length }} из {{ totalElements }} студентов
-      </div>
+      <div class="stats">Показано {{ students.length }} из {{ totalElements }} студентов</div>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -94,23 +88,29 @@
         <tbody>
           <tr v-for="(student, index) in students" :key="student.id">
             <td class="id-col">{{ currentPage * pageSize + index + 1 }}</td>
-            <td class="name-col">
-              {{ student.lastName }} {{ student.firstName }}
-            </td>
+            <td class="name-col">{{ student.lastName }} {{ student.firstName }}</td>
             <td class="email-col">
               <a :href="`mailto:${student.email}`">{{ student.email }}</a>
             </td>
             <td class="group-col">
-              <span :class="{'no-group': !student.groupName}">
+              <span :class="{ 'no-group': !student.groupName }">
                 {{ student.groupName || 'Не указана' }}
               </span>
             </td>
             <td class="actions-col">
               <div class="action-buttons">
-                <button @click="openEditModal(student)" class="btn-icon edit-btn" title="Редактировать">
+                <button
+                  @click="openEditModal(student)"
+                  class="btn-icon edit-btn"
+                  title="Редактировать"
+                >
                   <i class="fas fa-pencil-alt"></i>
                 </button>
-                <button @click="confirmDeleteStudent(student)" class="btn-icon delete-btn" title="Удалить">
+                <button
+                  @click="confirmDeleteStudent(student)"
+                  class="btn-icon delete-btn"
+                  title="Удалить"
+                >
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
@@ -121,25 +121,13 @@
     </div>
 
     <div class="pagination-container" v-if="totalPages > 1">
-      <div class="pagination-info">
-        Страница {{ currentPage + 1 }} из {{ totalPages }}
-      </div>
+      <div class="pagination-info">Страница {{ currentPage + 1 }} из {{ totalPages }}</div>
       <div class="pagination-controls">
-        <button 
-          @click="prevPage" 
-          :disabled="currentPage === 0" 
-          class="pagination-btn"
-        >
+        <button @click="prevPage" :disabled="currentPage === 0" class="pagination-btn">
           <i class="fas fa-chevron-left"></i>
         </button>
-        <div class="page-indicator">
-          Страница {{ currentPage + 1 }} из {{ totalPages }}
-        </div>
-        <button 
-          @click="nextPage" 
-          :disabled="currentPage >= totalPages - 1" 
-          class="pagination-btn"
-        >
+        <div class="page-indicator">Страница {{ currentPage + 1 }} из {{ totalPages }}</div>
+        <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="pagination-btn">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -151,41 +139,58 @@
           <h3><i class="fas fa-user-edit"></i> Редактирование студента</h3>
         </div>
         <div class="modal-body">
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.firstName" 
-              id="editFirstName"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editFirstName">Имя</label>
-          </div>
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.lastName" 
-              id="editLastName"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editLastName">Фамилия</label>
-          </div>
-          <div class="floating-label">
-            <input 
-              v-model="editingStudent.email" 
-              type="email" 
-              id="editEmail"
-              class="form-input"
-              placeholder=""
-            >
-            <label for="editEmail">Email</label>
-          </div>
-          <div 
-            class="floating-label multiselect-floating" 
+          <FloatingInput
+            v-model="editingStudent.firstName"
+            id="editFirstName"
+            name="editFirstName"
+            label="Имя"
+            type="text"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.lastName"
+            id="editLastName"
+            name="editLastName"
+            label="Фамилия"
+            type="text"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.email"
+            id="editEmail"
+            name="editEmail"
+            label="Email"
+            type="email"
+            required
+            placeholder=""
+            class="form-input"
+          />
+          <FloatingInput
+            v-model="editingStudent.password"
+            id="editPassword"
+            name="editPassword"
+            label="Новый пароль"
+            type="password"
+            placeholder=""
+            class="form-input"
+            autocomplete="new-password"
+          >
+            <PasswordHints :password="editingStudent.password" />
+          </FloatingInput>
+
+          <div
+            class="floating-label multiselect-floating"
             :class="{ active: editingStudent?.selectedGroup || $refs.editGroupSelect?.isOpen }"
           >
             <div class="custom-multiselect full-width">
               <multiselect
                 ref="editGroupSelect"
+                id="editGroup"
+                name="editGroup"
                 v-model="editingStudent.selectedGroup"
                 :options="groups"
                 :multiple="false"
@@ -195,7 +200,7 @@
                 placeholder=""
                 label="name"
                 track-by="id"
-                :append-to-body="true"
+                :append-to-body="false"
                 open-direction="below"
               />
             </div>
@@ -220,15 +225,19 @@
 </template>
 
 <script>
-import { listUsers, updateUser, deleteUser, fetchGroups } from "@/js/manager";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
+import { listUsers, updateUser, deleteUser, fetchGroups } from '@/js/manager'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import FloatingInput from '@/components/FloatingInput.vue'
+import PasswordHints from '@/components/PasswordHints.vue'
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 
 export default {
   components: {
     Multiselect,
-    ConfirmDialog
+    ConfirmDialog,
+    FloatingInput,
+    PasswordHints,
   },
   data() {
     return {
@@ -241,245 +250,198 @@ export default {
       loading: false,
       editingStudent: null,
       showConfirmDialog: false,
-      confirmDialog: { title: "", message: "" },
+      confirmDialog: { title: '', message: '' },
       studentToDelete: null,
       searchParams: {
-        firstName: "",
-        lastName: "",
-        role: "ROLE_STUDENT",
-        selectedGroup: null
-      }
-    };
+        firstName: '',
+        lastName: '',
+        role: 'ROLE_STUDENT',
+        selectedGroup: null,
+      },
+      passwordRules: {
+        minLength: 8,
+        upper: /[A-Z]/,
+        lower: /[a-z]/,
+        digit: /\d/,
+        special: /[@#$%^&+=!?*]/,
+      },
+    }
   },
   async created() {
-    await this.fetchGroups();
-    await this.fetchStudents();
+    await this.fetchGroups()
+    await this.fetchStudents()
   },
   watch: {
     groups(newGroups) {
       if (this.searchParams.selectedGroup) {
-        const ref = newGroups.find(g => g.id === this.searchParams.selectedGroup.id);
-        if (ref) this.searchParams.selectedGroup = ref;
+        const ref = newGroups.find((g) => g.id === this.searchParams.selectedGroup.id)
+        if (ref) this.searchParams.selectedGroup = ref
       }
       if (this.editingStudent && this.editingStudent.selectedGroup) {
-        const ref = newGroups.find(g => g.id === this.editingStudent.selectedGroup.id);
-        if (ref) this.editingStudent.selectedGroup = ref;
+        const ref = newGroups.find((g) => g.id === this.editingStudent.selectedGroup.id)
+        if (ref) this.editingStudent.selectedGroup = ref
       }
-    }
+    },
   },
   computed: {
     groupOptions() {
-      return this.groups.map(group => ({ name: group.name }));
-    }
+      return this.groups.map((group) => ({ name: group.name }))
+    },
+    hasMinLength() {
+      return this.editingStudent?.password?.length >= this.passwordRules.minLength
+    },
+    hasUpperCase() {
+      return this.passwordRules.upper.test(this.editingStudent?.password || '')
+    },
+    hasLowerCase() {
+      return this.passwordRules.lower.test(this.editingStudent?.password || '')
+    },
+    hasDigit() {
+      return this.passwordRules.digit.test(this.editingStudent?.password || '')
+    },
+    hasSpecialChar() {
+      return this.passwordRules.special.test(this.editingStudent?.password || '')
+    },
+    isPasswordValid() {
+      const p = this.editingStudent?.password || ''
+      return (
+        !p ||
+        (this.hasMinLength &&
+          this.hasUpperCase &&
+          this.hasLowerCase &&
+          this.hasDigit &&
+          this.hasSpecialChar)
+      )
+    },
   },
   methods: {
     async fetchStudents() {
-      this.loading = true;
+      this.loading = true
       try {
         const params = {
           pageNumber: this.currentPage,
           pageSize: this.pageSize,
-          role: this.searchParams.role
-        };
-        if (this.searchParams.firstName) params.firstName = this.searchParams.firstName;
-        if (this.searchParams.lastName) params.lastName = this.searchParams.lastName;
+          role: this.searchParams.role,
+        }
+        if (this.searchParams.firstName) params.firstName = this.searchParams.firstName
+        if (this.searchParams.lastName) params.lastName = this.searchParams.lastName
         if (this.searchParams.selectedGroup) {
-          params.groupName = this.searchParams.selectedGroup.name;
+          params.groupName = this.searchParams.selectedGroup.name
         }
 
-        const data = await listUsers(params);
-        this.students = data.content || [];
-        this.totalPages = data.page?.totalPages || 1;
-        this.totalElements = data.page?.totalElements || 0;
+        const data = await listUsers(params)
+        this.students = data.content || []
+        this.totalPages = data.page?.totalPages || 1
+        this.totalElements = data.page?.totalElements || 0
       } catch (err) {
-        this.$root.notify("Ошибка при загрузке студентов", 'error');
+        this.$root.notify('Ошибка при загрузке студентов', 'error')
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     async fetchGroups() {
       try {
-        const groups = await fetchGroups();
-        this.groups = Array.isArray(groups) ? groups : (groups.content || []);
+        const groups = await fetchGroups()
+        this.groups = Array.isArray(groups) ? groups : groups.content || []
       } catch (err) {
-        this.$root.notify("Ошибка при загрузке групп", 'error');
-        this.groups = [];
+        this.$root.notify('Ошибка при загрузке групп', 'error')
+        this.groups = []
       }
     },
     forceCloseSelect() {
-          setTimeout(() => {
-        this.$refs.groupSelect?.deactivate();
-      }, 0);
+      setTimeout(() => {
+        this.$refs.groupSelect?.deactivate()
+      }, 0)
     },
     openEditModal(student) {
-      const groupRef = this.groups.find(g => g.id === student.groupId || g.name === student.groupName) || null;
-      this.editingStudent = { ...student, selectedGroup: groupRef };
+      const groupRef =
+        this.groups.find((g) => g.id === student.groupId || g.name === student.groupName) || null
+      this.editingStudent = { ...student, selectedGroup: groupRef }
     },
     closeModal() {
-      this.editingStudent = null;
+      this.editingStudent = null
     },
     async saveStudent() {
       try {
-        const { id, firstName, lastName, email, selectedGroup } = this.editingStudent;
-        const groupId = selectedGroup ? selectedGroup.id : null;
-        
-        await updateUser(id, { firstName, lastName, email, groupId });
+        const { id, firstName, lastName, email, selectedGroup, password } = this.editingStudent
+        const groupId = selectedGroup ? selectedGroup.id : null
 
-        this.$root.notify("Данные обновлены", 'success');
-        this.closeModal();
-        this.fetchStudents();
-      } catch{
-        this.$root.notify("Ошибка при обновлении", 'error');
+        if (password && !this.isPasswordValid) {
+          this.$root.notify('Пароль не соответствует требованиям', 'error')
+          return
+        }
+
+        const payload = { firstName, lastName, email, groupId }
+        if (password) payload.password = password
+
+        await updateUser(id, payload)
+
+        this.$root.notify('Данные обновлены', 'success')
+        this.closeModal()
+        this.fetchStudents()
+      } catch {
+        this.$root.notify('Ошибка при обновлении', 'error')
       }
     },
     onSearch() {
-      this.currentPage = 0;
-      this.fetchStudents();
+      this.currentPage = 0
+      this.fetchStudents()
     },
     resetSearch() {
       this.searchParams = {
         firstName: '',
         lastName: '',
         selectedGroup: null,
-        role: 'ROLE_STUDENT'
-      };
-      this.currentPage = 0;
-      this.fetchStudents();
+        role: 'ROLE_STUDENT',
+      }
+      this.currentPage = 0
+      this.fetchStudents()
     },
     confirmDeleteStudent(student) {
-      this.studentToDelete = student;
+      this.studentToDelete = student
       this.confirmDialog = {
         title: 'Удаление студента',
-        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`
-      };
-      this.showConfirmDialog = true;
+        message: `Вы уверены, что хотите удалить студента "${student.lastName} ${student.firstName}"? Это действие нельзя отменить.`,
+      }
+      this.showConfirmDialog = true
     },
     async deleteStudent(id) {
       try {
-        await deleteUser(id);
+        await deleteUser(id)
 
-        this.$root.notify("Студент удален", 'success');
-        this.fetchStudents();
+        this.$root.notify('Студент удален', 'success')
+        this.fetchStudents()
       } catch {
-        this.$root.notify("Ошибка при удалении", 'error');
+        this.$root.notify('Ошибка при удалении', 'error')
       }
     },
     async executeDelete() {
-      if (!this.studentToDelete) return;
-      await this.deleteStudent(this.studentToDelete.id);
-      this.showConfirmDialog = false;
-      this.studentToDelete = null;
+      if (!this.studentToDelete) return
+      await this.deleteStudent(this.studentToDelete.id)
+      this.showConfirmDialog = false
+      this.studentToDelete = null
     },
     cancelDelete() {
-      this.showConfirmDialog = false;
-      this.studentToDelete = null;
+      this.showConfirmDialog = false
+      this.studentToDelete = null
     },
     nextPage() {
       if (this.currentPage < this.totalPages - 1) {
-        this.currentPage++;
-        this.fetchStudents();
+        this.currentPage++
+        this.fetchStudents()
       }
     },
     prevPage() {
       if (this.currentPage > 0) {
-        this.currentPage--;
-        this.fetchStudents();
+        this.currentPage--
+        this.fetchStudents()
       }
     },
-  }
-};
+  },
+}
 </script>
 
 <style scoped>
-.filters .floating-label,
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-}
-
-.filters .floating-label input,
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  background-color: #f8f9fa;
-  transition: all 0.25s ease;
-}
-
-.filters .floating-label label,
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .floating-label input:focus + label,
-.filters .floating-label input:not(:placeholder-shown) + label,
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.filters .floating-label input:focus,
-.modal-body .floating-label input:focus {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.1);
-}
-
-.filters .multiselect-floating,
-.modal-body .multiselect-floating {
-  position: relative;
-}
-
-.filters .multiselect-floating label,
-.modal-body .multiselect-floating label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.filters .multiselect-floating.active label,
-.modal-body .multiselect-floating.active label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: #f8f9fa;
-  z-index: 2;
-}
-
-.multiselect-floating :deep(.multiselect),
-.multiselect-floating :deep(.multiselect__tags),
-.multiselect-floating :deep(.multiselect__content-wrapper) {
-  z-index: auto !important;    
-}
-
 .students-table {
   width: 100%;
   border-collapse: collapse;
@@ -505,13 +467,31 @@ export default {
   background-color: #f8f9fa;
 }
 
-.id-col { min-width: 80px; color: #7f8c8d; }
-.name-col { min-width: 200px; }
-.email-col a { color: #2f80ed; text-decoration: none; }
-.email-col a:hover { text-decoration: underline; }
-.group-col .no-group { color: #95a5a6; font-style: italic; }
-.actions-col { min-width: 120px; }
-.action-buttons { display: flex; gap: 8px; }
+.id-col {
+  min-width: 80px;
+  color: #7f8c8d;
+}
+.name-col {
+  min-width: 200px;
+}
+.email-col a {
+  color: #2f80ed;
+  text-decoration: none;
+}
+.email-col a:hover {
+  text-decoration: underline;
+}
+.group-col .no-group {
+  color: #95a5a6;
+  font-style: italic;
+}
+.actions-col {
+  min-width: 120px;
+}
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
 
 .btn-icon {
   width: 36px;
@@ -530,16 +510,63 @@ export default {
   position: relative;
   background: white;
   border-radius: 12px;
-  width: 500px; 
-  max-width: calc(100% - 40px); 
+  width: 500px;
+  max-width: calc(100% - 40px);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   animation: modalFadeIn 0.3s ease;
 }
 
+.password-hints {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.password-hints div {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  font-size: 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.password-hints .valid {
+  color: #27ae60;
+}
+
+.password-hints .valid .hint-icon {
+  background-color: #27ae60;
+  border-color: #27ae60;
+  color: white;
+}
+
+.filters .multiselect-floating label {
+  top: 21px;
+}
+
+.modal-body :deep(.multiselect),
+.multiselect-floating label {
+  background-color: white !important;
+}
+
 .modal-body :deep(.multiselect__content-wrapper) {
-  z-index: 10000 !important; 
+  z-index: 10000 !important;
   position: fixed;
   width: 452px !important;
   min-width: auto !important;
@@ -547,139 +574,32 @@ export default {
   right: auto !important;
 }
 
-.modal-footer {
-  z-index: 1; 
-}
-
-.modal-body .floating-label {
-  position: relative;
-  margin-bottom: 20px;
+.modal-footer,
+.modal-header {
+  z-index: 1;
   background-color: white;
 }
 
-.modal-body .floating-label input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
+.btn-cancel {
+  background-color: #f8f9fa;
   color: #333;
-  box-sizing: border-box;
-  background-color: white; 
-  transition: all 0.25s ease;
+  border: 1px solid #ddd;
+}
+.btn-cancel:hover {
+  background-color: #e9ecef;
+}
+.btn-save {
+  background-color: #2ecc71;
+  color: white;
+}
+.btn-save:hover {
+  background-color: #27ae60;
 }
 
-.modal-body .floating-label label {
-  position: absolute;
-  left: 16px;
-  top: 14px; 
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: white; 
-  z-index: 2;
+@media (max-width: 600px) {
+  .modal-body :deep(.multiselect__content-wrapper) {
+    position: absolute !important;
+    width: 100% !important;
+  }
 }
-
-.modal-body .floating-label input:focus + label,
-.modal-body .floating-label input:not(:placeholder-shown) + label {
-  top: -8px; 
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: white;
-  padding: 0 4px;
-  z-index: 3;
-}
-
-.modal-body .multiselect-floating label {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  font-size: 14px;
-  color: rgba(0,0,0,0.5);
-  pointer-events: none;
-  padding: 0 4px;
-  transition: all 0.25s ease;
-  background-color: white; 
-  z-index: 2;
-}
-
-.modal-body .multiselect-floating.active label {
-  top: -8px;
-  left: 12px;
-  font-size: 12px;
-  color: #2f80ed;
-  background-color: white; 
-  z-index: 2;
-}
-
-.modal-body .custom-multiselect :deep(.multiselect__tags) {
-  min-height: 48px; 
-  padding: 12px 40px 0 16px;
-  border: 1px solid #ddd; 
-  border-radius: 8px; 
-  background: white; 
-  font-size: 14px;
-}
-
-.btn-cancel { background-color: #f8f9fa; color: #333; border: 1px solid #ddd; }
-.btn-cancel:hover { background-color: #e9ecef; }
-.btn-save { background-color: #2ecc71; color: white; }
-.btn-save:hover { background-color: #27ae60; }
-
-.custom-multiselect :deep(.multiselect) { min-height: 48px; margin-top: 0; }
-.custom-multiselect :deep(.multiselect__tags) {
-  min-height: 48px; padding: 12px 40px 0 16px;
-  border: 1px solid #ddd; border-radius: 8px; background: inherit; font-size: 14px;
-}
-.custom-multiselect :deep(.multiselect__tags:focus-within) {
-  border-color: #2f80ed; box-shadow: 0 0 0 2px rgba(47,128,237,0.1); outline: none;
-}
-.custom-multiselect :deep(.multiselect__input),
-.custom-multiselect :deep(.multiselect__single) {
-  font-size: 14px; padding: 4px 0; margin: 0; background: transparent; border: none;
-}
-.custom-multiselect :deep(.multiselect__placeholder) {
-  color: rgba(0,0,0,0.5); font-size: 14px; margin-top: 2px;
-}
-.custom-multiselect :deep(.multiselect__select) {
-  height: 46px; right: 6px; top: 1px; width: 30px; background: transparent;
-  border-radius: 0 8px 8px 0;
-}
-.custom-multiselect :deep(.multiselect__select:before) {
-  content: ''; position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%,-50%); width: 0; height: 0;
-  border-style: solid; border-width: 6px 5px 0 5px;
-  border-color: #666 transparent transparent transparent; transition: transform 0.2s ease;
-}
-.custom-multiselect :deep(.multiselect--active .multiselect__select:before) {
-  transform: translate(-50%,-50%) rotate(180deg);
-}
-.custom-multiselect :deep(.multiselect__select:hover) { background: rgba(0,0,0,0.05); }
-.custom-multiselect :deep(.multiselect__select:hover:before) { border-color: #333 transparent transparent transparent; }
-.custom-multiselect :deep(.multiselect--active .multiselect__select) { 
-  background: rgba(47, 128, 237, 0.05); 
-}
-.custom-multiselect :deep(.multiselect__content-wrapper) {
-  border: 1px solid #ddd; border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 4px; z-index: 10;
-}
-.custom-multiselect :deep(.multiselect__option) { padding: 10px 12px; font-size: 14px; min-height: 40px; }
-.custom-multiselect :deep(.multiselect__option--selected) { 
-  background-color: rgba(47, 128, 237, 0.1); 
-  color: #2f80ed; 
-  font-weight: 500;
-}
-.custom-multiselect :deep(.multiselect__option--highlight) { 
-  background: #2f80ed;
-  color: white; 
-}
-.custom-multiselect :deep(.multiselect__option--selected.multiselect__option--highlight) { 
-  background: #256bcc; 
-  color: white; 
-}
-.multiselect-floating.active :deep(.multiselect__placeholder) { display: none; }
 </style>

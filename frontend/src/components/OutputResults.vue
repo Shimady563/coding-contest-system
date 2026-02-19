@@ -3,32 +3,32 @@
     <h2>Результаты</h2>
     <div class="table-container">
       <table class="results-table" v-if="results.length">
-      <thead>
-        <tr>
-          <th class="number-col">№</th>
-          <th class="status-col">Статус</th>
-          <th class="date-col">Дата отправки</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(result, index) in results" :key="result.id">
-          <td class="number-col">{{ index + 1 }}</td>
-          <td class="status-col" :class="statusClass(result.status)">{{ result.status }}</td>
-          <td class="date-col">{{ new Date(result.submittedAt).toLocaleString() }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <p v-else class="empty-message">Пока нет результатов. Пожалуйста, отправьте свой код!</p>
+        <thead>
+          <tr>
+            <th class="number-col">№</th>
+            <th class="status-col">Статус</th>
+            <th class="date-col">Дата отправки</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(result, index) in results" :key="result.id">
+            <td class="number-col">{{ index + 1 }}</td>
+            <td class="status-col" :class="statusClass(result.status)">{{ result.status }}</td>
+            <td class="date-col">{{ new Date(result.submittedAt).toLocaleString() }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="empty-message">Пока нет результатов. Пожалуйста, отправьте свой код!</p>
     </div>
   </div>
 </template>
 
 <script>
-import { getUserInfo } from "@/js/auth";
-import { listSolutions } from "@/js/manager";
+import { getUserInfo } from '@/js/auth'
+import { listSolutions } from '@/js/manager'
 
 export default {
-  name: "OutputResults",
+  name: 'OutputResults',
   props: {
     taskId: {
       type: Number,
@@ -38,38 +38,45 @@ export default {
   data() {
     return {
       results: [],
-    };
+    }
   },
   methods: {
     async fetchResults() {
-      if (!this.taskId) return;
+      if (!this.taskId) return
       try {
-        const user = await getUserInfo();
-        if (!user?.id) throw new Error("User ID не получен");
+        const user = await getUserInfo()
+        if (!user?.id) throw new Error('User ID не получен')
 
         const params = {
           userId: user.id,
           taskId: this.taskId,
           pageNumber: 0,
           pageSize: 1000,
-        };
+        }
 
-        const data = await listSolutions(params);
-        this.results = data?.content || [];
+        const data = await listSolutions(params)
+        this.results = data?.content || []
       } catch (err) {
-        console.error("Ошибка при загрузке результатов:", err);
-        this.results = [];
+        console.error('Ошибка при загрузке результатов:', err)
+        this.results = []
       }
     },
     statusClass(status) {
       switch (status) {
-        case "ACCEPTED": return "status-accepted";
-        case "WRONG_ANSWER": return "status-wrong";
-        case "COMPILE_ERROR": return "status-compile";
-        case "RUNTIME_ERROR": return "status-runtime";
-        case "TIMED_OUT": return "status-timeout";
-        case "INTERNAL_ERROR": return "status-internal";
-        default: return "";
+        case 'ACCEPTED':
+          return 'status-accepted'
+        case 'WRONG_ANSWER':
+          return 'status-wrong'
+        case 'COMPILE_ERROR':
+          return 'status-compile'
+        case 'RUNTIME_ERROR':
+          return 'status-runtime'
+        case 'TIMED_OUT':
+          return 'status-timeout'
+        case 'INTERNAL_ERROR':
+          return 'status-internal'
+        default:
+          return ''
       }
     },
   },
@@ -77,11 +84,11 @@ export default {
     taskId: {
       immediate: true,
       handler() {
-        this.fetchResults();
+        this.fetchResults()
       },
     },
   },
-};
+}
 </script>
 
 <style scoped>

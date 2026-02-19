@@ -69,24 +69,6 @@ services:
       redis:
         condition: service_healthy
 
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - '5173:5173'
-    environment:
-      - VITE_APP_MANAGER_URL=http://localhost:8080/api/v1
-      - VITE_APP_AUTH_URL=http://localhost:8081/api/v1/auth
-    depends_on:
-      manager:
-        condition: service_healthy
-      auth:
-        condition: service_started
-      compiler:
-        condition: service_started
-
   postgres:
     container_name: postgres
     image: postgres:17-alpine

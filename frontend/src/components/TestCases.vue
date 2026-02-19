@@ -19,23 +19,27 @@
 
 <script>
 export default {
-  name: "TestCases",
+  name: 'TestCases',
   props: {
     testCases: {
       type: Array,
       default: () => [],
-      validator: value => value.length > 0  
-    }
+      validator: (value) => value.length > 0,
+    },
   },
   computed: {
     firstTestCase() {
-      return this.testCases[0] || { input: '', output: '' };
-    }
-  }
-};
+      return this.testCases[0] || { input: '', output: '' }
+    },
+  },
+}
 </script>
 
 <style scoped>
+h2 {
+  text-align: left;
+}
+
 .test-cases-card {
   background-color: #ffffff;
   padding: 24px;
@@ -67,7 +71,8 @@ export default {
   margin-bottom: 12px;
 }
 
-.input-section, .output-section {
+.input-section,
+.output-section {
   flex: 1;
   min-width: 0;
 }
