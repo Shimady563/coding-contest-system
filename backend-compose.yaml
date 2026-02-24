@@ -69,24 +69,6 @@ services:
       redis:
         condition: service_healthy
 
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - '5173:5173'
-    environment:
-      - VITE_APP_MANAGER_URL=http://localhost:8080/api/v1
-      - VITE_APP_AUTH_URL=http://localhost:8081/api/v1/auth
-    depends_on:
-      manager:
-        condition: service_healthy
-      auth:
-        condition: service_started
-      compiler:
-        condition: service_started
-
   postgres:
     container_name: postgres
     image: postgres:17-alpine
@@ -155,6 +137,54 @@ services:
       timeout: 5s
       retries: 5
 
+  sonarqube:
+    container_name: sonar
+    image: sonarqube:26.2.0.119303-community
+    profiles:
+      - sonar
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar_db:5433/sonar
+      SONAR_JDBC_USERNAME: postgres
+      SONAR_JDBC_PASSWORD: postgres
+    volumes:
+      - sonarqube_conf:/opt/sonarqube/conf
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_temp:/opt/sonarqube/temp
+    depends_on:
+      - sonar_db
+
+  sonar_db:
+    container_name: sonar_db
+    image: postgres:17-alpine
+    command: [ "-p", "5433" ]
+    profiles:
+      - sonar
+    restart: always
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sonar
+    expose:
+      - 5433
+    healthcheck:
+      test: [ 'CMD', 'pg_isready' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+
 volumes:
   postgres-data:
   redis-data:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_temp:
+  sonar_db_data:
